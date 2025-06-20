@@ -4,3 +4,13 @@
     font-family: main;
     src: url('./assets/fonts/BricolageGrotesque-VariableFont_opsz\,wdth\,wght.ttf');
 }
+
+*{
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: main;
+    margin: 0;
+}
