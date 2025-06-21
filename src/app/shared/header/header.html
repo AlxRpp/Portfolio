@@ -1,5 +1,5 @@
 <section Landingpage
-    class="bg-[url(./assets/images/hero.png)] h-[90vh] flex items-center justify-center bg-cover bg-repeat-x xl:bg-contain">
+    class="bg-[url(./assets/images/hero.png)] h-[95vh] flex items-center justify-center bg-cover bg-repeat-x xl:bg-contain">
     <div class="flex flex-col justify-center px-2.5">
         <div class="">
             <span class="text-white border rounded-3xl p-2 font-medium">Hello World</span>
@@ -33,9 +33,15 @@
             </button>
         </div>
 
-        <div class="size-80 bg-white">
-            <h1 class="font-[secondary-bold]">Alex :)</h1>
+        <div (mouseenter)="changeName()" (mouseleave)="resetName()"
+            class="bg-white w-52 h-[250px] flex flex-col justify-center items-center gap-4  p-4 rotate-6">
+            <img class="bg- object-cover object-top aspect-square duration-200" [class.grayscale]="!isHovered()"
+                [class.grayscale-0]="isHovered()" src="assets/images/selfie.jpeg" alt="">
+            <h1 class="font-[secondary-bold]">{{ name() }}</h1>
         </div>
+
+
+
     </div>
 
 

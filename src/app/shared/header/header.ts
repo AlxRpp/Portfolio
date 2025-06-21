@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 @Component({
   selector: 'app-header',
@@ -7,5 +7,17 @@ import { Component } from '@angular/core';
   styleUrl: './header.scss'
 })
 export class Header {
+  name = signal('Alex :)');
+  isHovered = signal(false);
 
+  changeName(){
+    this.name.set('Alex :D');
+    this.isHovered.set(true);
+  }
+
+  resetName(){
+    this.name.set('Alex :)');
+    this.isHovered.set(false);
+
+  }
 }
