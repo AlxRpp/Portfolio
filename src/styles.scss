@@ -9,8 +9,21 @@
 
 
 @font-face {
-    font-family: main;
+    font-family: pimary;
     src: url('./assets/fonts/BricolageGrotesque-VariableFont_opsz\,wdth\,wght.ttf');
+}
+
+@font-face {
+    font-family: secondary-light;
+    src: url('./assets/fonts/Kalam/Kalam-Light.ttf');
+}
+@font-face {
+    font-family: secondary-regular;
+    src: url('./assets/fonts/Kalam/Kalam-Regular.ttf');
+}
+@font-face {
+    font-family: secondary-bold;
+    src: url('./assets/fonts/Kalam/Kalam-Bold.ttf');
 }
 
 *{
