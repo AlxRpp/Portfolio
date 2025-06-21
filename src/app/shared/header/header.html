@@ -2,9 +2,10 @@
     class="bg-[url(./assets/images/hero.png)] min-h-[100dvh] flex items-center justify-center bg-cover bg-repeat-x xl:bg-contain">
     <div class="flex flex-col justify-center px-2.5 gap-2.5">
         <div class="">
-            <span class="text-white border rounded-3xl py-2.5 px-6 font-medium">Hello World</span>
+            <span class="text-white border rounded-3xl py-2.5 px-6 font-medium origin-center"
+                [ngClass]="StartAnimation()?'bg-hl-2':'bg-transparent'">{{ topName() }}</span>
         </div>
-        <div class="h-10">
+        <div class="h-10 container ">
             <span class="text-white text-[46px] font-bold hover:lowercase hover:text-hl-1">F</span>
             <span class="text-white text-[46px] font-bold hover:uppercase hover:text-hl-1">r</span>
             <span class="text-white text-[46px] font-bold hover:uppercase hover:text-hl-1">o</span>
@@ -28,13 +29,13 @@
         <div class="flex justify-end">
             <button
                 class="text-white font-medium px-6 py-2 border mt-8! rounded-full shadow-[2px_4px_0px] duration-200 ease-in-out
-                hover:shadow-none hover:bg-btn-red hover:translate-y-[4px] hover:translate-x-[2px] hover:cursor-pointer ">
+                hover:shadow-none hover:bg-btn-red hover:translate-y-[4px] hover:translate-x-[2px] hover:cursor-pointer">
                 Get in Touch
             </button>
         </div>
 
         <div (mouseenter)="mouseEnter()" (mouseleave)="mouseLeave()"
-            class="bg-white w-52 h-[250px] flex flex-col justify-center items-center gap-4 p-4 rotate-6 mt-2! mx-auto!">
+            class="bg-white w-52 h-[250px] flex flex-col justify-center items-center gap-4 p-4 rotate-8 mt-2! mx-auto!">
             <img class="bg- object-cover object-top aspect-square duration-100"
                 [ngClass]="isHovered()? 'grayscale-0':'grayscale'" src="assets/images/selfie.jpeg" alt="">
             <h1 class="font-[secondary-bold] text-2xl">{{ name() }}</h1>
