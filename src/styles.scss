@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@theme inline{
+    --color-btn-red: #F87A55;
+    --color-hl-1: #F7C518;
+    --color-hl-2: #3355FF;
+    --color-hl-3: #F87A55;
+}
+
+
 @font-face {
     font-family: main;
     src: url('./assets/fonts/BricolageGrotesque-VariableFont_opsz\,wdth\,wght.ttf');
