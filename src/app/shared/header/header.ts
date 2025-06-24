@@ -27,11 +27,11 @@ export class Header implements OnInit, AfterViewInit {
 
     gsap.from(split.chars, {
       duration: 2,
-      yPercent: "random(-100, 500)",
-      rotation: "random(-45, 45)",     // animate from 100px below
+      y: -100,
+      rotation: "random(-720, 900)",     // animate from 100px below
       autoAlpha: 0, // fade in from opacity: 0 and visibility: hidden
       stagger: {
-        amount: .3,
+        each: .25,
         from: "random",
         repeat: 0
       } // 0.05 seconds between each
@@ -39,8 +39,8 @@ export class Header implements OnInit, AfterViewInit {
 
     gsap.from(secondSplit.chars, {
       duration: 2,
-      yPercent: "random(-100, 500)",
-      rotation: "random(-45, 45)",     // animate from 100px below
+      y: 1000,
+      rotation: "random(-270, 180)",     // animate from 100px below
       autoAlpha: 0, // fade in from opacity: 0 and visibility: hidden
       stagger: {
         amount: .3,
