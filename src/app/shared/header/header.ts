@@ -46,13 +46,13 @@ export class Header implements OnInit, AfterViewInit {
     gsap.from(secondSplit.chars, {
       duration: 2,
       y: 1000,
-      rotation: "random(-270, 180)",     // animate from 100px below
-      autoAlpha: 0, // fade in from opacity: 0 and visibility: hidden
+      rotation: "random(-270, 180)",
+      autoAlpha: 0,
       stagger: {
         amount: .3,
         from: "random",
         repeat: 0
-      } // 0.05 seconds between each
+      }
     });
   }
 
