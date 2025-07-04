@@ -1,13 +1,3 @@
-@import "tailwindcss";
-
-@theme inline{
-    --color-btn-red: #F87A55;
-    --color-hl-1: #F7C518;
-    --color-hl-2: #3355FF;
-    --color-hl-3: #F87A55;
-}
-
-
 @font-face {
     font-family: pimary;
     src: url('./assets/fonts/BricolageGrotesque-VariableFont_opsz\,wdth\,wght.ttf');
@@ -26,13 +16,24 @@
     src: url('./assets/fonts/Kalam/Kalam-Bold.ttf');
 }
 
+@import "tailwindcss";
+
+@theme inline{
+    --color-btn-red: #F87A55;
+    --color-hl-1: #F7C518;
+    --color-hl-2: #3355FF;
+    --color-hl-3: #F87A55;
+}
+
+
+
 *{
     margin: 0;
     box-sizing: border-box;
 }
 
 body{
-    font-family: main;
+    font-family: pimary;
     margin: 0;
     padding: 0;
 }

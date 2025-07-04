@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, AfterViewInit, ElementRef, ViewChild, OnInit, signal } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, OnInit, signal, viewChild } from '@angular/core';
 import { gsap, random } from "gsap";
 import { TextPlugin } from "gsap/TextPlugin";
 import { SplitText } from "gsap/SplitText";
@@ -13,28 +13,34 @@ gsap.registerPlugin(TextPlugin, SplitText);
 })
 export class Header implements OnInit, AfterViewInit {
 
-  @ViewChild('splitRef', { static: true }) splitRef!: ElementRef<HTMLDivElement>;
 
   name = signal<string>('Alex :)');
-  topName = signal<string>('Hello world');
+  greeting = signal<string>('Hello world');
   isHovered = signal<boolean>(false);
+  hand = signal<boolean>(false)
   StartAnimation = signal<boolean>(false);
+  splitRef = viewChild.required<ElementRef>('splitRef');
+  test = viewChild.required<ElementRef>('animateTest')
+
 
 
   ngAfterViewInit(): void {
     const split = SplitText.create(".split", { type: "chars, lines, words" });
     const secondSplit = SplitText.create(".secondSplit", { type: "chars, lines, words" });
 
+    // this.splitRef().nativeElement.style.color = 'red'
+
+
     gsap.from(split.chars, {
       duration: 2,
       y: -100,
-      rotation: "random(-720, 900)",     // animate from 100px below
-      autoAlpha: 0, // fade in from opacity: 0 and visibility: hidden
+      rotation: "random(-720, 900)",
+      autoAlpha: 0,
       stagger: {
         each: .25,
         from: "random",
         repeat: 0
-      } // 0.05 seconds between each
+      }
     });
 
     gsap.from(secondSplit.chars, {
@@ -52,8 +58,6 @@ export class Header implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.mobileStartAnimation();
-
-
   }
 
   mouseEnter(): void {
@@ -70,12 +74,31 @@ export class Header implements OnInit, AfterViewInit {
     if (window.innerWidth < 500) {
       setTimeout(() => {
         this.StartAnimation.set(true);
-        this.topName = signal<string>('I´M ALEXANDER RUPPEL');
+        this.greeting = signal<string>('I´M ALEXANDER RUPPEL');
         this.isHovered.set(true);
       }, 2000)
     }
   }
 
+  startgreeting() {
+    this.StartAnimation.set(true);
+    this.greeting = signal<string>('I´M ALEXANDER RUPPEL');
+    this.hand.set(true)
+    // this.test().nativeElement.classList.add('.test')
+    setTimeout(() => {
+      this.test().nativeElement.classList.add('test')
+    }, 100);
 
 
+  }
+
+
+  stopgreeting() {
+    this.StartAnimation.set(false);
+    this.greeting = signal<string>('Hello world');
+    this.hand.set(false)
+    this.test().nativeElement.classList.remove('test')
+
+
+  }
 }

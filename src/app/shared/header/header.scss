@@ -1,0 +1,21 @@
+@keyframes WavingHand{
+    0%{
+        opacity: 0;
+        transform: rotate(0deg);
+        right: 100px;
+    }
+    70%{
+        opacity: 1;
+        transform: rotate(390deg);
+        right: 0px;
+    }
+    100%{
+        
+        transform: rotate(360deg);
+
+    }
+}
+
+.test{
+    animation: WavingHand 1s ease-in-out;
+}

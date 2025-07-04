@@ -1,14 +1,19 @@
 <section Landingpage
     class="bg-[url(./assets/images/hero.png)] min-h-[100dvh] flex items-center justify-center bg-cover bg-repeat-x xl:bg-contain">
-    <div class="flex flex-col justify-center px-2.5 gap-2.5">
-        <div class="">
-            <span class="text-white border rounded-3xl py-2.5 px-6 font-medium origin-center"
-                [ngClass]="StartAnimation()?'bg-hl-2':'bg-transparent'">{{ topName() }}</span>
+    <div class="flex flex-col justify-center px-2.5 gap-2.5 flex-1 max-w-[1000px]">
+        <div (mouseenter)="startgreeting()" (mouseleave)="stopgreeting()"
+            class=" relative max-w-[20%] text-nowrap text-center border px-2 py-2 min-h-[32px] border-white rounded-3xl  duration-500"
+            [ngClass]="StartAnimation()?['bg-hl-2','max-w-[30%]']:'bg-transparent'">
+            @if (hand()) {
+            <img #animateTest class="absolute -top-[100%] right-0" src="./assets/icons/waving_hand.png" alt=""
+                srcset="">
+            }
+            <span class="text-white rounded-3xl font-medium">{{ greeting() }}</span>
         </div>
-        <div class="split text-white text-[50px]">
+        <div #splitRef class="split text-white text-8xl">
             Frontend
         </div>
-        <div class="secondSplit  text-white text-[50px]">
+        <div class="secondSplit  text-white text-9xl">
             DEVELOPER
         </div>
         <!-- <div class="h-10 container">
