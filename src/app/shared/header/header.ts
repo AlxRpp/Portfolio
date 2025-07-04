@@ -84,20 +84,22 @@ export class Header implements OnInit, AfterViewInit {
     this.StartAnimation.set(true);
     this.greeting = signal<string>('I´M ALEXANDER RUPPEL');
     this.hand.set(true)
-    // this.test().nativeElement.classList.add('.test')
     setTimeout(() => {
       this.test().nativeElement.classList.add('test')
-    }, 100);
+    }, 50);
 
 
   }
 
 
   stopgreeting() {
-    this.StartAnimation.set(false);
-    this.greeting = signal<string>('Hello world');
-    this.hand.set(false)
-    this.test().nativeElement.classList.remove('test')
+    this.test().nativeElement.classList.add('stop')
+    setTimeout(() => {
+      this.StartAnimation.set(false);
+      this.greeting = signal<string>('Hello world');
+      this.hand.set(false)
+      this.test().nativeElement.classList.add('stop')
+    }, 250);
 
 
   }

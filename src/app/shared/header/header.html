@@ -1,11 +1,11 @@
 <section Landingpage
-    class="bg-[url(./assets/images/hero.png)] min-h-[100dvh] flex items-center justify-center bg-cover bg-repeat-x xl:bg-contain">
+    class="bg-[url(./assets/images/hero.png)] min-h-[95dvh] flex items-center justify-center bg-cover bg-repeat-x 2xl:bg-contain">
     <div class="flex flex-col justify-center px-2.5 gap-2.5 flex-1 max-w-[1000px]">
         <div (mouseenter)="startgreeting()" (mouseleave)="stopgreeting()"
-            class=" relative max-w-[20%] text-nowrap text-center border px-2 py-2 min-h-[32px] border-white rounded-3xl  duration-500"
+            class=" relative max-w-[20%] text-nowrap text-center border px-2 py-2 min-h-[32px] border-white rounded-3xl  duration-250"
             [ngClass]="StartAnimation()?['bg-hl-2','max-w-[30%]']:'bg-transparent'">
             @if (hand()) {
-            <img #animateTest class="absolute -top-[100%] right-0" src="./assets/icons/waving_hand.png" alt=""
+            <img #animateTest class="absolute -top-[100%] right-0 opacity-0" src="./assets/icons/waving_hand.png" alt=""
                 srcset="">
             }
             <span class="text-white rounded-3xl font-medium">{{ greeting() }}</span>

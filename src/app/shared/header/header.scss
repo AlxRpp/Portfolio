@@ -1,21 +1,39 @@
-@keyframes WavingHand{
+@keyframes StartWavingHand{
     0%{
         opacity: 0;
         transform: rotate(0deg);
         right: 100px;
     }
-    70%{
-        opacity: 1;
+    75%{
         transform: rotate(390deg);
-        right: 0px;
+        right: -10px;
     }
     100%{
-        
+        opacity: 1;
         transform: rotate(360deg);
+        right: 0;
+    }
+}
+
+@keyframes StopWavingHand{
+    0%{
+        opacity: 1;
+        transform: rotate(360deg);
+        right: 0;
+    }
+  
+    100%{
+        right: 100px;
+        transform: rotate(0deg);
 
     }
 }
 
 .test{
-    animation: WavingHand 1s ease-in-out;
+    animation: StartWavingHand .5s ease-in-out forwards;
+}
+
+.stop{
+    animation: StopWavingHand .5s ease-in-out forwards;
+    
 }
