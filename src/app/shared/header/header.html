@@ -10,10 +10,12 @@
             }
             <span class="text-white rounded-3xl font-medium">{{ greeting() }}</span>
         </div>
-        <div #splitRef class="split text-white text-[56px]/[56px] ">
+        <div #splitRef
+            class="split text-white text-[56px]/[56px] cursor-default sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl ">
             Frontend
         </div>
-        <div class="secondSplit  text-white text-[56px]/[56px] lg:text-end ">
+        <div
+            class="secondSplit  text-white text-[56px]/[56px] sm:text-6xl md:text-7xl lg:text-8xl lg:text-end xl:text-9xl">
             DEVELOPER
         </div>
         <!-- <div class="h-10 container">
@@ -46,7 +48,7 @@
         </div>
 
         <div (mouseenter)="mouseEnter()" (mouseleave)="mouseLeave()"
-            class="bg-white w-52 h-[250px] flex flex-col justify-center items-center gap-4 p-4 rotate-8 mt-2! mx-auto!">
+            class=" lg:hidden bg-white w-52 h-[250px] flex flex-col justify-center items-center gap-4 p-4 rotate-8 mt-2! mx-auto!">
             <img class="bg- object-cover object-top aspect-square duration-100"
                 [ngClass]="isHovered()? 'grayscale-0':'grayscale'" src="assets/images/selfie.jpeg" alt="">
             <h1 class="font-[secondary-bold] text-2xl">{{ name() }}</h1>

@@ -21,7 +21,7 @@ export class Header implements OnInit, AfterViewInit {
   StartAnimation = signal<boolean>(false);
   splitRef = viewChild.required<ElementRef>('splitRef');
   test = viewChild.required<ElementRef>('animateTest')
-
+  screenSize = window.innerWidth
 
 
   ngAfterViewInit(): void {
@@ -71,7 +71,7 @@ export class Header implements OnInit, AfterViewInit {
   }
 
   mobileStartAnimation(): void {
-    if (window.innerWidth < 500) {
+    if (this.screenSize < 500) {
       setTimeout(() => {
         this.StartAnimation.set(true);
         this.greeting = signal<string>('I´M ALEXANDER RUPPEL');
