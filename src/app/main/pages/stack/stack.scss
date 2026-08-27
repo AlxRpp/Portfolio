@@ -1,0 +1,165 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.stack {
+  position: relative;
+  padding-block: t.sp(9);
+  // Das Laufband laeuft ueber die volle Fensterbreite, der Kopf nicht.
+  overflow: hidden;
+}
+
+.stack__head-wrap { @include m.content-width; }
+
+.stack__head {
+  display: grid;
+  gap: t.sp(4);
+  max-width: 40ch;
+  margin-bottom: t.sp(7);
+}
+
+.stack__eyebrow {
+  @include m.mono-label;
+  display: flex;
+  align-items: center;
+  gap: t.sp(2);
+}
+
+.stack__marker {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-dim);
+}
+
+.stack__heading {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+// --- Laufband ---
+
+.stack__marquee {
+  display: grid;
+  gap: t.sp(6);
+}
+
+.stack__band {
+  display: grid;
+  gap: t.sp(3);
+}
+
+// Die Beschriftung sitzt im Inhaltsbereich, das Band laeuft darunter ueber
+// die volle Breite. Ohne sie liest sich die dritte Reihe wie "kann ich
+// auch", und das waere nicht wahr.
+.stack__band-head {
+  @include m.content-width;
+}
+
+.stack__band-label {
+  @include m.mono-label;
+  color: var(--text-muted);
+}
+
+// Die dritte Reihe ist bewusst blasser: Was dort laeuft, ist noch nicht
+// belegt, und das soll man sehen, ohne es lesen zu muessen.
+.stack__band.is-next {
+  .stack__band-label { color: var(--brand-dim); }
+  .stack__chip {
+    color: var(--border-strong);
+    border-style: dashed;
+    background: transparent;
+  }
+  .stack__chip:hover { color: var(--text-secondary); }
+}
+
+.stack__row {
+  overflow: hidden;
+
+  // Die Zeichen laufen an den Raendern aus, statt hart abgeschnitten zu
+  // werden. Sonst sieht man die Kante, an der die Schleife ansetzt.
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 7%,
+    #000 93%,
+    transparent 100%
+  );
+
+  // Anhalten, solange der Zeiger darauf liegt. Wer etwas lesen will,
+  // soll es lesen koennen.
+  &:hover .stack__track { animation-play-state: paused; }
+}
+
+.stack__track {
+  display: flex;
+  align-items: center;
+  gap: t.sp(4);
+  // Die Spur ist so breit wie ihr Inhalt, nicht wie der Bildschirm.
+  width: max-content;
+  // Die Dauer setzt die Komponente je Reihe als --dauer, siehe stack.ts.
+  // Bewusst ueber eine Variable und nicht als Inline-Stil: Ein Inline-Stil
+  // schlaegt jede Media Query, die Anpassung fuer breite Schirme koennte
+  // dann nie greifen.
+  animation: stack-lauf var(--dauer, 46s) linear infinite;
+}
+
+// Der Inhalt liegt zweimal vor, deshalb sind 50 Prozent genau ein voller
+// Durchgang. An dieser Stelle sieht der Uebergang identisch aus und die
+// Schleife bleibt unsichtbar.
+@keyframes stack-lauf {
+  to { transform: translateX(-50%); }
+}
+
+.stack__row--right .stack__track { animation-direction: reverse; }
+
+.stack__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(3);
+  padding: t.sp(3) t.sp(4);
+  white-space: nowrap;
+  border: 1px solid var(--border-subtle);
+  border-radius: t.$radius-md;
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  letter-spacing: .04em;
+  transition:
+    color t.$dur-fast t.$ease,
+    border-color t.$dur-fast t.$ease;
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+}
+
+// Einfarbig ueber eine Maske statt als Bild. Nur so nimmt das Zeichen die
+// Textfarbe an und wechselt beim Ueberfahren mit.
+.stack__icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  background: currentColor;
+  mask: var(--icon) center / contain no-repeat;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+}
+
+/// Die Namen im Klartext fuer Screenreader, weil das Laufband selbst
+/// aria-hidden ist.
+.stack__sr { @include m.visually-hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stack__track { animation: none; }
+
+  // Ohne Lauf muss man selbst schieben koennen, sonst bleibt die Haelfte
+  // unerreichbar.
+  .stack__row {
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+}

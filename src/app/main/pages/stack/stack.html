@@ -1,0 +1,49 @@
+<section class="stack" id="stack">
+
+  <div class="stack__head-wrap">
+    <header class="stack__head">
+      <p class="stack__eyebrow" data-reveal>
+        <span class="stack__marker" aria-hidden="true"></span>
+        {{ 'stack.eyebrow' | translate }}
+      </p>
+      <h2 class="stack__heading" data-reveal>{{ 'stack.heading' | translate }}</h2>
+    </header>
+  </div>
+
+  <!--
+    Das Laufband ist Bild, kein Text. Screenreader bekommen darunter die
+    Namen im Klartext, damit sie nicht verlorengehen.
+  -->
+  <div class="stack__marquee" aria-hidden="true">
+
+    @for (reihe of reihen; track reihe.id) {
+      <div class="stack__band" [class]="'is-' + reihe.id">
+        <div class="stack__band-head">
+          <span class="stack__band-label">
+            {{ 'stack.rows.' + reihe.id | translate }}
+          </span>
+        </div>
+
+        <div class="stack__row" [class.stack__row--right]="reihe.richtung === 'right'">
+          <div class="stack__track" [style.--dauer]="reihe.dauer">
+            @for (durchgang of durchgaenge; track durchgang) {
+              @for (item of reihe.items; track $index) {
+                <span class="stack__chip">
+                  <span
+                    class="stack__icon"
+                    [style.--icon]="'url(/assets/icons/tech/' + item.icon + '.svg)'"
+                  ></span>
+                  {{ item.name }}
+                </span>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+
+  <p class="stack__sr">{{ alle.join(', ') }}</p>
+
+</section>

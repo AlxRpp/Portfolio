@@ -14,6 +14,8 @@ import { filter } from 'rxjs';
 import { Hero } from '../hero/hero';
 import { About } from '../about/about';
 import { HowIWork } from '../how-i-work/how-i-work';
+import { Projects } from '../projects/projects';
+import { Stack } from '../stack/stack';
 import { Animations, StageControls } from '../../shared/service/animations';
 
 /** Reihenfolge der Tafeln in der Buehne. */
@@ -32,7 +34,7 @@ const ABOUT_HASH = 'about';
  */
 @Component({
   selector: 'app-home',
-  imports: [Hero, About, HowIWork],
+  imports: [Hero, About, HowIWork, Projects, Stack],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

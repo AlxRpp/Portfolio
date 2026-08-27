@@ -52,5 +52,78 @@
         "text": "What I have not followed through myself does not go live. A roof came with no rollback, and I kept the habit."
       }
     }
+  },
+  "projects": {
+    "eyebrow": "Projects",
+    "heading": "What runs, you can click.",
+    "lead": "Not every project can be shown. Backends have no interface of their own, and client work stays with the client. So each project says what can be checked.",
+    "status": {
+      "live": "Live",
+      "ongoing": "Ongoing",
+      "archived": "Completed"
+    },
+    "confidentialNote": "Client project under a confidentiality agreement. No link, no screenshot.",
+    "actions": {
+      "live": "View live",
+      "code": "Code"
+    },
+    "scope": {
+      "backendOnly": "Backend. The frontend was provided.",
+      "employerCode": "Built at Savvytec, the source code belongs to my employer."
+    },
+    "items": {
+      "fin": "AI-assisted analysis of vehicle equipment packages from the vehicle identification number. From requirement to pilot in eight days, connected to the group AI gateway.",
+      "quizly": "Turns a video into a quiz: transcription with Whisper, question generation through the Gemini API, validation of the structured output.",
+      "homelab": "My own server environment at home. It runs the house automation, collects sensor data and is where I practise virtualisation, containers and network security. The documentation records the decisions with reasoning, dead ends included.",
+      "coderr": "REST API for a freelance service marketplace: offers, orders, reviews, token authentication, filtering and pagination.",
+      "faime": "Event platform with live voting, push notifications and QR networking. In use at large events with more than 600 attendees.",
+      "videoflix": "Video platform with background transcoding to HLS, multiple quality levels and task queues.",
+      "kanmind": "REST API for a Kanban board: boards, tasks, comments, member permissions. My first backend.",
+      "kioskbrowser": "Native Android app for kiosk displays in continuous operation, centrally managed.",
+      "join": "Kanban board with drag and drop, task assignment and contacts. Built without a framework.",
+      "pokedex": "Pokedex app built on a public REST API.",
+      "alienAdventure": "2D jump and run in the browser."
+    },
+    "tabsLabel": "Projects by area",
+    "tabs": {
+      "current": "Current",
+      "work": "At work",
+      "backend": "Backend",
+      "frontend": "Frontend"
+    },
+    "labels": {
+      "description": "Description",
+      "implementation": "How it was built",
+      "duration": "Time to build",
+      "stack": "Stack"
+    },
+    "durationUnit": {
+      "day": "day",
+      "days": "days",
+      "week": "week",
+      "weeks": "weeks"
+    },
+    "impl": {
+      "fin": "Fullstack build: NestJS on the backend, React on the frontend, the analysis in Python. Connected to the group AI gateway.",
+      "quizly": "The video is transcribed with Whisper. The transcript goes to the Gemini API, which turns it into questions and answers. The response is checked against a schema before it is stored, so faulty model output does not slip through.",
+      "homelab": "Proxmox as the hypervisor, running Home Assistant and Zigbee2MQTT in separate containers. Sensors report over MQTT and the values land as time series. Automations react to events rather than fixed times. A local MCP server makes the data available to language models.",
+      "coderr": "Django REST Framework with token authentication. Offers, orders and reviews are separate resources with per-role permissions. Filtering and pagination run through the API query parameters. Dockerized and deployed on my own server.",
+      "faime": "Progressive web app, so it runs on a phone without an app store. Supabase for data and live voting, Firebase for push notifications. QR codes connect attendees directly.",
+      "videoflix": "Uploaded videos are transcoded to HLS in the background with ffmpeg, at several quality levels. The conversion runs through task queues so the upload does not block. Dockerized.",
+      "kanmind": "Django REST Framework. Boards, tasks and comments are separate resources, with per-member permissions. My first backend.",
+      "kioskbrowser": "Native Android app in kiosk mode, so the device cannot leave the application. Centrally managed, configured over a REST interface.",
+      "join": "Built by a team of three and organised entirely through Git. No framework, the Kanban board works with the browser drag and drop events. Firebase as the data store.",
+      "pokedex": "My first hands-on use of a public API. The PokeAPI serves the data page by page and the cards are built from it in the browser.",
+      "alienAdventure": "Object oriented in JavaScript: movable objects, drawable objects, levels and audio are kept clearly apart. The game loop draws onto a canvas."
+    }
+  },
+  "stack": {
+    "eyebrow": "Stack",
+    "heading": "What I work with.",
+    "rows": {
+      "daily": "Daily",
+      "built": "Built with",
+      "next": "Current and next up"
+    }
   }
 }

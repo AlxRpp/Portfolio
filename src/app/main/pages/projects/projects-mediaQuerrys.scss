@@ -1,0 +1,28 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+@include m.mq(tablet) {
+  .projects { padding-block: t.sp(10); }
+}
+
+// Ab hier stehen Liste und Detail nebeneinander. Dieselbe Schwelle liest
+// projects.ts aus --bp-tablet-lg, damit Aufklapper und Zweispalter nicht
+// gleichzeitig oder gar nicht greifen.
+@include m.mq(tablet-lg) {
+  .projects__body {
+    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+    gap: t.sp(6);
+    align-items: start;
+  }
+
+  .projects__panel { padding: t.sp(6); }
+}
+
+@include m.mq(laptop) {
+  .projects__inner { gap: t.sp(8); }
+
+  .projects__body {
+    grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+    gap: t.sp(7);
+  }
+}

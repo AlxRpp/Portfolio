@@ -52,5 +52,78 @@
         "text": "Was ich nicht selbst nachvollzogen habe, geht nicht live. Auf dem Dach gab es kein Rollback, und die Gewohnheit habe ich behalten."
       }
     }
+  },
+  "projects": {
+    "eyebrow": "Projekte",
+    "heading": "Was läuft, kannst du anklicken.",
+    "lead": "Nicht jedes Projekt lässt sich zeigen. Backends haben keine eigene Oberfläche, und Kundenprojekte bleiben beim Kunden. Was davon nachprüfbar ist, steht deshalb an jedem Projekt.",
+    "status": {
+      "live": "Live",
+      "ongoing": "Laufend",
+      "archived": "Abgeschlossen"
+    },
+    "confidentialNote": "Kundenprojekt unter Verschwiegenheitspflicht. Kein Link, kein Screenshot.",
+    "actions": {
+      "live": "Live ansehen",
+      "code": "Code"
+    },
+    "scope": {
+      "backendOnly": "Backend. Das Frontend war vorgegeben.",
+      "employerCode": "Bei Savvytec gebaut, der Quellcode gehört dem Arbeitgeber."
+    },
+    "items": {
+      "fin": "KI-gestützte Auswertung von Ausstattungspaketen anhand der Fahrzeug-Identifikationsnummer. Von der Anforderung bis zum Pilotbetrieb in acht Tagen, angebunden an das zentrale KI-Gateway des Konzerns.",
+      "quizly": "Macht aus einem Video ein Quiz: Transkription mit Whisper, Fragen über die Gemini-API, Validierung der strukturierten Ausgabe.",
+      "homelab": "Meine eigene Serverumgebung zu Hause. Sie steuert die Hausautomatisierung, sammelt Sensordaten und ist mein Übungsfeld für Virtualisierung, Container und Netzwerksicherheit. Die Dokumentation hält die Entscheidungen mit Begründung fest, die Sackgassen inklusive.",
+      "coderr": "REST-API für einen Marktplatz für Dienstleistungen: Angebote, Bestellungen, Bewertungen, Token-Authentifizierung, Filterung und seitenweise Ausgabe.",
+      "faime": "Event-Plattform mit Live-Abstimmungen, Push-Benachrichtigungen und QR-Vernetzung. Im Einsatz bei Großveranstaltungen mit über 600 Teilnehmern.",
+      "videoflix": "Video-Plattform mit Transkodierung nach HLS im Hintergrund, mehreren Qualitätsstufen und Task-Queues.",
+      "kanmind": "REST-API für ein Kanban-Board: Boards, Aufgaben, Kommentare, Mitgliederrechte. Mein erstes Backend.",
+      "kioskbrowser": "Native Android-App für Kiosk-Displays im Dauerbetrieb, zentral verwaltet.",
+      "join": "Kanban-Board mit Drag-and-drop, Aufgabenzuweisung und Kontakten. Ohne Framework gebaut.",
+      "pokedex": "Pokédex-Anwendung über eine öffentliche REST-API.",
+      "alienAdventure": "2D-Jump-and-Run im Browser."
+    },
+    "tabsLabel": "Projekte nach Bereich",
+    "tabs": {
+      "current": "Aktuell",
+      "work": "Im Job",
+      "backend": "Backend",
+      "frontend": "Frontend"
+    },
+    "labels": {
+      "description": "Beschreibung",
+      "implementation": "Technische Umsetzung",
+      "duration": "Umsetzungsdauer",
+      "stack": "Stack"
+    },
+    "durationUnit": {
+      "day": "Tag",
+      "days": "Tage",
+      "week": "Woche",
+      "weeks": "Wochen"
+    },
+    "impl": {
+      "fin": "Fullstack-Umsetzung: NestJS im Backend, React im Frontend, die Auswertung in Python. Angebunden an das zentrale KI-Gateway des Konzerns.",
+      "quizly": "Das Video wird mit Whisper transkribiert. Das Transkript geht an die Gemini-API, die daraus Fragen und Antworten erzeugt. Die Rückgabe wird gegen ein Schema geprüft, bevor sie gespeichert wird, damit fehlerhafte Ausgaben des Modells nicht durchrutschen.",
+      "homelab": "Proxmox als Hypervisor, darauf laufen Home Assistant und Zigbee2MQTT in getrennten Containern. Die Sensoren melden über MQTT, die Werte landen als Zeitreihen. Automatisierungen reagieren auf Ereignisse statt auf feste Zeiten. Ein lokaler MCP-Server stellt die Daten Sprachmodellen zur Verfügung.",
+      "coderr": "Django REST Framework mit Token-Authentifizierung. Angebote, Bestellungen und Bewertungen sind getrennte Ressourcen mit Rechten je Rolle. Filterung und seitenweise Ausgabe laufen über die Query-Parameter der API. Dockerisiert und auf einem eigenen Server deployt.",
+      "faime": "Progressive Web App, damit sie ohne App-Store auf dem Handy läuft. Supabase für Daten und Live-Abstimmungen, Firebase für die Push-Benachrichtigungen. QR-Codes verbinden Teilnehmer direkt miteinander.",
+      "videoflix": "Hochgeladene Videos werden im Hintergrund per ffmpeg nach HLS umgewandelt, in mehreren Qualitätsstufen. Die Umwandlung läuft über Task-Queues, damit der Upload nicht blockiert. Dockerisiert.",
+      "kanmind": "Django REST Framework. Boards, Aufgaben und Kommentare sind getrennte Ressourcen, dazu Rechte je Mitglied. Mein erstes Backend.",
+      "kioskbrowser": "Native Android-App im Kiosk-Modus, damit das Gerät die Anwendung nicht verlassen kann. Zentral verwaltet, Konfiguration über eine REST-Schnittstelle.",
+      "join": "Im Dreierteam entstanden und vollständig über Git organisiert. Ohne Framework gebaut, das Kanban-Board arbeitet mit den Drag-and-drop-Ereignissen des Browsers. Firebase als Datenspeicher.",
+      "pokedex": "Mein erster praktischer Einsatz einer öffentlichen API. Die PokeAPI liefert die Daten seitenweise nach, die Karten werden daraus im Browser aufgebaut.",
+      "alienAdventure": "Objektorientiert in JavaScript: bewegliche Objekte, zeichnende Objekte, Level und Audio sind klar voneinander getrennt. Die Spielschleife zeichnet auf ein Canvas."
+    }
+  },
+  "stack": {
+    "eyebrow": "Stack",
+    "heading": "Womit ich arbeite.",
+    "rows": {
+      "daily": "Täglich",
+      "built": "Schon gebaut",
+      "next": "Aktuell und als Nächstes"
+    }
   }
 }

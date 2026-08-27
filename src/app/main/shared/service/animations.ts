@@ -3,8 +3,9 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+import { Flip } from 'gsap/Flip';
 
-gsap.registerPlugin(ScrollTrigger, SplitText, ScrollToPlugin);
+gsap.registerPlugin(ScrollTrigger, SplitText, ScrollToPlugin, Flip);
 
 /** Gemeinsame Bewegungssprache: langsam, präzise, kein Bounce. */
 const EASE = 'power2.out';
@@ -166,14 +167,27 @@ export class Animations {
     return split;
   }
 
-  /** Zahl von 0 auf ihren Wert hochlaufen lassen. */
-  counterUp(el: Element, to: number, o: RevealOptions = {}): gsap.core.Tween | undefined {
+  /**
+   * Zahl von 0 auf ihren Wert hochlaufen lassen.
+   *
+   * `onValue` meldet jeden Zwischenstand. Damit kann der Aufrufer
+   * mitlaufende Beschriftungen anpassen, etwa Einzahl und Mehrzahl einer
+   * Einheit. Ohne das stuende waehrend des Hochzaehlens kurz "1 Wochen"
+   * auf der Seite, weil die Einheit aus dem Zielwert kaeme.
+   */
+  counterUp(
+    el: Element,
+    to: number,
+    o: RevealOptions & { onValue?: (value: number) => void } = {},
+  ): gsap.core.Tween | undefined {
     if (this.reduced) {
       el.textContent = String(to);
+      o.onValue?.(to);
       return undefined;
     }
 
     const state = { value: 0 };
+    let zuletzt = -1;
 
     return gsap.to(state, {
       value: to,
@@ -181,7 +195,11 @@ export class Animations {
       delay: o.delay ?? 0,
       ease: EASE,
       onUpdate: () => {
-        el.textContent = String(Math.round(state.value));
+        const gerundet = Math.round(state.value);
+        if (gerundet === zuletzt) return;
+        zuletzt = gerundet;
+        el.textContent = String(gerundet);
+        o.onValue?.(gerundet);
       },
       ...this.trigger(el, o),
     });
@@ -288,6 +306,93 @@ export class Animations {
         mm.revert();
       },
     };
+  }
+
+  /**
+   * Schiebt eine Markierung auf ein anderes Element, in Position UND
+   * Groesse.
+   *
+   * Genau dafuer ist Flip.fit gebaut: Es misst Ziel und Markierung und
+   * ueberfuehrt die eine in die andere. Von Hand muesste man Versatz,
+   * Breite und Hoehe einzeln berechnen und bei jeder Layoutaenderung
+   * nachziehen.
+   *
+   * `animiert: false` setzt ohne Bewegung, fuer den ersten Aufbau und
+   * fuer Groessenaenderungen des Fensters.
+   */
+  moveHighlight(
+    highlight: HTMLElement,
+    target: HTMLElement,
+    animiert = true,
+  ): void {
+    if (!animiert || this.reduced) {
+      Flip.fit(highlight, target, { absolute: true });
+      return;
+    }
+
+    Flip.fit(highlight, target, {
+      absolute: true,
+      duration: 0.4,
+      ease: EASE,
+    });
+  }
+
+  /**
+   * Schiebt eine Unterstreichung unter ein anderes Element.
+   *
+   * Bewusst NICHT ueber Flip.fit: Das uebertraegt auch die Hoehe, aus der
+   * 2px-Linie wuerde dann ein Block in Reiterhoehe. Hier wandern nur
+   * Position und Breite, die Hoehe kommt aus dem CSS.
+   */
+  moveUnderline(
+    bar: HTMLElement,
+    target: HTMLElement,
+    animiert = true,
+  ): void {
+    const eltern = bar.offsetParent as HTMLElement | null;
+    if (!eltern) return;
+
+    const bezug = eltern.getBoundingClientRect();
+    const ziel = target.getBoundingClientRect();
+
+    const werte = {
+      x: ziel.left - bezug.left + eltern.scrollLeft,
+      width: ziel.width,
+    };
+
+    if (!animiert || this.reduced) {
+      gsap.set(bar, werte);
+      return;
+    }
+
+    gsap.to(bar, { ...werte, duration: 0.4, ease: EASE, overwrite: true });
+  }
+
+  /**
+   * Laesst die Bloecke einer Flaeche nacheinander einlaufen.
+   *
+   * Anders als revealEach ohne ScrollTrigger: Das hier laeuft auf einen
+   * Klick hin, nicht auf eine Scrollposition. `overwrite` sorgt dafuer,
+   * dass schnelles Weiterklicken die vorige Bewegung abbricht statt sie
+   * zu ueberlagern.
+   */
+  revealBlocks(container: Element, selector: string): void {
+    const blocks = container.querySelectorAll(selector);
+    if (!blocks.length) return;
+
+    if (this.reduced) {
+      this.settle(blocks);
+      return;
+    }
+
+    gsap.from(blocks, {
+      opacity: 0,
+      y: 14,
+      duration: 0.42,
+      stagger: 0.055,
+      ease: EASE,
+      overwrite: true,
+    });
   }
 
   /** Alle ScrollTrigger neu vermessen, etwa nach einem Sprachwechsel. */

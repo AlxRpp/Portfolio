@@ -1,0 +1,22 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+@include m.mq(tablet) {
+  .stack { padding-block: t.sp(10); }
+
+  .stack__marquee { gap: t.sp(7); }
+
+  .stack__icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@include m.mq(laptop) {
+  .stack__head { margin-bottom: t.sp(8); }
+
+  // Auf breiten Schirmen ist mehr Strecke im Bild, deshalb darf eine
+  // Runde laenger dauern. Der Faktor wirkt auf alle drei Reihen, ihr
+  // Verhaeltnis zueinander bleibt erhalten.
+  .stack__track { animation-duration: calc(var(--dauer, 46s) * 1.3); }
+}

@@ -1,0 +1,300 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.projects {
+  position: relative;
+  padding-block: t.sp(9);
+}
+
+.projects__inner {
+  @include m.content-width;
+  display: grid;
+  gap: t.sp(7);
+}
+
+// --- Kopf ---
+
+.projects__head {
+  display: grid;
+  gap: t.sp(4);
+  max-width: 56ch;
+}
+
+.projects__eyebrow {
+  @include m.mono-label;
+  display: flex;
+  align-items: center;
+  gap: t.sp(2);
+}
+
+.projects__marker {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-dim);
+}
+
+.projects__heading {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  max-width: 20ch;
+}
+
+.projects__lead {
+  font-size: var(--fs-prose);
+  color: var(--text-secondary);
+}
+
+// --- Reiter ---
+
+.projects__tabs {
+  position: relative;
+  display: flex;
+  gap: t.sp(1);
+  // Passen die Reiter nicht in eine Zeile, laufen sie seitlich weiter
+  // statt umzubrechen. Das haelt das Band immer einzeilig.
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--border-subtle);
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.projects__tab {
+  @include m.mono-label;
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(2);
+  padding: t.sp(3) t.sp(4);
+  white-space: nowrap;
+  color: var(--text-muted);
+  transition: color t.$dur-fast t.$ease;
+  @include m.focus-ring(-2px);
+
+  &:hover { color: var(--text-secondary); }
+
+  &.is-active { color: var(--text-primary); }
+}
+
+// Wandert per Flip unter den aktiven Reiter. Flip.fit setzt Breite und
+// Position, deshalb steht hier nur die Optik.
+.projects__tab-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--brand);
+  pointer-events: none;
+}
+
+.projects__count {
+  font-size: .85em;
+  color: var(--text-muted);
+}
+
+// --- Liste und Detail ---
+
+.projects__body {
+  display: grid;
+  gap: t.sp(5);
+  padding-top: t.sp(5);
+}
+
+// Der Balken liegt hinter der Liste und wird per Flip auf den aktiven
+// Eintrag geschoben. Deshalb traegt der Eintrag selbst keinen Hintergrund
+// mehr, sonst waeren es zwei.
+.projects__list-wrap { position: relative; }
+
+.projects__highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--brand-wash);
+  border-radius: t.$radius-md;
+  pointer-events: none;
+}
+
+.projects__list {
+  position: relative;
+  display: grid;
+}
+
+.projects__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: t.sp(3);
+  width: 100%;
+  text-align: left;
+  padding: t.sp(3) t.sp(3);
+  border-radius: t.$radius-md;
+  color: var(--text-secondary);
+  transition:
+    background t.$dur-fast t.$ease,
+    color t.$dur-fast t.$ease;
+  @include m.focus-ring(-2px);
+
+  &:hover { color: var(--text-primary); }
+
+  &.is-active { color: var(--text-primary); }
+}
+
+.projects__item-title {
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+.projects__item-year {
+  @include m.mono-label;
+  color: var(--text-muted);
+}
+
+.projects__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  flex-shrink: 0;
+
+  &.is-live { background: var(--signal-ok); }
+  &.is-ongoing { background: var(--signal-warn); }
+  &.is-archived { background: var(--border-strong); }
+}
+
+// --- Detailflaeche ---
+
+.projects__panel {
+  display: grid;
+  align-content: start;
+  gap: t.sp(4);
+  padding: t.sp(5);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: t.$radius-lg;
+}
+
+.projects__panel-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: t.sp(3);
+}
+
+.projects__status {
+  @include m.mono-label;
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(2);
+  white-space: nowrap;
+}
+
+.projects__year {
+  @include m.mono-label;
+  color: var(--text-muted);
+}
+
+// --- Inhaltsbloecke der Detailflaeche ---
+
+.projects__block {
+  display: grid;
+  gap: t.sp(2);
+}
+
+.projects__label {
+  @include m.mono-label;
+  color: var(--brand-dim);
+}
+
+.projects__duration {
+  display: flex;
+  align-items: baseline;
+  gap: t.sp(2);
+}
+
+.projects__duration-value {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.02em;
+  // Feste Ziffernbreite, damit die Zahl beim Hochzaehlen nicht springt.
+  font-variant-numeric: tabular-nums;
+  color: var(--brand);
+}
+
+.projects__duration-unit {
+  @include m.mono-label;
+  color: var(--text-secondary);
+}
+
+.projects__title {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.projects__text {
+  font-size: var(--fs-body);
+  color: var(--text-secondary);
+  max-width: 60ch;
+}
+
+// Hinweis zum Umfang, bewusst abgesetzt statt im Fliesstext, damit er
+// beim Ueberfliegen nicht untergeht.
+.projects__scope {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+}
+
+.projects__tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.sp(2);
+
+  li {
+    @include m.mono-label;
+    color: var(--text-secondary);
+    padding: t.sp(1) t.sp(2);
+    border: 1px solid var(--border-subtle);
+    border-radius: t.$radius-sm;
+    letter-spacing: .06em;
+  }
+}
+
+.projects__nda {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+  padding-top: t.sp(3);
+  border-top: 1px dashed var(--border-strong);
+}
+
+.projects__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.sp(4);
+  padding-top: t.sp(2);
+}
+
+.projects__link {
+  @include m.mono-label;
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(2);
+  color: var(--brand);
+  transition: color t.$dur-fast t.$ease;
+  @include m.focus-ring(2px);
+
+  span[aria-hidden] { transition: translate t.$dur-fast t.$ease; }
+
+  &:hover {
+    color: var(--brand-bright);
+    span[aria-hidden] { translate: 3px 0; }
+  }
+}
+
+/// Ergaenzt den Linktext fuer Screenreader um den Projektnamen, damit
+/// "Code" nicht in jedem Projekt gleich lautet.
+.projects__sr { @include m.visually-hidden; }

@@ -1,4 +1,5 @@
 @use 'sass:math';
+@use 'sass:map';
 // =============================================================
 //  GLOBAL: einziger Ort, an dem Theme und Reset CSS ausgeben.
 // =============================================================
@@ -13,6 +14,11 @@
 :root {
   --stage-min-width: #{math.div(t.$stage-min-width, 1px)};
   --stage-min-height: #{math.div(t.$stage-min-height, 1px)};
+
+  // Schwelle, ab der die Projektauswahl zweispaltig laeuft statt als
+  // Aufklapper. Wird von projects.ts ausgelesen, damit Media Query und
+  // Komponente nicht auseinanderlaufen.
+  --bp-tablet-lg: #{math.div(map.get(t.$bp, tablet-lg), 1px)};
 }
 
 // --- Schriften, selbst gehostet, kein externer Aufruf ---

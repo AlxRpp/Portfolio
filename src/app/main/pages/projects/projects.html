@@ -1,0 +1,178 @@
+<section class="projects" id="projects">
+  <div class="projects__inner">
+
+    <header class="projects__head">
+      <p class="projects__eyebrow" data-reveal>
+        <span class="projects__marker" aria-hidden="true"></span>
+        {{ 'projects.eyebrow' | translate }}
+      </p>
+      <h2 class="projects__heading" data-reveal>
+        {{ 'projects.heading' | translate }}
+      </h2>
+      <p class="projects__lead" data-reveal>{{ 'projects.lead' | translate }}</p>
+    </header>
+
+    <div class="projects__browser">
+
+      <div
+        class="projects__tabs"
+        role="tablist"
+        [attr.aria-label]="'projects.tabsLabel' | translate"
+        (keydown)="onTabKey($event)"
+      >
+        <!-- Wandert per Flip unter den aktiven Reiter. Aria-hidden, damit
+             die Reiterliste nur echte Reiter enthaelt. -->
+        <span class="projects__tab-bar" #reiterBalken aria-hidden="true"></span>
+
+        @for (c of categories; track c) {
+          <button
+            class="projects__tab"
+            type="button"
+            role="tab"
+            [id]="'tab-' + c"
+            [class.is-active]="activeCategory() === c"
+            [attr.aria-selected]="activeCategory() === c"
+            [attr.aria-controls]="'panel-' + c"
+            [tabIndex]="activeCategory() === c ? 0 : -1"
+            (click)="waehleKategorie(c)"
+          >
+            {{ 'projects.tabs.' + c | translate }}
+            <span class="projects__count">{{ data.byCategory(c).length }}</span>
+          </button>
+        }
+      </div>
+
+      <div
+        class="projects__body"
+        role="tabpanel"
+        [id]="'panel-' + activeCategory()"
+        [attr.aria-labelledby]="'tab-' + activeCategory()"
+      >
+        <div class="projects__list-wrap">
+          <span class="projects__highlight" #listenBalken aria-hidden="true"></span>
+
+          <ul class="projects__list">
+            @for (p of liste(); track p.slug) {
+              <li class="projects__entry">
+                <button
+                  class="projects__item"
+                  type="button"
+                  [class.is-active]="activeSlug() === p.slug"
+                  [attr.aria-current]="activeSlug() === p.slug ? 'true' : null"
+                  (click)="waehleProjekt(p.slug)"
+                >
+                  <span
+                    class="projects__dot"
+                    [class]="'is-' + p.status"
+                    aria-hidden="true"
+                  ></span>
+                  <span class="projects__item-title">{{ p.title }}</span>
+                  <span class="projects__item-year">{{ p.year }}</span>
+                </button>
+
+                <!-- Schmale Schirme: das Detail klappt direkt hier auf. -->
+                @if (!breit() && activeSlug() === p.slug) {
+                  <ng-container
+                    *ngTemplateOutlet="detail; context: { $implicit: p }"
+                  />
+                }
+              </li>
+            }
+          </ul>
+        </div>
+
+        @if (breit()) {
+          @if (aktives(); as p) {
+            <div class="projects__detail">
+              <ng-container
+                *ngTemplateOutlet="detail; context: { $implicit: p }"
+              />
+            </div>
+          }
+        }
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!--
+  Der Inhalt der Detailflaeche, einmal definiert. Auf breiten Schirmen
+  steht er rechts neben der Liste, darunter als Aufklapper im gewaehlten
+  Eintrag. data-block markiert, was beim Wechsel nacheinander einlaeuft.
+-->
+<ng-template #detail let-p>
+  <div class="projects__panel">
+
+    <div class="projects__panel-meta" data-block>
+      <span class="projects__status">
+        <span class="projects__dot" [class]="'is-' + p.status" aria-hidden="true"></span>
+        {{ statusLabel(p) | translate }}
+      </span>
+      <span class="projects__year">{{ p.year }}</span>
+    </div>
+
+    <h3 class="projects__title" data-block>{{ p.title }}</h3>
+
+    <div class="projects__block" data-block>
+      <h4 class="projects__label">{{ 'projects.labels.description' | translate }}</h4>
+      <p class="projects__text">{{ beschreibung(p) | translate }}</p>
+    </div>
+
+    <div class="projects__block" data-block>
+      <h4 class="projects__label">{{ 'projects.labels.implementation' | translate }}</h4>
+      <p class="projects__text">{{ umsetzung(p) | translate }}</p>
+    </div>
+
+    @if (p.scopeKey) {
+      <p class="projects__scope" data-block>{{ umfang(p) | translate }}</p>
+    }
+
+    <!-- Nur wo die Dauer belegt ist. Fehlt sie, entfaellt der Block. -->
+    @if (p.duration; as d) {
+      <div class="projects__block" data-block>
+        <h4 class="projects__label">{{ 'projects.labels.duration' | translate }}</h4>
+        <p class="projects__duration">
+          <span class="projects__duration-value" data-duration>{{ d.value }}</span>
+          <span class="projects__duration-unit">
+            {{ dauerEinheit(d) | translate }}
+          </span>
+        </p>
+      </div>
+    }
+
+    <div class="projects__block" data-block>
+      <h4 class="projects__label">{{ 'projects.labels.stack' | translate }}</h4>
+      <ul class="projects__tech">
+        @for (t of p.tech; track t) {
+          <li>{{ t }}</li>
+        }
+      </ul>
+    </div>
+
+    <!-- Verschwiegenheitspflicht: kein Link, stattdessen der Hinweis. -->
+    @if (p.confidential) {
+      <p class="projects__nda" data-block>
+        {{ 'projects.confidentialNote' | translate }}
+      </p>
+    } @else {
+      <div class="projects__actions" data-block>
+        @if (p.liveUrl) {
+          <a class="projects__link" [href]="p.liveUrl" target="_blank" rel="noopener noreferrer">
+            <span aria-hidden="true">&rsaquo;</span>
+            {{ 'projects.actions.live' | translate }}
+            <span class="projects__sr">{{ p.title }}</span>
+          </a>
+        }
+        @if (p.repoUrl) {
+          <a class="projects__link" [href]="p.repoUrl" target="_blank" rel="noopener noreferrer">
+            <span aria-hidden="true">&rsaquo;</span>
+            {{ 'projects.actions.code' | translate }}
+            <span class="projects__sr">{{ p.title }}</span>
+          </a>
+        }
+      </div>
+    }
+
+  </div>
+</ng-template>
