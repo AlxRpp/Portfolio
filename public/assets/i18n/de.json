@@ -125,5 +125,47 @@
       "built": "Schon gebaut",
       "next": "Aktuell und als Nächstes"
     }
+  },
+  "contact": {
+    "eyebrow": "Kontakt",
+    "heading": "Erzähl mir, worum es geht.",
+    "lead": "Ob konkrete Stelle, Projekt oder einfach eine Frage. Ich lese jede Nachricht selbst und melde mich zurück.",
+    "direct": "Lieber direkt?",
+    "form": {
+      "name": "Wie heißt du?",
+      "namePlaceholder": "Dein Name",
+      "nameError": "Ohne Namen weiß ich nicht, wen ich anschreibe.",
+      "mail": "Wohin darf ich antworten?",
+      "mailPlaceholder": "deine@adresse.de",
+      "mailError": "Ohne Adresse kann ich nicht zurückschreiben.",
+      "mailInvalid": "Diese Adresse sieht nicht vollständig aus.",
+      "message": "Worum geht es?",
+      "messagePlaceholder": "Hallo Alex, ich …",
+      "messageError": "Schreib mir kurz, worum es geht.",
+      "privacyPrefix": "Ich habe die",
+      "privacyLink": "Datenschutzerklärung",
+      "privacySuffix": "gelesen und stimme der Verarbeitung meiner Daten zu.",
+      "privacyError": "Ohne deine Zustimmung darf ich die Nachricht nicht verarbeiten.",
+      "submit": "Nachricht senden",
+      "sending": "Wird gesendet"
+    },
+    "status": {
+      "ok": "Angekommen. Ich melde mich.",
+      "failed": "Das hat nicht geklappt. Schreib mir gern direkt an info@alexander-ruppel.de."
+    }
+  },
+  "footer": {
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "builtWith": "Gebaut mit Angular und GSAP",
+    "backToTop": "Nach oben"
+  },
+  "legal": {
+    "back": "Zurück",
+    "placeholder": "Dieser Inhalt fehlt noch und wird von Alexander selbst eingetragen.",
+    "heading": "Impressum"
+  },
+  "privacy": {
+    "heading": "Datenschutzerklärung"
   }
 }

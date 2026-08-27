@@ -125,5 +125,47 @@
       "built": "Built with",
       "next": "Current and next up"
     }
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "heading": "Tell me what it is about.",
+    "lead": "A specific role, a project, or just a question. I read every message myself and I will get back to you.",
+    "direct": "Rather write directly?",
+    "form": {
+      "name": "What's your name?",
+      "namePlaceholder": "Your name",
+      "nameError": "Without a name I don't know who I am writing to.",
+      "mail": "Where should I reply?",
+      "mailPlaceholder": "your@address.com",
+      "mailError": "Without an address I can't write back.",
+      "mailInvalid": "That address does not look complete.",
+      "message": "What is it about?",
+      "messagePlaceholder": "Hi Alex, I …",
+      "messageError": "Tell me briefly what it is about.",
+      "privacyPrefix": "I have read the",
+      "privacyLink": "privacy policy",
+      "privacySuffix": "and agree to my data being processed.",
+      "privacyError": "Without your consent I'm not allowed to process the message.",
+      "submit": "Send message",
+      "sending": "Sending"
+    },
+    "status": {
+      "ok": "Received. I will get back to you.",
+      "failed": "That did not work. Feel free to write to info@alexander-ruppel.de directly."
+    }
+  },
+  "footer": {
+    "imprint": "Imprint",
+    "privacy": "Privacy",
+    "builtWith": "Built with Angular and GSAP",
+    "backToTop": "Back to top"
+  },
+  "legal": {
+    "back": "Back",
+    "placeholder": "This content is still missing and will be filled in by Alexander.",
+    "heading": "Imprint"
+  },
+  "privacy": {
+    "heading": "Privacy policy"
   }
 }

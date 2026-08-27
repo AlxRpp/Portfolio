@@ -1,0 +1,139 @@
+<section class="contact" id="contact">
+  <div class="contact__inner">
+
+    <header class="contact__head">
+      <p class="contact__eyebrow" data-reveal>
+        <span class="contact__marker" aria-hidden="true"></span>
+        {{ 'contact.eyebrow' | translate }}
+      </p>
+      <h2 class="contact__heading" data-reveal>
+        {{ 'contact.heading' | translate }}
+      </h2>
+      <p class="contact__lead" data-reveal>{{ 'contact.lead' | translate }}</p>
+    </header>
+
+    <form class="contact__form" [formGroup]="form" (ngSubmit)="absenden()" novalidate>
+
+      <div class="contact__field" [class.is-invalid]="fehlerhaft('name')">
+        <label class="contact__label" for="contact-name">
+          {{ 'contact.form.name' | translate }}
+        </label>
+        <input
+          id="contact-name"
+          class="contact__input"
+          type="text"
+          formControlName="name"
+          autocomplete="name"
+          [placeholder]="'contact.form.namePlaceholder' | translate"
+          [attr.aria-invalid]="fehlerhaft('name')"
+          [attr.aria-describedby]="fehlerhaft('name') ? 'contact-name-error' : null"
+        />
+        @if (fehlerhaft('name')) {
+          <p class="contact__error" id="contact-name-error">
+            {{ 'contact.form.nameError' | translate }}
+          </p>
+        }
+      </div>
+
+      <div class="contact__field" [class.is-invalid]="fehlerhaft('mail')">
+        <label class="contact__label" for="contact-mail">
+          {{ 'contact.form.mail' | translate }}
+        </label>
+        <input
+          id="contact-mail"
+          class="contact__input"
+          type="email"
+          formControlName="mail"
+          autocomplete="email"
+          [placeholder]="'contact.form.mailPlaceholder' | translate"
+          [attr.aria-invalid]="fehlerhaft('mail')"
+          [attr.aria-describedby]="fehlerhaft('mail') ? 'contact-mail-error' : null"
+        />
+        @if (fehlerhaft('mail')) {
+          <p class="contact__error" id="contact-mail-error">
+            @if (form.get('mail')?.hasError('required')) {
+              {{ 'contact.form.mailError' | translate }}
+            } @else {
+              {{ 'contact.form.mailInvalid' | translate }}
+            }
+          </p>
+        }
+      </div>
+
+      <div class="contact__field" [class.is-invalid]="fehlerhaft('message')">
+        <label class="contact__label" for="contact-message">
+          {{ 'contact.form.message' | translate }}
+        </label>
+        <textarea
+          id="contact-message"
+          class="contact__input contact__textarea"
+          formControlName="message"
+          rows="5"
+          [placeholder]="'contact.form.messagePlaceholder' | translate"
+          [attr.aria-invalid]="fehlerhaft('message')"
+          [attr.aria-describedby]="fehlerhaft('message') ? 'contact-message-error' : null"
+        ></textarea>
+        @if (fehlerhaft('message')) {
+          <p class="contact__error" id="contact-message-error">
+            {{ 'contact.form.messageError' | translate }}
+          </p>
+        }
+      </div>
+
+      <!--
+        Honigtopf. Vor Menschen versteckt, aber nicht per display:none,
+        weil manche Bots genau darauf achten. tabindex und aria-hidden
+        halten ihn aus Tastaturweg und Vorlesereihenfolge heraus.
+      -->
+      <div class="contact__trap" aria-hidden="true">
+        <label for="contact-website">Website</label>
+        <input id="contact-website" type="text" formControlName="website" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div class="contact__consent" [class.is-invalid]="fehlerhaft('privacy')">
+        <label class="contact__check">
+          <input type="checkbox" formControlName="privacy" [attr.aria-invalid]="fehlerhaft('privacy')" />
+          <span class="contact__box" aria-hidden="true"></span>
+          <span>
+            {{ 'contact.form.privacyPrefix' | translate }}
+            <a routerLink="/privacy-policy">{{ 'contact.form.privacyLink' | translate }}</a>
+            {{ 'contact.form.privacySuffix' | translate }}
+          </span>
+        </label>
+        @if (fehlerhaft('privacy')) {
+          <p class="contact__error">{{ 'contact.form.privacyError' | translate }}</p>
+        }
+      </div>
+
+      <div class="contact__actions">
+        <button class="contact__submit" type="submit" [disabled]="zustand() === 'sendet'">
+          @if (zustand() === 'sendet') {
+            {{ 'contact.form.sending' | translate }}
+            <span class="contact__spinner" aria-hidden="true"></span>
+          } @else {
+            {{ 'contact.form.submit' | translate }}
+            <span aria-hidden="true">&rarr;</span>
+          }
+        </button>
+      </div>
+
+      <!-- Ergebnis wird angesagt, ohne dass der Fokus springt. -->
+      <p class="contact__status" role="status" aria-live="polite">
+        @if (zustand() === 'ok') {
+          <span class="is-ok">{{ 'contact.status.ok' | translate }}</span>
+        } @else if (zustand() === 'fehler') {
+          <span class="is-fehler">{{ 'contact.status.failed' | translate }}</span>
+        }
+      </p>
+
+    </form>
+
+    <aside class="contact__direct" data-block>
+      <p class="contact__direct-label">{{ 'contact.direct' | translate }}</p>
+      <a class="contact__mail" [href]="'mailto:' + mailAdresse">
+        <span class="contact__mail-text">{{ mailAdresse }}</span>
+      </a>
+    </aside>
+
+  </div>
+</section>

@@ -1,0 +1,257 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.contact {
+  position: relative;
+  padding-block: t.sp(9);
+}
+
+.contact__inner {
+  @include m.content-width;
+  display: grid;
+  gap: t.sp(7);
+}
+
+// --- Kopf ---
+
+.contact__head {
+  display: grid;
+  gap: t.sp(4);
+  max-width: 52ch;
+}
+
+.contact__eyebrow {
+  @include m.mono-label;
+  display: flex;
+  align-items: center;
+  gap: t.sp(2);
+}
+
+.contact__marker {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-dim);
+}
+
+.contact__heading {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  max-width: 18ch;
+}
+
+.contact__lead {
+  font-size: var(--fs-prose);
+  color: var(--text-secondary);
+}
+
+// --- Formular ---
+
+.contact__form {
+  display: grid;
+  gap: t.sp(5);
+  max-width: 44rem;
+}
+
+.contact__field { display: grid; gap: t.sp(2); }
+
+.contact__label {
+  @include m.mono-label;
+  color: var(--text-secondary);
+}
+
+.contact__input {
+  width: 100%;
+  padding: t.sp(3) t.sp(4);
+  font-size: var(--fs-body);
+  color: var(--text-primary);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: t.$radius-md;
+  transition:
+    border-color t.$dur-fast t.$ease,
+    background t.$dur-fast t.$ease;
+
+  &::placeholder { color: var(--text-muted); }
+
+  &:hover { border-color: var(--border-strong); }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--brand);
+    background: var(--bg-overlay);
+  }
+}
+
+.contact__textarea {
+  resize: vertical;
+  min-height: 8rem;
+  line-height: var(--lh-body);
+}
+
+.is-invalid .contact__input { border-color: var(--signal-alert); }
+
+.contact__error {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--signal-alert);
+}
+
+// Honigtopf: aus dem Blick geschoben statt display:none, weil manche Bots
+// ausgeblendete Felder erkennen und meiden.
+.contact__trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+// --- Zustimmung ---
+
+.contact__consent { display: grid; gap: t.sp(2); }
+
+.contact__check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: t.sp(3);
+  font-size: var(--fs-small);
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  // Das echte Feld bleibt bedienbar und fokussierbar, nur unsichtbar.
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+
+  a {
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+
+    &:hover { color: var(--brand-bright); }
+  }
+}
+
+.contact__box {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border: 1px solid var(--border-strong);
+  border-radius: t.$radius-sm;
+  transition:
+    background t.$dur-fast t.$ease,
+    border-color t.$dur-fast t.$ease;
+
+  // Der Haken wird gezeichnet, nicht als Zeichen gesetzt.
+  &::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 9px;
+    margin: 1px auto 0;
+    border: solid var(--bg-base);
+    border-width: 0 2px 2px 0;
+    rotate: 45deg;
+    opacity: 0;
+    transition: opacity t.$dur-fast t.$ease;
+  }
+}
+
+.contact__check input:checked + .contact__box {
+  background: var(--brand);
+  border-color: var(--brand);
+
+  &::after { opacity: 1; }
+}
+
+// Fokusring am sichtbaren Kasten, weil das echte Feld unsichtbar ist.
+.contact__check input:focus-visible + .contact__box {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+}
+
+.contact__consent.is-invalid .contact__box { border-color: var(--signal-alert); }
+
+// --- Absenden ---
+
+.contact__actions { display: flex; }
+
+.contact__submit {
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(2);
+  padding: t.sp(3) t.sp(6);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--bg-base);
+  background: var(--brand);
+  border-radius: t.$radius-md;
+  transition: background t.$dur-fast t.$ease;
+  @include m.focus-ring;
+
+  span[aria-hidden] { transition: translate t.$dur-fast t.$ease; }
+
+  &:hover:not(:disabled) {
+    background: var(--brand-bright);
+    span[aria-hidden] { translate: 3px 0; }
+  }
+
+  &:disabled { opacity: .6; cursor: default; }
+}
+
+.contact__spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: contact-dreh .7s linear infinite;
+}
+
+@keyframes contact-dreh {
+  to { rotate: 360deg; }
+}
+
+.contact__status {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  min-height: 1.4em;
+
+  .is-ok { color: var(--signal-ok); }
+  .is-fehler { color: var(--signal-alert); }
+}
+
+// --- Direkte Adresse ---
+
+.contact__direct {
+  display: grid;
+  gap: t.sp(3);
+  padding-top: t.sp(6);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.contact__direct-label { @include m.mono-label; }
+
+.contact__mail {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--brand);
+  width: fit-content;
+  // Bricht bei schmalen Schirmen an sinnvoller Stelle statt zu ueberlaufen.
+  overflow-wrap: anywhere;
+  transition: color t.$dur-fast t.$ease;
+  @include m.focus-ring;
+
+  &:hover { color: var(--brand-bright); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact__spinner { animation-duration: 2s; }
+}

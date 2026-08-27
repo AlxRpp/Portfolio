@@ -1,0 +1,25 @@
+<footer class="footer">
+  <div class="footer__inner">
+
+    <a class="footer__logo" routerLink="/" [attr.aria-label]="'header.home' | translate">
+      <img src="/assets/icons/brand/logo.png" alt="" width="30" height="30" decoding="async" />
+    </a>
+
+    <nav class="footer__links" [attr.aria-label]="'footer.imprint' | translate">
+      <a routerLink="/legal-notice">{{ 'footer.imprint' | translate }}</a>
+      <a routerLink="/privacy-policy">{{ 'footer.privacy' | translate }}</a>
+    </nav>
+
+    <p class="footer__meta">
+      <span>&copy; {{ jahr }} Alexander Ruppel</span>
+      <span class="footer__sep" aria-hidden="true">&middot;</span>
+      <span>{{ 'footer.builtWith' | translate }}</span>
+    </p>
+
+    <button class="footer__top" type="button" (click)="nachOben()">
+      {{ 'footer.backToTop' | translate }}
+      <span aria-hidden="true">&uarr;</span>
+    </button>
+
+  </div>
+</footer>

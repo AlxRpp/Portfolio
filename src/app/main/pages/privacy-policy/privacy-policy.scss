@@ -1,0 +1,45 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.legal { padding-block: t.sp(10) t.sp(9); }
+
+.legal__inner {
+  @include m.content-width;
+  display: grid;
+  gap: t.sp(5);
+  max-width: 60rem;
+}
+
+.legal__back {
+  @include m.mono-label;
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(2);
+  width: fit-content;
+  color: var(--text-secondary);
+  transition: color t.$dur-fast t.$ease;
+  @include m.focus-ring(2px);
+
+  span { transition: translate t.$dur-fast t.$ease; }
+
+  &:hover {
+    color: var(--brand);
+    span { translate: -3px 0; }
+  }
+}
+
+.legal__heading {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.legal__placeholder {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--signal-warn);
+  padding: t.sp(4);
+  border: 1px dashed var(--border-strong);
+  border-radius: t.$radius-md;
+  max-width: 60ch;
+}

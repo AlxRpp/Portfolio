@@ -16,6 +16,7 @@ import { About } from '../about/about';
 import { HowIWork } from '../how-i-work/how-i-work';
 import { Projects } from '../projects/projects';
 import { Stack } from '../stack/stack';
+import { Contact } from '../contact/contact';
 import { Animations, StageControls } from '../../shared/service/animations';
 
 /** Reihenfolge der Tafeln in der Buehne. */
@@ -34,7 +35,7 @@ const ABOUT_HASH = 'about';
  */
 @Component({
   selector: 'app-home',
-  imports: [Hero, About, HowIWork, Projects, Stack],
+  imports: [Hero, About, HowIWork, Projects, Stack, Contact],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -90,7 +91,12 @@ export class Home implements AfterViewInit, OnDestroy {
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(() => this.springeZuTafel(this.aktuellesFragment()));
+      .subscribe(() => {
+        this.springeZuTafel(this.aktuellesFragment());
+        // Nach einem Ankersprung stimmen die Auslöser weiter unten sonst
+        // nicht, weil sich die Scrollstrecke durch den Pin verschiebt.
+        this.nachZweiFrames();
+      });
 
     // Die erste Navigation ist zu diesem Zeitpunkt bereits gelaufen, ein
     // direkt aufgerufenes /#about wuerde das Abo oben also verpassen.

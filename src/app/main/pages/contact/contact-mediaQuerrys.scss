@@ -1,0 +1,41 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+@include m.mq(tablet) {
+  .contact { padding-block: t.sp(10); }
+
+  // Name und Adresse nebeneinander, sobald die Breite dafuer reicht.
+  .contact__form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: t.sp(5);
+  }
+
+  .contact__field:nth-of-type(3),
+  .contact__consent,
+  .contact__actions,
+  .contact__status,
+  .contact__trap {
+    grid-column: 1 / -1;
+  }
+}
+
+@include m.mq(tablet-lg) {
+  .contact__inner {
+    // Formular links, direkte Adresse rechts daneben.
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    column-gap: t.sp(8);
+    align-items: start;
+  }
+
+  .contact__head { grid-column: 1 / -1; }
+
+  .contact__direct {
+    padding-top: 0;
+    border-top: none;
+    align-self: start;
+  }
+}
+
+@include m.mq(laptop) {
+  .contact__inner { column-gap: t.sp(9); }
+}
