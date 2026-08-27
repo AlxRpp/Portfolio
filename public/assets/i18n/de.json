@@ -22,5 +22,16 @@
     "ctaProjects": "Projekte ansehen",
     "ctaContact": "Kontakt",
     "scroll": "Scrollen"
+  },
+  "about": {
+    "eyebrow": "Über mich",
+    "heading": "Ich schreibe dazu, was ich nicht gebaut habe.",
+    "p1": "Bei vier meiner Backend-Projekte war das Frontend vorgegeben. Das steht so in der Repo-Beschreibung, obwohl es ohne diesen Satz nach mehr aussähe. Bei einem steht, dass es mein erstes Backend war.",
+    "p2": "Ich mache das nicht aus Bescheidenheit, sondern weil ich selbst wissen will, wo ich stehe. Eine Fähigkeit, die man sich zuschreibt, ohne sie zu haben, hält bis zum ersten Code-Review. Eine, die man belegen kann, hält länger.",
+    "p3": "Dasselbe gilt für Fehler. Wer nur die Erfolge aufschreibt, geht dieselbe Sackgasse zweimal. In meiner HomeLab-Dokumentation stehen deshalb die Entscheidungen mit Begründung, und die Sackgassen stehen daneben.",
+    "p4": "Was auf dieser Seite steht, ist deshalb nachprüfbar. Wo ich etwas gebaut habe, liegt der Code oder die laufende Anwendung einen Klick entfernt. Was ich gerade erst lerne, steht als genau das da.",
+    "photoAlt": "Alexander Ruppel",
+    "sourcesLabel": "Belege",
+    "noteLabel": "Zu Beleg {{n}} springen"
   }
 }

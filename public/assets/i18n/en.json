@@ -22,5 +22,16 @@
     "ctaProjects": "View projects",
     "ctaContact": "Get in touch",
     "scroll": "Scroll"
+  },
+  "about": {
+    "eyebrow": "About",
+    "heading": "I write down what I didn't build.",
+    "p1": "Four of my backend projects came with the frontend already provided. That sentence sits in the repo description, even though it would look like more without it. One of them says it was my first backend.",
+    "p2": "I don't do that out of modesty. I do it because I want to know where I stand. A skill you claim without having it lasts until the first code review. One you can back up lasts longer.",
+    "p3": "The same goes for mistakes. Write down only the wins and you walk into the same dead end twice. So my homelab documentation records the decisions with reasoning, and the dead ends sit right next to them.",
+    "p4": "That is why everything on this page can be checked. Where I built something, the code or the running app is one click away. What I'm still learning says exactly that.",
+    "photoAlt": "Alexander Ruppel",
+    "sourcesLabel": "Sources",
+    "noteLabel": "Jump to source {{n}}"
   }
 }

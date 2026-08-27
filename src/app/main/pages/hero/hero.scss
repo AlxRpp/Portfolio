@@ -132,11 +132,13 @@
 
 // --- Scroll-Hinweis --------------------------------------------------
 
+// Nur auf grossen Zeigergeraeten. Wer mit dem Finger scrollt, braucht
+// keinen Hinweis darauf, dass man scrollen kann.
 .hero__scroll {
   position: absolute;
   bottom: t.sp(5);
   left: t.$content-pad-sm;
-  display: flex;
+  display: none;
   align-items: center;
   gap: t.sp(3);
   @include m.focus-ring;

@@ -9,14 +9,9 @@
     height: 38px;
   }
 
-  // Ab hier trägt die Kopfzeile die Navigation selbst. margin-left
-  // schiebt sie nach rechts. Ohne sie stünde sie mittig, weil der
-  // Aktionsbereich auf dem Desktop leer ist (Burger aus, Sprachwechsel
-  // noch verborgen).
-  .header__nav {
-    display: flex;
-    margin-left: auto;
-  }
+  // Ab hier trägt die Kopfzeile die Navigation selbst. Zentriert wird sie
+  // über das Raster in header.scss, nicht über einen Rand.
+  .header__nav { display: flex; }
 
   .header__burger { display: none; }
 }

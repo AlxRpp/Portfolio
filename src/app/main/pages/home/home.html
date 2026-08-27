@@ -1,1 +1,10 @@
-<app-hero />
+<!--
+  Die Buehne haelt Hero und About. Auf grossen Bildschirmen laufen sie als
+  zwei Tafeln nebeneinander, darunter stehen sie schlicht untereinander.
+-->
+<div class="stage" #stage>
+  <div class="stage__track" #track>
+    <app-hero class="stage__panel" />
+    <app-about class="stage__panel" />
+  </div>
+</div>

@@ -10,6 +10,9 @@
 $bp: (
   phone: 480px,
   tablet: 800px,
+  // Ab hier tragen zwei Spalten nebeneinander genug Breite, dass der
+  // Fliesstext noch auf eine lesbare Zeilenlaenge kommt.
+  tablet-lg: 900px,
   laptop: 1200px,
   desktop: 1440px,
 );
@@ -32,6 +35,15 @@ $space: (
   }
   @return map.get($space, $step);
 }
+
+// --- Horizontale Buehne ---
+// Ab dieser Groesse laufen Hero und About als zwei Tafeln nebeneinander.
+// Die Hoehe ist die eigentliche Bedingung: About braucht rund 642px
+// Inhalt, und in einer gehefteten Tafel laesst sich nicht nachscrollen.
+// Diese Werte werden in styles.scss zusaetzlich als CSS-Variablen
+// ausgegeben, damit home.ts dieselbe Bedingung liest statt sie zu kopieren.
+$stage-min-width: 1200px;
+$stage-min-height: 750px;
 
 // --- Radien ---
 $radius-sm: 4px;

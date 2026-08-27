@@ -13,6 +13,11 @@
 }
 
 @include m.mq(laptop) {
+  // Erst hier eingeblendet: Der Hinweis richtet sich an Mausnutzer.
+  .hero__scroll { display: flex; }
+}
+
+@include m.mq(laptop) {
   .hero__grid { background-size: 104px 104px; }
 
   // Sobald der Viewport breiter als der Inhaltsbereich ist, wandert der

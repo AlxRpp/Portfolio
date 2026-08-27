@@ -1,9 +1,19 @@
+@use 'sass:math';
 // =============================================================
 //  GLOBAL: einziger Ort, an dem Theme und Reset CSS ausgeben.
 // =============================================================
 
+@use 'styles/tokens' as t;
 @use 'styles/theme';
 @use 'styles/reset';
+
+// Einzige Quelle fuer die Schwelle der horizontalen Buehne. SCSS nutzt die
+// Variablen direkt in der Media Query, home.ts liest diese Werte hier aus.
+// So kann die Bedingung in CSS und TypeScript nicht auseinanderlaufen.
+:root {
+  --stage-min-width: #{math.div(t.$stage-min-width, 1px)};
+  --stage-min-height: #{math.div(t.$stage-min-height, 1px)};
+}
 
 // --- Schriften, selbst gehostet, kein externer Aufruf ---
 @font-face {

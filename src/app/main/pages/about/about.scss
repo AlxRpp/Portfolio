@@ -1,0 +1,208 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.about {
+  position: relative;
+  // In der horizontalen Buehne setzt die Tafel diese beiden Variablen und
+  // die Sektion richtet sich mittig auf voller Hoehe aus. Ohne Buehne
+  // greifen die Standardwerte und alles bleibt wie gehabt.
+  min-height: var(--section-min-height, auto);
+  padding-block: var(--section-padding-block, #{t.sp(9)});
+  display: grid;
+  align-content: center;
+}
+
+.about__inner {
+  @include m.content-width;
+  display: grid;
+  gap: t.sp(6);
+
+  // Mobil eine Spalte in Lesereihenfolge: Ueberschrift, Bild, Text, Belege.
+  grid-template-areas:
+    'head'
+    'media'
+    'body'
+    'sources';
+}
+
+.about__head    { grid-area: head; }
+.about__media   { grid-area: media; }
+.about__body    { grid-area: body; }
+.about__sources { grid-area: sources; }
+
+// --- Kopf ---
+
+// Einspaltig wird der Kopf zentriert, damit er zum zentrierten Foto
+// passt. Ab zwei Spalten steht er wieder linksbuendig ueber dem Text.
+.about__head { text-align: center; }
+
+.about__eyebrow {
+  @include m.mono-label;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: t.sp(2);
+  margin-bottom: t.sp(4);
+}
+
+.about__marker {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-dim);
+}
+
+.about__heading {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  max-width: 18ch;
+  margin-inline: auto;
+}
+
+// --- Fliesstext ---
+
+// Der Textblock wird mittig gesetzt, der Text darin bleibt aber
+// linksbuendig. Zentrierte Absaetze sind ueber mehrere Zeilen schwer
+// zu lesen, weil der Zeilenanfang staendig springt.
+.about__body {
+  display: grid;
+  gap: t.sp(5);
+  max-width: 58ch;
+  margin-inline: auto;
+}
+
+.about__paragraph {
+  font-size: var(--fs-prose);
+  color: var(--text-secondary);
+}
+
+// Fussnote im Text. Fuehrt zum passenden Beleg und ist per Tastatur
+// erreichbar, weil die Belege der eigentliche Inhalt dieser Sektion sind.
+.about__note {
+  display: inline-block;
+  margin-left: 1px;
+  font-family: var(--font-mono);
+  font-size: .62em;
+  font-weight: 600;
+  vertical-align: super;
+  color: var(--brand);
+  transition: color t.$dur-fast t.$ease;
+  @include m.focus-ring(2px);
+
+  &:hover { color: var(--brand-bright); }
+}
+
+// --- Foto ---
+
+.about__media {
+  position: relative;
+  // Einspaltig zentriert. Linksbuendig sitzt das Foto sonst in einem
+  // breiten Block an der Kante und wirkt abgerutscht.
+  justify-self: center;
+  max-width: 22rem;
+}
+
+// Weicher Schein, damit das freigestellte Foto nicht im Nichts schwebt.
+//
+// Seitlich bewusst kein Ueberhang: ein Pseudo-Element, das ueber den
+// Inhaltsbereich hinausragt, zaehlt in die Scrollbreite des Dokuments und
+// erzeugt eine horizontale Scrollleiste. Der Verlauf blendet ohnehin von
+// selbst aus, den Ueberhang braucht er nicht.
+.about__media::before {
+  content: '';
+  position: absolute;
+  inset: -6% 0 -2%;
+  background: radial-gradient(
+    ellipse 78% 62% at 50% 45%,
+    var(--brand-wash) 0%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.about__photo {
+  position: relative;
+  width: 100%;
+  height: auto;
+  // Bewusst in voller Farbe. Das Foto ist damit das farbstaerkste
+  // Element der Seite, was an dieser einen Stelle gewollt ist: hier
+  // geht es um die Person, nicht um das System. Der Kontrast ist nur
+  // minimal angehoben, damit die Kanten gegen den dunklen Grund stehen.
+  filter: contrast(1.02);
+}
+
+// --- Belege ---
+
+.about__sources {
+  padding-top: t.sp(4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.about__sources-title {
+  @include m.mono-label;
+  font-size: var(--fs-label);
+  margin-bottom: t.sp(4);
+}
+
+.about__sources-list {
+  display: grid;
+  // Zwei Spalten, sobald sie wirklich passen. auto-fit rechnet das
+  // selbst aus, statt sich auf einen geratenen Breakpoint zu verlassen:
+  // ein Eintrag braucht gemessen 175px (Ziffer 24 + Abstand 8 + der
+  // laengste Name Videoflix_Backend 143). Zwei davon plus Spaltenabstand
+  // sind 382px. Ist weniger da, faellt die Liste von allein auf eine
+  // Spalte zurueck, egal auf welchem Geraet.
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: t.sp(4) t.sp(6);
+  align-items: start;
+}
+
+.about__source {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: t.sp(2);
+  // Sprungziel, damit die Fussnote nicht unter dem festen Header landet.
+  scroll-margin-top: 96px;
+}
+
+.about__source-n {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--brand);
+  line-height: 1.5;
+}
+
+.about__source-links {
+  display: flex;
+  flex-direction: column;
+  gap: t.sp(1);
+
+  a {
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    color: var(--text-muted);
+    width: fit-content;
+    transition: color t.$dur-fast t.$ease;
+    @include m.focus-ring(2px);
+
+    &:hover { color: var(--brand); }
+  }
+}
+
+// Kurzes Aufleuchten, wenn eine Fussnote hierher gesprungen ist. Die
+// Klasse setzt die Komponente, weil `:target` bei Router-Navigation
+// per pushState nicht anspringt.
+.about__source.is-highlighted .about__source-n {
+  animation: about-flash 1.6s t.$ease;
+}
+
+@keyframes about-flash {
+  0%, 40% { color: var(--brand-bright); scale: 1.35; }
+  100%    { color: var(--brand); scale: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about__source.is-highlighted .about__source-n { animation: none; }
+}

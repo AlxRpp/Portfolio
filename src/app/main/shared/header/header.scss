@@ -21,18 +21,27 @@
   }
 }
 
+// Logo links, Navigation exakt mittig, Sprachwechsel rechts.
+//
+// Die Aussenspalten sind bewusst beide 1fr und nicht auto: Logo und
+// Aktionsbereich sind unterschiedlich breit (38px gegen 51px). Bei
+// `auto 1fr auto` laege die Mittelspalte deshalb zwischen zwei ungleichen
+// Raendern und ihre Mitte waere nie die Seitenmitte. Mit `1fr auto 1fr`
+// sind beide Raender gleich gross und die Navigation sitzt wirklich mittig.
 .header__inner {
   @include m.content-width;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: t.sp(5);
   height: 64px;
 }
 
 .header__logo {
+  grid-column: 1;
   display: flex;
   align-items: center;
+  justify-self: start;
   flex-shrink: 0;
   @include m.focus-ring;
 
@@ -46,8 +55,10 @@
 }
 
 .header__nav {
+  grid-column: 2;
   display: none;              // Desktop-Navigation, siehe mediaQuerrys
   align-items: center;
+  justify-content: center;
   gap: t.sp(6);
 }
 
@@ -77,9 +88,15 @@
   }
 }
 
+// Die Spalte wird fest zugewiesen und nicht der automatischen Platzierung
+// ueberlassen: `display: none` nimmt die Navigation komplett aus dem Raster,
+// nicht nur aus der Anzeige. Ohne feste Spalte ruecken Sprachwechsel und
+// Burger dann in die Mitte nach, sobald die Navigation ausgeblendet ist.
 .header__actions {
+  grid-column: 3;
   display: flex;
   align-items: center;
+  justify-self: end;
   gap: t.sp(4);
 }
 

@@ -1,5 +1,9 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import {
+  provideRouter,
+  withInMemoryScrolling,
+  withRouterConfig,
+} from '@angular/router';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -29,6 +33,11 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled',
         scrollPositionRestoration: 'enabled',
       }),
+      // Ohne 'reload' verwirft der Router eine Navigation auf exakt
+      // dieselbe URL. Ein zweiter Klick auf denselben Ankerlink bliebe
+      // dann wirkungslos: kein erneutes Scrollen und kein erneutes
+      // Aufleuchten des Belegs in der About-Sektion.
+      withRouterConfig({ onSameUrlNavigation: 'reload' }),
     ),
   ],
 };

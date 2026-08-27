@@ -1,1 +1,40 @@
+@use 'tokens' as t;
+
 :host { display: block; }
+
+// Standard: keine Buehne, die Sektionen stehen untereinander.
+.stage__panel { display: block; }
+
+// Zwei bildschirmfuellende Tafeln nebeneinander.
+//
+// Die Bedingung ist identisch zu der in animations.ts. Beide lesen dieselben
+// Werte: hier direkt aus _tokens.scss, dort ueber die CSS-Variablen, die
+// styles.scss daraus ausgibt.
+@media (min-width: #{t.$stage-min-width}) and (min-height: #{t.$stage-min-height}) and (prefers-reduced-motion: no-preference) {
+  .stage {
+    overflow: hidden;
+    --panels: 2;
+  }
+
+  // Bewusst Prozent statt vw: 100vw zaehlt die Scrollleiste mit und die
+  // Tafeln waeren rund 15px zu breit, wodurch sie neben dem Bildschirmrand
+  // einrasten. Prozent bezieht sich auf die Buehne und damit auf die
+  // tatsaechlich sichtbare Breite.
+  .stage__track {
+    display: flex;
+    width: calc(100% * var(--panels));
+    height: 100svh;
+  }
+
+  .stage__panel {
+    flex: 0 0 calc(100% / var(--panels));
+    height: 100svh;
+    overflow: hidden;
+
+    // Die Tafel gibt ihre Masse an die Sektion weiter. About liest beide
+    // Variablen und richtet sich darin mittig aus, statt seinen normalen
+    // Aussenabstand zu benutzen, der in einer Tafel nicht passen wuerde.
+    --section-min-height: 100svh;
+    --section-padding-block: #{t.sp(6)};
+  }
+}

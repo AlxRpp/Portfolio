@@ -2,12 +2,37 @@ import { Injectable } from '@angular/core';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger, SplitText, ScrollToPlugin);
 
 /** Gemeinsame Bewegungssprache: langsam, präzise, kein Bounce. */
 const EASE = 'power2.out';
 const DUR = { fast: 0.4, base: 0.6, slow: 0.8 } as const;
+
+/** Steuerung der horizontalen Buehne, siehe horizontalStage(). */
+export interface StageControls {
+  /**
+   * Faehrt die angegebene Tafel an. Gibt false zurueck, wenn die Buehne
+   * gerade nicht aktiv ist; der Aufrufer kann dann das normale
+   * Ankerscrollen greifen lassen.
+   */
+  goTo(panelIndex: number): boolean;
+  /** true, solange die Buehne horizontal laeuft. */
+  isActive(): boolean;
+  destroy(): void;
+}
+
+export interface StageOptions {
+  minWidth: number;
+  minHeight: number;
+  /**
+   * Wird gerufen, sobald eine andere Tafel die aktive wird, also beim
+   * Ueberschreiten der Haelfte zwischen zwei Rastpunkten. Feuert nur bei
+   * echtem Wechsel, nicht bei jedem Scrollschritt.
+   */
+  onPanelChange?: (panelIndex: number) => void;
+}
 
 export interface RevealOptions {
   /** Verzögerung vor dem Start, in Sekunden. */
@@ -124,6 +149,102 @@ export class Animations {
       },
       ...this.trigger(el, o),
     });
+  }
+
+  /**
+   * Legt zwei oder mehr Tafeln nebeneinander und verwandelt vertikales
+   * Scrollen in eine horizontale Bewegung, die auf ganze Tafeln einrastet.
+   *
+   * Aktiv nur oberhalb der uebergebenen Schwelle. Die Hoehe ist dabei die
+   * eigentliche Bedingung: In einer gehefteten Tafel laesst sich nicht
+   * nachscrollen, zu hoher Inhalt waere also unerreichbar. Bei
+   * `prefers-reduced-motion` bleibt die Buehne ebenfalls aus und die
+   * Sektionen stehen normal untereinander.
+   *
+   * gsap.matchMedia raeumt beim Unterschreiten der Schwelle selbst auf und
+   * loest den Pin wieder, auch beim Groessenaendern des Fensters.
+   */
+  horizontalStage(
+    stage: HTMLElement,
+    track: HTMLElement,
+    { minWidth, minHeight, onPanelChange }: StageOptions,
+  ): StageControls {
+    const panels = track.children.length;
+    if (panels < 2) {
+      return { goTo: () => false, isActive: () => false, destroy: () => {} };
+    }
+
+    const mm = gsap.matchMedia();
+    let trigger: ScrollTrigger | undefined;
+    let anfahrt: gsap.core.Tween | undefined;
+
+    const query =
+      `(min-width: ${minWidth}px) and (min-height: ${minHeight}px) ` +
+      `and (prefers-reduced-motion: no-preference)`;
+
+    mm.add(query, () => {
+      let aktiveTafel = 0;
+
+      const tween = gsap.to(track, {
+        // Die Spur ist so breit wie alle Tafeln zusammen. Eine Tafel
+        // weiterzuschieben sind daher 100/panels Prozent der Spur, nicht
+        // volle 100 Prozent.
+        xPercent: (-100 * (panels - 1)) / panels,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: stage,
+          pin: true,
+          scrub: 0.6,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          end: () => '+=' + stage.offsetHeight * (panels - 1),
+          onUpdate: (self) => {
+            const index = Math.round(self.progress * (panels - 1));
+            if (index === aktiveTafel) return;
+            aktiveTafel = index;
+            onPanelChange?.(index);
+          },
+          snap: {
+            snapTo: 1 / (panels - 1),
+            duration: { min: 0.2, max: 0.5 },
+            ease: 'power2.inOut',
+          },
+        },
+      });
+
+      trigger = tween.scrollTrigger;
+      return () => {
+        trigger = undefined;
+      };
+    });
+
+    return {
+      goTo: (index) => {
+        if (!trigger) return false;
+
+        const spanne = trigger.end - trigger.start;
+        const ziel = trigger.start + (spanne * index) / (panels - 1);
+
+        // Bewusst ueber GSAP und nicht ueber window.scrollTo: Der Snap des
+        // ScrollTriggers erkennt eine fremde Scrollbewegung nicht als
+        // gewollt und zieht sofort auf den naechsten Rastpunkt zurueck.
+        // Damit bliebe der Sprung wirkungslos.
+        anfahrt?.kill();
+        anfahrt = gsap.to(window, {
+          scrollTo: { y: ziel, autoKill: false },
+          duration: 0.8,
+          ease: 'power2.inOut',
+          overwrite: true,
+        });
+
+        return true;
+      },
+      isActive: () => Boolean(trigger),
+      destroy: () => {
+        anfahrt?.kill();
+        mm.revert();
+      },
+    };
   }
 
   /** Alle ScrollTrigger neu vermessen, etwa nach einem Sprachwechsel. */

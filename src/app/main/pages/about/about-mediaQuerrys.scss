@@ -1,0 +1,71 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+// 800 bis 899px: noch einspaltig, aber der ganze Block wird zentriert und
+// begrenzt. Ohne das stuende der Text links und rechts bliebe eine leere
+// Flaeche, die wie ein Fehler aussieht statt wie eine Entscheidung.
+@include m.mq(tablet) {
+  .about { padding-block: var(--section-padding-block, #{t.sp(10)}); }
+
+  .about__inner { max-width: 44rem; }
+
+  .about__media { max-width: 24rem; }
+}
+
+// Ab 900px zwei Spalten. Die Gewichtung waechst mit: 6 zu 5 haelt den
+// Text hier bei rund 45 Zeichen pro Zeile, ab 1200px sind es mit 7 zu 5
+// rund 66. Beides liegt im lesbaren Bereich von 45 bis 75.
+@include m.mq(tablet-lg) {
+  .about__inner {
+    max-width: t.$content-max;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    column-gap: t.sp(7);
+    align-items: start;
+    grid-template-areas:
+      'head  media'
+      'body  media'
+      'body  sources';
+
+    // Bewusst null: nur so beruehrt die Unterkante des Fotos die Linie
+    // ueber den Belegen. Der Abstand im linken Streifen wird deshalb
+    // darunter einzeln gesetzt.
+    row-gap: 0;
+  }
+
+  // Ab zwei Spalten steht der Kopf wieder linksbuendig ueber dem Text,
+  // und beide Bloecke sitzen an der linken Spaltenkante statt mittig.
+  .about__head {
+    text-align: left;
+    margin-bottom: t.sp(6);
+  }
+
+  .about__eyebrow { justify-content: flex-start; }
+  .about__heading { margin-inline: 0; }
+  .about__body { margin-inline: 0; }
+
+  // Hier greift die automatische Aufteilung bewusst nicht: neben dem Foto
+  // sollen die Belege untereinander stehen, auch wenn die Spalte breit
+  // genug fuer zwei waere.
+  .about__sources-list { grid-template-columns: minmax(0, 1fr); }
+
+  // Das Foto steht mit seiner Unterkante genau auf der Linie ueber den
+  // Belegen, als stuetze er sich darauf ab. Das PNG hat unten keinen
+  // transparenten Rand, deshalb sitzt die sichtbare Kante auf der Linie
+  // und nicht darueber.
+  .about__media {
+    align-self: end;
+    justify-self: stretch;
+    max-width: none;
+  }
+
+  // Der Schein darf nicht unter die Linie laufen, sonst verwischt der
+  // Kontaktpunkt.
+  .about__media::before { inset: -6% 0 0; }
+}
+
+@include m.mq(laptop) {
+  .about__inner {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    column-gap: t.sp(8);
+  }
+}

@@ -1,0 +1,60 @@
+<section class="about" id="about">
+  <div class="about__inner">
+
+    <header class="about__head">
+      <p class="about__eyebrow" data-reveal>
+        <span class="about__marker" aria-hidden="true"></span>
+        {{ 'about.eyebrow' | translate }}
+      </p>
+      <h2 class="about__heading" data-reveal>{{ 'about.heading' | translate }}</h2>
+    </header>
+
+    <figure class="about__media" data-reveal>
+      <img
+        class="about__photo"
+        src="/assets/images/alexander-ruppel.png"
+        [alt]="'about.photoAlt' | translate"
+        width="640"
+        height="453"
+        loading="eager"
+        fetchpriority="low"
+        decoding="async"
+      />
+    </figure>
+
+    <div class="about__body">
+      @for (p of paragraphs; track p.key) {
+        <p class="about__paragraph" data-reveal>
+          {{ p.key | translate }}@if (p.note; as note) {<a
+            class="about__note"
+            routerLink="/"
+            [fragment]="'beleg-' + note"
+            [attr.aria-label]="'about.noteLabel' | translate: { n: note }"
+            (click)="highlight(note)"
+          >{{ note }}</a>}
+        </p>
+      }
+    </div>
+
+    <aside class="about__sources" data-reveal>
+      <h3 class="about__sources-title">{{ 'about.sourcesLabel' | translate }}</h3>
+      <ul class="about__sources-list">
+        @for (s of sources; track s.n) {
+          <li
+            class="about__source"
+            [id]="'beleg-' + s.n"
+            [class.is-highlighted]="highlighted() === s.n"
+          >
+            <span class="about__source-n" aria-hidden="true">{{ s.n }}</span>
+            <span class="about__source-links">
+              @for (l of s.links; track l.url) {
+                <a [href]="l.url" target="_blank" rel="noopener noreferrer">{{ l.label }}</a>
+              }
+            </span>
+          </li>
+        }
+      </ul>
+    </aside>
+
+  </div>
+</section>
