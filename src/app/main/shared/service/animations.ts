@@ -39,6 +39,8 @@ export interface RevealOptions {
   delay?: number;
   /** Startversatz nach unten, in Pixeln. */
   y?: number;
+  /** Startversatz zur Seite, in Pixeln. Negativ heisst von links. */
+  x?: number;
   duration?: number;
   /** Wenn gesetzt, startet die Animation erst beim Hereinscrollen. */
   scroll?: boolean;
@@ -101,6 +103,40 @@ export class Animations {
       stagger: o.stagger ?? 0.06,
       ease: EASE,
       ...this.trigger(container, o),
+    });
+  }
+
+  /**
+   * Blendet jedes Element einzeln ein, sobald es selbst in den Blick kommt.
+   *
+   * Unterschied zu staggerChildren: Dort haengen alle Elemente an einem
+   * gemeinsamen Ausloeser und laufen versetzt los, sobald der Container
+   * sichtbar wird. Bei einer hohen Sektion sind die letzten Elemente dann
+   * laengst fertig animiert, bevor man sie ueberhaupt gesehen hat. Hier
+   * traegt jedes Element seinen eigenen Ausloeser.
+   */
+  revealEach(container: Element, selector: string, o: RevealOptions = {}): void {
+    const items = container.querySelectorAll(selector);
+    if (!items.length) return;
+
+    if (this.reduced) {
+      this.settle(items);
+      return;
+    }
+
+    items.forEach((el) => {
+      gsap.from(el, {
+        opacity: 0,
+        y: o.y ?? 0,
+        x: o.x ?? 0,
+        duration: o.duration ?? DUR.base,
+        ease: EASE,
+        scrollTrigger: {
+          trigger: el,
+          start: o.start ?? 'top 88%',
+          once: true,
+        },
+      });
     });
   }
 
@@ -197,6 +233,13 @@ export class Animations {
           scrub: 0.6,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          // Die Buehne steht ganz oben auf der Seite, ihre Ausloeser
+          // werden aber zuletzt erzeugt: Angular ruft ngAfterViewInit
+          // beim Kind vor dem Elternteil. Ohne feste Reihenfolge
+          // vermessen die Sektionen darunter das Dokument ohne die
+          // Strecke, die dieser Pin hinzufuegt, und feuern genau eine
+          // Bildschirmhoehe zu frueh.
+          refreshPriority: 1,
           end: () => '+=' + stage.offsetHeight * (panels - 1),
           onUpdate: (self) => {
             const index = Math.round(self.progress * (panels - 1));

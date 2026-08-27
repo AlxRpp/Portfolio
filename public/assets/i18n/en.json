@@ -33,5 +33,24 @@
     "photoAlt": "Alexander Ruppel",
     "sourcesLabel": "Sources",
     "noteLabel": "Jump to source {{n}}"
+  },
+  "howIWork": {
+    "eyebrow": "How I work",
+    "heading": "Writing the code is no longer the hard part.",
+    "lead": "AI writes a good deal of it now. What remains is the question of whether the right thing is being built and whether it holds. That is where my time goes.",
+    "steps": {
+      "understand": {
+        "title": "Understand",
+        "text": "Before I build anything, I ask what it is needed for. Most mistakes start not in the code but in an assumption about what was wanted."
+      },
+      "build": {
+        "title": "Build",
+        "text": "AI tools are part of my working day. They make me faster, not more careless. What they hand back is a proposal, not a result."
+      },
+      "verify": {
+        "title": "Verify",
+        "text": "What I have not followed through myself does not go live. A roof came with no rollback, and I kept the habit."
+      }
+    }
   }
 }

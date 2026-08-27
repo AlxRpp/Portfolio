@@ -33,5 +33,24 @@
     "photoAlt": "Alexander Ruppel",
     "sourcesLabel": "Belege",
     "noteLabel": "Zu Beleg {{n}} springen"
+  },
+  "howIWork": {
+    "eyebrow": "Wie ich arbeite",
+    "heading": "Der Code ist nicht mehr der schwierige Teil.",
+    "lead": "KI schreibt heute große Teile davon. Was bleibt, ist die Frage, ob das Richtige entsteht und ob es hält. Genau dort verbringe ich meine Zeit.",
+    "steps": {
+      "understand": {
+        "title": "Verstehen",
+        "text": "Bevor ich etwas baue, frage ich, wofür es gebraucht wird. Die meisten Fehler entstehen nicht im Code, sondern in der Annahme darüber, was gewollt war."
+      },
+      "build": {
+        "title": "Bauen",
+        "text": "KI-Werkzeuge gehören zu meinem Alltag. Sie machen mich schneller, nicht sorgloser. Was sie liefern, ist ein Vorschlag, kein Ergebnis."
+      },
+      "verify": {
+        "title": "Absichern",
+        "text": "Was ich nicht selbst nachvollzogen habe, geht nicht live. Auf dem Dach gab es kein Rollback, und die Gewohnheit habe ich behalten."
+      }
+    }
   }
 }

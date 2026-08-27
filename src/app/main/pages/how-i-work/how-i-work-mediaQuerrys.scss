@@ -1,0 +1,26 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+@include m.mq(tablet) {
+  .work { padding-block: t.sp(10); }
+}
+
+// Ab hier wird aus jedem Schritt eine Zeile: Nummer, Titel, Text.
+//
+// Der Inhaltsbereich wird dafuer auf 60rem begrenzt. Ueber die volle
+// Seitenbreite kaeme der Text sonst auf rund 100 Zeichen pro Zeile, lesbar
+// sind 45 bis 75. Begrenzt und mittig gesetzt liest sich die Sektion wie
+// ein Dokument, was zu einer Prozessbeschreibung ohnehin besser passt.
+@include m.mq(tablet-lg) {
+  .work__inner {
+    max-width: 60rem;
+    gap: t.sp(8);
+  }
+
+  .work__step {
+    grid-template-columns: 2.5rem minmax(0, 10rem) minmax(0, 1fr);
+    column-gap: t.sp(6);
+    // Nummer, Titel und erste Textzeile sitzen auf einer Grundlinie.
+    align-items: baseline;
+  }
+}

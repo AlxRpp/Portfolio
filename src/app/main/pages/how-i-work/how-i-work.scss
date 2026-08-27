@@ -1,0 +1,88 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.work {
+  position: relative;
+  padding-block: t.sp(9);
+}
+
+.work__inner {
+  @include m.content-width;
+  display: grid;
+  gap: t.sp(8);
+}
+
+// --- Kopf ---
+
+.work__head {
+  display: grid;
+  gap: t.sp(4);
+  max-width: 52ch;
+}
+
+.work__eyebrow {
+  @include m.mono-label;
+  display: flex;
+  align-items: center;
+  gap: t.sp(2);
+}
+
+.work__marker {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-dim);
+}
+
+.work__heading {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  max-width: 20ch;
+}
+
+.work__lead {
+  font-size: var(--fs-prose);
+  color: var(--text-secondary);
+}
+
+// --- Schritte ---
+
+.work__steps {
+  display: grid;
+}
+
+// Einspaltig stehen Nummer, Titel und Text untereinander. Ab genug Breite
+// wird daraus eine Zeile: Nummer und Titel links, Text rechts, wie in einem
+// Datenblatt. Die Trennlinien bleiben dabei immer an den Schritten, damit
+// die Reihen wie Zeilen einer Tabelle lesbar sind.
+.work__step {
+  display: grid;
+  gap: t.sp(3);
+  border-top: 1px solid var(--border-subtle);
+  padding-block: t.sp(5);
+
+  // Schliesst den Block nach unten ab.
+  &:last-child { border-bottom: 1px solid var(--border-subtle); }
+}
+
+.work__number {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--brand);
+  line-height: 1;
+}
+
+.work__step-title {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.work__step-text {
+  font-size: var(--fs-prose);
+  color: var(--text-secondary);
+  max-width: 66ch;
+}
