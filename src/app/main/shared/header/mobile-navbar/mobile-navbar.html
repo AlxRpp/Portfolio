@@ -1,0 +1,20 @@
+<div
+  class="mobile-nav"
+  [class.is-open]="open()"
+  [attr.inert]="open() ? null : ''"
+>
+  <nav class="mobile-nav__list">
+    @for (item of items(); track item.fragment; let i = $index) {
+      <a
+        class="mobile-nav__link"
+        routerLink="/"
+        [fragment]="item.fragment"
+        [style.--i]="i"
+        (click)="dismissed.emit()"
+      >
+        <span class="mobile-nav__index">{{ '0' + (i + 1) }}</span>
+        {{ item.labelKey | translate }}
+      </a>
+    }
+  </nav>
+</div>

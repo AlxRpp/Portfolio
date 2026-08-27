@@ -1,0 +1,128 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--z-header);
+
+  // Über dem Hero unsichtbar, beim Scrollen legt sich Grund darunter.
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background t.$dur-base t.$ease,
+    border-color t.$dur-base t.$ease,
+    backdrop-filter t.$dur-base t.$ease;
+
+  &.is-scrolled {
+    background: rgb(10 14 17 / .72);
+    backdrop-filter: blur(12px) saturate(140%);
+    border-bottom-color: var(--border-subtle);
+  }
+}
+
+.header__inner {
+  @include m.content-width;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: t.sp(5);
+  height: 64px;
+}
+
+.header__logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  @include m.focus-ring;
+
+  img {
+    width: 34px;
+    height: 34px;
+    transition: scale t.$dur-base t.$ease;
+  }
+
+  &:hover img { scale: 1.06; }
+}
+
+.header__nav {
+  display: none;              // Desktop-Navigation, siehe mediaQuerrys
+  align-items: center;
+  gap: t.sp(6);
+}
+
+.header__link {
+  position: relative;
+  @include m.mono-label;
+  color: var(--text-secondary);
+  padding-block: t.sp(2);
+  transition: color t.$dur-fast t.$ease;
+  @include m.focus-ring;
+
+  // Unterstrich wächst aus der Mitte.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: var(--brand);
+    scale: 0 1;
+    transition: scale t.$dur-base t.$ease;
+  }
+
+  &:hover {
+    color: var(--text-primary);
+
+    &::after { scale: 1 1; }
+  }
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: t.sp(4);
+}
+
+.header__lang {
+  @include m.mono-label;
+  display: flex;
+  align-items: center;
+  gap: t.sp(1);
+  color: var(--text-muted);
+  @include m.focus-ring;
+
+  span { transition: color t.$dur-fast t.$ease; }
+  .is-active { color: var(--brand); }
+}
+
+.header__lang-sep { opacity: .4; }
+
+// Zwei Striche, die sich zum Kreuz drehen.
+.header__burger {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-content: center;
+  gap: 6px;
+  @include m.focus-ring;
+
+  span {
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    background: var(--text-primary);
+    border-radius: 2px;
+    transition:
+      translate t.$dur-base t.$ease,
+      rotate t.$dur-base t.$ease,
+      width t.$dur-base t.$ease;
+  }
+
+  &.is-open span {
+    &:first-child { translate: 0 3.75px; rotate: 45deg; }
+    &:last-child  { translate: 0 -3.75px; rotate: -45deg; }
+  }
+
+  &:hover:not(.is-open) span:last-child { width: 14px; }
+}

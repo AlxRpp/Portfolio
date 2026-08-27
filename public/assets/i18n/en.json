@@ -1,0 +1,26 @@
+{
+  "header": {
+    "home": "Back to start",
+    "navLabel": "Main navigation",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu",
+    "switchLanguage": "Switch language",
+    "nav": {
+      "about": "About",
+      "howIWork": "How I work",
+      "projects": "Projects",
+      "stack": "Stack",
+      "contact": "Contact"
+    }
+  },
+  "hero": {
+    "role": "Agentic Software Engineer",
+    "location": "Paderborn",
+    "name": "Alexander Ruppel",
+    "claim": "Better done properly once than badly twice.",
+    "lead": "18 years in the trades, the last of them running my own business. Today I build AI applications that go into production, held to the same standard as back then on the roof: it has to hold.",
+    "ctaProjects": "View projects",
+    "ctaContact": "Get in touch",
+    "scroll": "Scroll"
+  }
+}

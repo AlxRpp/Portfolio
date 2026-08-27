@@ -1,0 +1,72 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-nav);
+  background: var(--bg-base);
+  display: grid;
+  align-content: center;
+
+  // Geschlossen: unsichtbar, nicht anklickbar, nicht fokussierbar.
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 -8px;
+  transition:
+    opacity t.$dur-base t.$ease,
+    translate t.$dur-base t.$ease,
+    visibility 0s linear t.$dur-base;
+
+  &.is-open {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+    transition-delay: 0s;
+  }
+
+  @include m.mq(tablet) { display: none; }
+}
+
+.mobile-nav__list {
+  @include m.content-width;
+  display: grid;
+  gap: t.sp(5);
+}
+
+.mobile-nav__link {
+  display: flex;
+  align-items: baseline;
+  gap: t.sp(4);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  color: var(--text-primary);
+  @include m.focus-ring;
+
+  // Einträge laufen nacheinander ein, sobald das Menü offen ist.
+  opacity: 0;
+  translate: 0 12px;
+  transition:
+    opacity t.$dur-base t.$ease,
+    translate t.$dur-base t.$ease,
+    color t.$dur-fast t.$ease;
+
+  .is-open & {
+    opacity: 1;
+    translate: 0 0;
+    transition-delay: calc(var(--i) * 50ms + 80ms);
+  }
+
+  &:hover { color: var(--brand); }
+}
+
+.mobile-nav__index {
+  @include m.mono-label;
+  color: var(--brand-dim);
+  font-size: var(--fs-small);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav,
+  .mobile-nav__link { transition-duration: .01ms; }
+}

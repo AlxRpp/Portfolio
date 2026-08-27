@@ -1,0 +1,25 @@
+@use 'tokens' as t;
+
+// Erster Tabstopp der Seite. Sichtbar nur bei Tastaturbedienung.
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% -120%;
+  z-index: var(--z-overlay);
+  padding: .75rem 1.25rem;
+  background: var(--brand);
+  color: var(--bg-base);
+  font-weight: 600;
+  border-radius: 0 0 8px 8px;
+  transition: translate t.$dur-base t.$ease;
+
+  &:focus-visible {
+    translate: -50% 0;
+    outline: none;
+  }
+}
+
+main {
+  display: block;
+}

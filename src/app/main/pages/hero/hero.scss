@@ -1,0 +1,178 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  align-items: center;
+  overflow: hidden;
+  padding-block: t.sp(9) t.sp(8);
+}
+
+// Technisches Raster, das zu den Rändern hin verschwindet.
+// Rein dekorativ, deshalb aria-hidden im Template.
+.hero__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 45%, #000 20%, transparent 78%);
+  opacity: .5;
+  pointer-events: none;
+}
+
+.hero__inner {
+  position: relative;
+  width: 100%;
+  max-width: t.$content-max;
+  margin-inline: auto;
+  padding-inline: t.$content-pad-sm;
+}
+
+.hero__eyebrow {
+  @include m.mono-label;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: t.sp(2);
+  margin-bottom: t.sp(5);
+  color: var(--text-secondary);
+}
+
+// Pulsierender Punkt: das einzige, was sich hier dauerhaft bewegt.
+.hero__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal-ok);
+  box-shadow: 0 0 0 0 rgb(61 214 140 / .6);
+  animation: hero-pulse 2.4s ease-out infinite;
+}
+
+@keyframes hero-pulse {
+  70%  { box-shadow: 0 0 0 8px rgb(61 214 140 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(61 214 140 / 0); }
+}
+
+.hero__sep { color: var(--border-strong); }
+
+.hero__name {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: var(--lh-tight);
+  margin-bottom: t.sp(5);
+}
+
+.hero__claim {
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  color: var(--brand);
+  letter-spacing: -.015em;
+  max-width: 22ch;
+  margin-bottom: t.sp(5);
+}
+
+.hero__lead {
+  font-size: var(--fs-lead);
+  color: var(--text-secondary);
+  max-width: 46ch;
+  margin-bottom: t.sp(7);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.sp(3);
+}
+
+// --- Buttons ---------------------------------------------------------
+// Wandern in shared/button, sobald die zweite Sektion sie ebenfalls braucht.
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(2);
+  padding: t.sp(3) t.sp(5);
+  border-radius: t.$radius-md;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  letter-spacing: .01em;
+  transition:
+    background t.$dur-fast t.$ease,
+    color t.$dur-fast t.$ease,
+    border-color t.$dur-fast t.$ease,
+    translate t.$dur-fast t.$ease;
+  @include m.focus-ring;
+
+  span { transition: translate t.$dur-fast t.$ease; }
+  &:hover span { translate: 3px 0; }
+}
+
+.btn--primary {
+  background: var(--brand);
+  color: var(--bg-base);
+
+  &:hover { background: var(--brand-bright); }
+}
+
+.btn--ghost {
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+
+  &:hover {
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+}
+
+// --- Scroll-Hinweis --------------------------------------------------
+
+.hero__scroll {
+  position: absolute;
+  bottom: t.sp(5);
+  left: t.$content-pad-sm;
+  display: flex;
+  align-items: center;
+  gap: t.sp(3);
+  @include m.focus-ring;
+
+  &:hover .hero__scroll-label { color: var(--text-primary); }
+}
+
+.hero__scroll-label {
+  @include m.mono-label;
+  transition: color t.$dur-fast t.$ease;
+}
+
+// Linie, die nach unten durchläuft.
+.hero__scroll-line {
+  position: relative;
+  width: 48px;
+  height: 1px;
+  background: var(--border-strong);
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--brand);
+    animation: hero-scroll-line 2.2s t.$ease infinite;
+  }
+}
+
+@keyframes hero-scroll-line {
+  0%   { translate: -100% 0; }
+  60%  { translate: 100% 0; }
+  100% { translate: 100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__dot,
+  .hero__scroll-line::after { animation: none; }
+}

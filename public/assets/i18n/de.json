@@ -1,0 +1,26 @@
+{
+  "header": {
+    "home": "Zur Startseite",
+    "navLabel": "Hauptnavigation",
+    "menuOpen": "Menü öffnen",
+    "menuClose": "Menü schließen",
+    "switchLanguage": "Sprache wechseln",
+    "nav": {
+      "about": "Über mich",
+      "howIWork": "Wie ich arbeite",
+      "projects": "Projekte",
+      "stack": "Stack",
+      "contact": "Kontakt"
+    }
+  },
+  "hero": {
+    "role": "Agentic Software Engineer",
+    "location": "Paderborn",
+    "name": "Alexander Ruppel",
+    "claim": "Lieber einmal richtig als zweimal schlecht.",
+    "lead": "18 Jahre Handwerk, zuletzt mit eigenem Betrieb. Heute baue ich KI-Anwendungen, die in Produktion gehen, mit demselben Anspruch wie damals auf dem Dach: Es muss halten.",
+    "ctaProjects": "Projekte ansehen",
+    "ctaContact": "Kontakt",
+    "scroll": "Scrollen"
+  }
+}

@@ -1,0 +1,35 @@
+<section class="hero">
+  <div class="hero__grid" aria-hidden="true"></div>
+
+  <div class="hero__inner">
+
+    <p class="hero__eyebrow" data-reveal>
+      <span class="hero__dot" aria-hidden="true"></span>
+      {{ 'hero.role' | translate }}
+      <span class="hero__sep" aria-hidden="true">&middot;</span>
+      {{ 'hero.location' | translate }}
+    </p>
+
+    <h1 class="hero__name">{{ 'hero.name' | translate }}</h1>
+
+    <p class="hero__claim" data-reveal>{{ 'hero.claim' | translate }}</p>
+
+    <p class="hero__lead" data-reveal>{{ 'hero.lead' | translate }}</p>
+
+    <div class="hero__actions" data-reveal>
+      <a class="btn btn--primary" routerLink="/" fragment="projects">
+        {{ 'hero.ctaProjects' | translate }}
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+      <a class="btn btn--ghost" routerLink="/" fragment="contact">
+        {{ 'hero.ctaContact' | translate }}
+      </a>
+    </div>
+
+  </div>
+
+  <a class="hero__scroll" routerLink="/" fragment="about" data-reveal>
+    <span class="hero__scroll-label">{{ 'hero.scroll' | translate }}</span>
+    <span class="hero__scroll-line" aria-hidden="true"></span>
+  </a>
+</section>

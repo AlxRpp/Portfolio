@@ -1,0 +1,62 @@
+# --- Abhängigkeiten ---
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# --- Build-Ausgaben ---
+/dist
+/tmp
+/out-tsc
+/bazel-out
+.angular/cache
+/.angular
+
+# --- Tests & Coverage ---
+/coverage
+/.nyc_output
+
+# --- Umgebungsvariablen & Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+
+# --- Interne Dokumentation (nicht öffentlich) ---
+/docs
+
+# --- Editor & IDE ---
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.history/
+*.swp
+*.swo
+
+# --- Claude Code / KI-Werkzeuge ---
+.claude/
+CLAUDE.local.md
+
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# --- Windows / Linux ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*~
+
+# --- Sonstiges ---
+*.log
+.npm
+.eslintcache

@@ -1,0 +1,63 @@
+// =============================================================
+//  MIXINS: gibt selbst kein CSS aus.
+// =============================================================
+
+@use 'sass:map';
+@use 'tokens' as t;
+
+/// Mobile-first Media Query.
+///   @include mq(tablet)        -> min-width: 800px
+///   @include mq(tablet, down)  -> max-width: 799.98px
+@mixin mq($name, $dir: up) {
+  @if not map.has-key(t.$bp, $name) {
+    @error 'Unbekannter Breakpoint: #{$name}';
+  }
+  $v: map.get(t.$bp, $name);
+
+  @if $dir == up {
+    @media (min-width: $v) { @content; }
+  } @else {
+    @media (max-width: ($v - .02px)) { @content; }
+  }
+}
+
+/// Zentrierter Inhaltsbereich mit den Rändern aus der Spec.
+@mixin content-width {
+  width: 100%;
+  max-width: t.$content-max;
+  margin-inline: auto;
+  padding-inline: t.$content-pad-sm;
+
+  @include mq(tablet) {
+    padding-inline: t.$content-pad;
+  }
+}
+
+/// Sichtbarer Fokusring, nur bei Tastaturbedienung.
+@mixin focus-ring($offset: 3px) {
+  &:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: $offset;
+    border-radius: t.$radius-sm;
+  }
+}
+
+/// Kleines Monospace-Label: Sektionskennungen, Meta, Status.
+@mixin mono-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/// Blendet Inhalt visuell aus, hält ihn aber für Screenreader da.
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

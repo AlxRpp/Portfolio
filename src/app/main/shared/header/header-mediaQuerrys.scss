@@ -1,0 +1,22 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+@include m.mq(tablet) {
+  .header__inner { height: 76px; }
+
+  .header__logo img {
+    width: 38px;
+    height: 38px;
+  }
+
+  // Ab hier trägt die Kopfzeile die Navigation selbst. margin-left
+  // schiebt sie nach rechts. Ohne sie stünde sie mittig, weil der
+  // Aktionsbereich auf dem Desktop leer ist (Burger aus, Sprachwechsel
+  // noch verborgen).
+  .header__nav {
+    display: flex;
+    margin-left: auto;
+  }
+
+  .header__burger { display: none; }
+}

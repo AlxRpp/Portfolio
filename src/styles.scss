@@ -1,0 +1,29 @@
+// =============================================================
+//  GLOBAL: einziger Ort, an dem Theme und Reset CSS ausgeben.
+// =============================================================
+
+@use 'styles/theme';
+@use 'styles/reset';
+
+// --- Schriften, selbst gehostet, kein externer Aufruf ---
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('/assets/fonts/BricolageGrotesque-Variable.woff2') format('woff2-variations');
+  font-weight: 200 800;
+  font-stretch: 75% 125%;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/assets/fonts/JetBrainsMono-Variable.woff2') format('woff2-variations');
+  font-weight: 100 800;
+  font-display: swap;
+}
+
+// SplitText erzeugt diese Spans erst zur Laufzeit. Sie tragen deshalb
+// kein Scope-Attribut einer Komponente und müssen global gesetzt werden.
+.char {
+  display: inline-block;
+  will-change: transform;
+}

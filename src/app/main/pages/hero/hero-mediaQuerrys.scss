@@ -1,0 +1,26 @@
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+@include m.mq(tablet) {
+  .hero__inner { padding-inline: t.$content-pad; }
+
+  .hero__grid { background-size: 88px 88px; }
+
+  .hero__scroll {
+    left: t.$content-pad;
+    bottom: t.sp(6);
+  }
+}
+
+@include m.mq(laptop) {
+  .hero__grid { background-size: 104px 104px; }
+
+  // Sobald der Viewport breiter als der Inhaltsbereich ist, wandert der
+  // Hinweis mit dessen linker Kante mit statt am Fensterrand zu kleben.
+  .hero__scroll {
+    left: max(
+      #{t.$content-pad},
+      calc((100vw - #{t.$content-max}) / 2 + #{t.$content-pad})
+    );
+  }
+}

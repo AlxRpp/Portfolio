@@ -1,0 +1,64 @@
+<header class="header" [class.is-scrolled]="scrolled()">
+  <div class="header__inner">
+
+    <a
+      class="header__logo"
+      routerLink="/"
+      [attr.aria-label]="'header.home' | translate"
+    >
+      <img
+        src="/assets/icons/brand/logo.png"
+        alt=""
+        width="36"
+        height="36"
+        decoding="async"
+      />
+    </a>
+
+    <nav class="header__nav" [attr.aria-label]="'header.navLabel' | translate">
+      @for (item of nav; track item.fragment) {
+        <a class="header__link" routerLink="/" [fragment]="item.fragment">
+          {{ item.labelKey | translate }}
+        </a>
+      }
+    </nav>
+
+    <div class="header__actions">
+
+      <!-- Erscheint erst, wenn en.json vollständig ist. -->
+      @if (lang.switchable()) {
+        <button
+          class="header__lang"
+          type="button"
+          (click)="lang.toggle()"
+          [attr.aria-label]="'header.switchLanguage' | translate"
+        >
+          <span [class.is-active]="lang.isGerman()">DE</span>
+          <span class="header__lang-sep" aria-hidden="true">/</span>
+          <span [class.is-active]="!lang.isGerman()">EN</span>
+        </button>
+      }
+
+      <button
+        class="header__burger"
+        type="button"
+        [class.is-open]="menuOpen()"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="mobile-nav"
+        [attr.aria-label]="(menuOpen() ? 'header.menuClose' : 'header.menuOpen') | translate"
+        (click)="toggleMenu()"
+      >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
+
+    </div>
+  </div>
+</header>
+
+<app-mobile-navbar
+  id="mobile-nav"
+  [open]="menuOpen()"
+  [items]="nav"
+  (dismissed)="closeMenu()"
+/>
