@@ -14,30 +14,37 @@
     }
   },
   "hero": {
-    "role": "Agentic Software Engineer",
-    "location": "Paderborn",
+    "role": "Softwareentwickler",
+    "location": "Delbrück",
     "name": "Alexander Ruppel",
     "claim": "Lieber einmal richtig als zweimal schlecht.",
-    "lead": "18 Jahre Handwerk, zuletzt mit eigenem Betrieb. Heute baue ich KI-Anwendungen, die in Produktion gehen, mit demselben Anspruch wie damals auf dem Dach: Es muss halten.",
+    "lead": "Erst verstehen, was gebraucht wird, dann sauber umsetzen. Ich baue Software mit dem handwerklichen Anspruch, dass sie vom ersten Tag an fehlerfrei läuft.",
     "ctaProjects": "Projekte ansehen",
     "ctaContact": "Kontakt",
     "scroll": "Scrollen"
   },
   "about": {
     "eyebrow": "Über mich",
-    "heading": "Ich schreibe dazu, was ich nicht gebaut habe.",
-    "p1": "Bei vier meiner Backend-Projekte war das Frontend vorgegeben. Das steht so in der Repo-Beschreibung, obwohl es ohne diesen Satz nach mehr aussähe. Bei einem steht, dass es mein erstes Backend war.",
-    "p2": "Ich mache das nicht aus Bescheidenheit, sondern weil ich selbst wissen will, wo ich stehe. Eine Fähigkeit, die man sich zuschreibt, ohne sie zu haben, hält bis zum ersten Code-Review. Eine, die man belegen kann, hält länger.",
-    "p3": "Dasselbe gilt für Fehler. Wer nur die Erfolge aufschreibt, geht dieselbe Sackgasse zweimal. In meiner HomeLab-Dokumentation stehen deshalb die Entscheidungen mit Begründung, und die Sackgassen stehen daneben.",
-    "p4": "Was auf dieser Seite steht, ist deshalb nachprüfbar. Wo ich etwas gebaut habe, liegt der Code oder die laufende Anwendung einen Klick entfernt. Was ich gerade erst lerne, steht als genau das da.",
+    "heading": "Wer schreibt hier Code?",
+    "p1": "Mich treibt die Neugier an, komplexe Probleme in saubere, funktionierende Software zu übersetzen. Ob es darum geht, performante Backends[1] zu entwerfen, anspruchsvolle Frontends[2] umzusetzen oder KI-Anwendungen[3] in die Produktion zu bringen: Ich will wissen, wie Systeme im Kern ticken und wie man sie von Grund auf robust aufbaut.",
+    "p2": "Dabei hilft mir ein pragmatischer Ansatz: Ich mag keine verkomplizierten Konstrukte und keine Abhängigkeit, die ich nicht erklären kann, sondern klare Architekturen, die über den gesamten Fullstack hinweg ineinandergreifen und im echten Alltag verlässlich ihren Dienst tun.",
+    "p3": "Wenn ich nicht gerade tippe oder Architekturen plane, verbringe ich viel Zeit damit, mein eigenes HomeLab[4] zu betreiben, neue Technologien auszuprobieren oder mich tief in technische Details einzuarbeiten. Für mich ist das keine Arbeit, sondern Leidenschaft, mit dem Anspruch, dass am Ende alles Hand und Fuß hat.",
     "photoAlt": "Alexander Ruppel",
     "sourcesLabel": "Belege",
-    "noteLabel": "Zu Beleg {{n}} springen"
+    "noteLabel": "Zu Beleg {{n}} springen",
+    "sources": {
+      "backends": "Backends",
+      "frontends": "Frontends",
+      "ai": "KI im Job",
+      "homelab": "HomeLab"
+    }
   },
   "howIWork": {
     "eyebrow": "Wie ich arbeite",
-    "heading": "Der Code ist nicht mehr der schwierige Teil.",
-    "lead": "KI schreibt heute große Teile davon. Was bleibt, ist die Frage, ob das Richtige entsteht und ob es hält. Genau dort verbringe ich meine Zeit.",
+    "heading": "Handwerkliche Präzision trifft moderne Softwarearchitektur.",
+    "p1": "Man sieht es dieser Website auf den ersten Blick vielleicht nicht an, aber mein Weg in die IT verläuft über eine handwerkliche Laufbahn. Insgesamt 18 Jahre habe ich im Dachdeckerhandwerk verbracht, davon fünf Jahre in der eigenen Selbstständigkeit als Dachdeckermeister. Diese jahrelange Praxis hat meinen Blick für Stabilität und Qualität nachhaltig geschärft.",
+    "p2": "Was auf dem Dach der Schutz vor Wind und Wetter ist, bedeutet in der Programmierung eine solide und saubere Architektur. Jedes System benötigt eine verlässliche Basis, bevor man ins Detail gehen kann. Genau diese Disziplin prägt heute meine tägliche Arbeit in der Softwareentwicklung.",
+    "p3": "Statt oberflächlicher Halblösungen oder voreiliger Schnellschüsse setze ich auf durchdachte Umsetzungen, die im Alltag verlässlich funktionieren. Jede Anwendung muss von Beginn an stabil stehen und exakt das tun, was gefordert ist.",
     "steps": {
       "understand": {
         "title": "Verstehen",
@@ -55,8 +62,8 @@
   },
   "projects": {
     "eyebrow": "Projekte",
-    "heading": "Was läuft, kannst du anklicken.",
-    "lead": "Nicht jedes Projekt lässt sich zeigen. Backends haben keine eigene Oberfläche, und Kundenprojekte bleiben beim Kunden. Was davon nachprüfbar ist, steht deshalb an jedem Projekt.",
+    "heading": "Praxis statt Theorie",
+    "lead": "Ein direkter Einblick in reale Architekturen und technische Umsetzungen. Von responsiven Frontends über performante Backends bis hin zu individuellen Softwarelösungen.",
     "status": {
       "live": "Live",
       "ongoing": "Laufend",

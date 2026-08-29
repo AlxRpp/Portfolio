@@ -43,11 +43,6 @@
   .about__heading { margin-inline: 0; }
   .about__body { margin-inline: 0; }
 
-  // Hier greift die automatische Aufteilung bewusst nicht: neben dem Foto
-  // sollen die Belege untereinander stehen, auch wenn die Spalte breit
-  // genug fuer zwei waere.
-  .about__sources-list { grid-template-columns: minmax(0, 1fr); }
-
   // Das Foto steht mit seiner Unterkante genau auf der Linie ueber den
   // Belegen, als stuetze er sich darauf ab. Das PNG hat unten keinen
   // transparenten Rand, deshalb sitzt die sichtbare Kante auf der Linie

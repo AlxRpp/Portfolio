@@ -7,9 +7,14 @@
         {{ 'howIWork.eyebrow' | translate }}
       </p>
       <h2 class="work__heading" data-reveal>{{ 'howIWork.heading' | translate }}</h2>
-      <p class="work__lead" data-reveal>{{ 'howIWork.lead' | translate }}</p>
     </header>
 
+    <!--
+      Schritte stehen vor dem Fliesstext, weil sie ab zwei Spalten links
+      sitzen. So bleibt die Reihenfolge im Quelltext dieselbe wie die im
+      Bild, und Tastatur wie Screenreader laufen die Sektion in genau der
+      Reihenfolge durch, in der man sie sieht.
+    -->
     <ol class="work__steps">
       @for (step of steps; track step.id; let i = $index) {
         <li class="work__step">
@@ -23,6 +28,12 @@
         </li>
       }
     </ol>
+
+    <div class="work__body">
+      @for (key of absaetze; track key) {
+        <p class="work__paragraph">{{ key | translate }}</p>
+      }
+    </div>
 
   </div>
 </section>

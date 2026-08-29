@@ -77,8 +77,8 @@
   color: var(--text-secondary);
 }
 
-// Fussnote im Text. Fuehrt zum passenden Beleg und ist per Tastatur
-// erreichbar, weil die Belege der eigentliche Inhalt dieser Sektion sind.
+// Belegziffer im Text. Nur eine Kennung, kein Link: geklickt wird in den
+// Belegen darunter. Deshalb ohne Fokusring und ohne Hover.
 .about__note {
   display: inline-block;
   margin-left: 1px;
@@ -87,10 +87,6 @@
   font-weight: 600;
   vertical-align: super;
   color: var(--brand);
-  transition: color t.$dur-fast t.$ease;
-  @include m.focus-ring(2px);
-
-  &:hover { color: var(--brand-bright); }
 }
 
 // --- Foto ---
@@ -145,25 +141,54 @@
   margin-bottom: t.sp(4);
 }
 
+// Schwelle, ab der die Belege vierspaltig laufen. Bewusst hier lokal und
+// nicht in den Tokens: das ist keine Layoutschwelle der Seite, sondern
+// haengt allein daran, ab wann vier Projektspalten nebeneinander passen.
+$belege-vierspaltig: 600px;
+
 .about__sources-list {
   display: grid;
-  // Zwei Spalten, sobald sie wirklich passen. auto-fit rechnet das
-  // selbst aus, statt sich auf einen geratenen Breakpoint zu verlassen:
-  // ein Eintrag braucht gemessen 175px (Ziffer 24 + Abstand 8 + der
-  // laengste Name Videoflix_Backend 143). Zwei davon plus Spaltenabstand
-  // sind 382px. Ist weniger da, faellt die Liste von allein auf eine
-  // Spalte zurueck, egal auf welchem Geraet.
-  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  // Darunter ein 2x2-Raster. Bewusst feste zwei statt auto-fit: dessen
+  // Zwischenstufe waeren drei Spalten, und drei Spalten sehen bei vier
+  // Belegen immer nach 3 plus 1 aus.
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: t.sp(4) t.sp(6);
   align-items: start;
 }
 
+@media (min-width: $belege-vierspaltig) {
+  .about__sources-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: t.sp(3);
+  }
+
+  // Eine Stufe kleiner, sonst passen vier Spalten nicht nebeneinander.
+  // Lange Projektnamen brechen dann um, statt die Spalte zu sprengen.
+  .about__source-head,
+  .about__source-links a {
+    font-size: var(--fs-label);
+  }
+
+  .about__source-links a { overflow-wrap: anywhere; }
+}
+
 .about__source {
-  display: grid;
-  grid-template-columns: 1.5rem 1fr;
-  gap: t.sp(2);
-  // Sprungziel, damit die Fussnote nicht unter dem festen Header landet.
+  // Sprungziel, damit ein geteilter Beleg-Link nicht unter dem festen
+  // Header landet.
   scroll-margin-top: 96px;
+}
+
+// Kopf einer Spalte: die Ziffer aus dem Text und das Thema, das sie belegt.
+.about__source-head {
+  display: flex;
+  align-items: baseline;
+  gap: t.sp(2);
+  margin-bottom: t.sp(3);
+  padding-bottom: t.sp(2);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .about__source-n {
@@ -180,6 +205,7 @@
   gap: t.sp(1);
 
   a {
+    display: block;
     font-family: var(--font-mono);
     font-size: var(--fs-small);
     color: var(--text-muted);
@@ -189,20 +215,4 @@
 
     &:hover { color: var(--brand); }
   }
-}
-
-// Kurzes Aufleuchten, wenn eine Fussnote hierher gesprungen ist. Die
-// Klasse setzt die Komponente, weil `:target` bei Router-Navigation
-// per pushState nicht anspringt.
-.about__source.is-highlighted .about__source-n {
-  animation: about-flash 1.6s t.$ease;
-}
-
-@keyframes about-flash {
-  0%, 40% { color: var(--brand-bright); scale: 1.35; }
-  100%    { color: var(--brand); scale: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .about__source.is-highlighted .about__source-n { animation: none; }
 }

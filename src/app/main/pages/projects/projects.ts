@@ -9,6 +9,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   Project,
@@ -32,6 +35,7 @@ export class Projects implements AfterViewInit {
   private readonly anim = inject(Animations);
   private readonly translate = inject(TranslateService);
   private readonly location = inject(Location);
+  private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -68,6 +72,7 @@ export class Projects implements AfterViewInit {
   constructor() {
     this.beobachteBreite();
     this.stelleAuswahlHer();
+    this.folgeAuswahlAusUrl();
   }
 
   // --- Auswahl -------------------------------------------------------
@@ -142,6 +147,38 @@ export class Projects implements AfterViewInit {
     const url = new URL(window.location.href);
     url.searchParams.set(URL_PARAM, slug);
     this.location.replaceState(url.pathname + url.search + url.hash);
+  }
+
+  /**
+   * Uebernimmt eine Auswahl, die von aussen kommt, etwa aus den Belegen
+   * der About-Sektion.
+   *
+   * Bewusst ueber NavigationEnd und nicht ueber queryParamMap: die Auswahl
+   * innerhalb der Sektion wird per Location.replaceState geschrieben,
+   * davon erfaehrt der Router nichts. Sein Parameterstrom liefe damit
+   * auseinander mit dem, was wirklich in der Adresszeile steht.
+   * window.location ist hier die verlaessliche Quelle.
+   *
+   * Ohne Projekt in der Adresszeile passiert nichts: ein Sprung auf
+   * #projects aus der Navigation darf die getroffene Auswahl nicht
+   * zuruecksetzen.
+   */
+  private folgeAuswahlAusUrl(): void {
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        const ausUrl = new URLSearchParams(window.location.search).get(URL_PARAM);
+        const projekt = ausUrl ? this.data.getBySlug(ausUrl) : undefined;
+        if (!projekt || projekt.slug === this.activeSlug()) return;
+
+        // Ueber waehleProjekt statt ueber die Signale direkt, damit
+        // Reiterbalken und Detailflaeche mitgezogen werden.
+        this.activeCategory.set(projekt.category);
+        this.waehleProjekt(projekt.slug);
+      });
   }
 
   private stelleAuswahlHer(): void {

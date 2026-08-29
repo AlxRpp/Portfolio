@@ -33,6 +33,13 @@ export class HowIWork implements AfterViewInit {
     { id: 'verify' },
   ];
 
+  /** Fliesstext der Sektion, rechts neben den Schritten. */
+  protected readonly absaetze: readonly string[] = [
+    'howIWork.p1',
+    'howIWork.p2',
+    'howIWork.p3',
+  ];
+
   /** Zweistellig, damit die Ziffern in der Monospace-Spalte fluchten. */
   protected nummer(index: number): string {
     return String(index + 1).padStart(2, '0');
@@ -52,5 +59,9 @@ export class HowIWork implements AfterViewInit {
     // Schritte: jeder bekommt seinen eigenen Ausloeser und schiebt sich
     // leicht von links herein, sobald er selbst in den Blick kommt.
     this.anim.revealEach(el, '.work__step', { x: -24, duration: 0.55 });
+
+    // Der Fliesstext daneben kommt von rechts, damit die beiden Spalten
+    // aufeinander zulaufen statt in dieselbe Richtung zu wandern.
+    this.anim.revealEach(el, '.work__paragraph', { x: 24, duration: 0.55 });
   }
 }

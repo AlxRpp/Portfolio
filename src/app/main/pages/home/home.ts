@@ -53,6 +53,14 @@ export class Home implements AfterViewInit, OnDestroy {
   private aktiveTafel: number = PANEL.hero;
   private zuletztGeschriebenerHash: string | null = null;
 
+  /**
+   * Erst wahr, wenn der erste Aufbau durch ist. Die Buehne meldet ihren
+   * Zustand naemlich schon beim Erzeugen, und dieser erste Ruf ist kein
+   * Wechsel beim Groessenaendern. Ohne die Sperre wuerde ein direkt
+   * aufgerufenes /#projects beim Laden nach oben gezogen.
+   */
+  private aufbauDurch = false;
+
   ngAfterViewInit(): void {
     // Die Schwelle steht in _tokens.scss und wird in styles.scss als
     // CSS-Variable ausgegeben. So nutzen Media Query und ScrollTrigger
@@ -70,6 +78,9 @@ export class Home implements AfterViewInit, OnDestroy {
         onPanelChange: (index) => {
           this.aktiveTafel = index;
           this.aktualisiereHash();
+        },
+        onToggle: () => {
+          if (this.aufbauDurch) this.haltePosition();
         },
       },
     );
@@ -104,6 +115,47 @@ export class Home implements AfterViewInit, OnDestroy {
 
     this.beobachteScrollposition();
     this.vermesseAusloeserNeu();
+
+    this.aufbauDurch = true;
+  }
+
+  /**
+   * Haelt die sichtbare Sektion fest, wenn die Buehne beim Groessenaendern
+   * an- oder ausgeschaltet wird.
+   *
+   * Beim Einschalten heftet die Buehne sich fest und verlaengert das
+   * Dokument um eine Bildschirmhoehe, beim Ausschalten faellt die Strecke
+   * wieder weg. Alles unterhalb verschiebt sich dadurch, dieselbe
+   * Scrollposition zeigt danach eine andere Sektion, meistens wieder den
+   * Anfang. Deshalb merken wir uns, was gerade im Blick war, und fahren
+   * es hinterher erneut an.
+   *
+   * Zwei Frames Abstand: Der Pin wird erst aufgebaut, und erst danach
+   * steht die endgueltige Dokumenthoehe, an der wir messen koennen.
+   */
+  private haltePosition(): void {
+    const id = this.zuletztGeschriebenerHash;
+
+    // Erst nach dem naechsten vollstaendigen Refresh. Ein paar Frames zu
+    // warten reicht nicht: ScrollTrigger vermisst nach der
+    // Groessenaenderung selbst noch einmal nach und verschiebt uns sonst
+    // gleich wieder, nachdem wir die Sektion angefahren haben.
+    this.anim.nachRefresh(() => {
+      // Waehrend des Refreshs laeuft die Sektionsverfolgung mit und hat
+      // den Hash laengst auf die Stelle gesetzt, an der wir unfreiwillig
+      // gelandet sind. Deshalb zaehlt der Wert von vorher, nicht der
+      // aktuelle.
+      if (id === ABOUT_HASH && this.controls?.isActive()) {
+        // In der laufenden Buehne liegt About seitlich versetzt. Dorthin
+        // fuehrt nur die Buehnensteuerung, nicht das normale Scrollen.
+        this.controls.goTo(PANEL.about);
+        return;
+      }
+
+      const ziel = id ? document.getElementById(id) : null;
+      if (ziel) ziel.scrollIntoView();
+      else window.scrollTo(0, 0);
+    });
   }
 
   /**

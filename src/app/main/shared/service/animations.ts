@@ -33,6 +33,15 @@ export interface StageOptions {
    * echtem Wechsel, nicht bei jedem Scrollschritt.
    */
   onPanelChange?: (panelIndex: number) => void;
+  /**
+   * Meldet, dass die Buehne gerade an- oder ausgeschaltet wurde, weil die
+   * Schwelle beim Groessenaendern ueberschritten wurde.
+   *
+   * Der Aufrufer braucht das, um die sichtbare Stelle zu halten: mit dem
+   * Pin waechst das Dokument um eine Bildschirmhoehe, alles darunter
+   * rutscht mit, und dieselbe Scrollposition zeigt danach etwas anderes.
+   */
+  onToggle?: (aktiv: boolean) => void;
 }
 
 export interface RevealOptions {
@@ -221,7 +230,7 @@ export class Animations {
   horizontalStage(
     stage: HTMLElement,
     track: HTMLElement,
-    { minWidth, minHeight, onPanelChange }: StageOptions,
+    { minWidth, minHeight, onPanelChange, onToggle }: StageOptions,
   ): StageControls {
     const panels = track.children.length;
     if (panels < 2) {
@@ -274,8 +283,11 @@ export class Animations {
       });
 
       trigger = tween.scrollTrigger;
+      onToggle?.(true);
+
       return () => {
         trigger = undefined;
+        onToggle?.(false);
       };
     });
 
@@ -398,6 +410,24 @@ export class Animations {
   /** Alle ScrollTrigger neu vermessen, etwa nach einem Sprachwechsel. */
   refresh(): void {
     ScrollTrigger.refresh();
+  }
+
+  /**
+   * Ruft die Rueckmeldung genau einmal, sobald der naechste Refresh
+   * vollstaendig durch ist.
+   *
+   * Gedacht fuer alles, was erst gemacht werden darf, wenn die Seite ihre
+   * endgueltige Hoehe hat. Ein paar Frames zu warten reicht dafuer nicht:
+   * ScrollTrigger vermisst nach einer Groessenaenderung selbst noch
+   * einmal nach, und wer vorher scrollt, wird von dieser Nachmessung
+   * wieder verschoben.
+   */
+  nachRefresh(fertig: () => void): void {
+    const einmal = () => {
+      ScrollTrigger.removeEventListener('refresh', einmal);
+      fertig();
+    };
+    ScrollTrigger.addEventListener('refresh', einmal);
   }
 
   private trigger(target: gsap.TweenTarget, o: RevealOptions) {

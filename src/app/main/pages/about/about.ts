@@ -2,31 +2,69 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  OnDestroy,
   inject,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Animations } from '../../shared/service/animations';
 
-/** Ein Absatz des Fliesstexts, optional mit Verweis auf einen Beleg. */
-interface Paragraph {
-  key: string;
+/** Ein Stueck Fliesstext, optional gefolgt von einer Belegziffer. */
+interface Segment {
+  text: string;
   note?: number;
 }
 
-/** Ein Beleg: die Quellen, die eine Aussage im Text nachpruefbar machen. */
-interface Source {
-  n: number;
-  links: { label: string; url: string }[];
+interface Absatz {
+  key: string;
+  segmente: readonly Segment[];
 }
 
-const GITHUB = 'https://github.com/AlxRpp';
+/**
+ * Ein Beleg: ein Themenfeld aus dem Text und die Projekte, die es
+ * nachpruefbar machen.
+ */
+interface Beleg {
+  n: number;
+  titleKey: string;
+  projekte: readonly { label: string; slug: string }[];
+}
 
-/** Dauer des Aufleuchtens, muss zur Animation in about.scss passen. */
-const HIGHLIGHT_MS = 1600;
+/**
+ * Belegziffer im Uebersetzungstext, etwa "Backends[1]".
+ *
+ * Bewusst als Marke im Fliesstext und nicht als eigener Schluessel je
+ * Satzteil: so bleibt der Absatz in der Sprachdatei ein zusammenhaengender
+ * Satz, den man normal bearbeiten kann, und jede Sprache setzt ihre Ziffern
+ * an die Stelle, an der ihr Satzbau sie braucht.
+ */
+const MARKE = /\[(\d+)\]/g;
+
+/** Absaetze, die Marken enthalten koennen. */
+const ABSAETZE = ['about.p1', 'about.p2', 'about.p3'] as const;
+
+/**
+ * Zerlegt einen Absatz in Text und Ziffern.
+ *
+ * Ohne Marke kommt genau ein Segment zurueck, der Absatz wird also nicht
+ * anders behandelt als vorher.
+ */
+function zerlege(text: string): Segment[] {
+  const segmente: Segment[] = [];
+  let zuletzt = 0;
+
+  for (const treffer of text.matchAll(MARKE)) {
+    segmente.push({
+      text: text.slice(zuletzt, treffer.index),
+      note: Number(treffer[1]),
+    });
+    zuletzt = treffer.index + treffer[0].length;
+  }
+
+  if (zuletzt < text.length) segmente.push({ text: text.slice(zuletzt) });
+  return segmente;
+}
 
 @Component({
   selector: 'app-about',
@@ -34,77 +72,65 @@ const HIGHLIGHT_MS = 1600;
   templateUrl: './about.html',
   styleUrls: ['./about.scss', './about-mediaQuerrys.scss'],
 })
-export class About implements AfterViewInit, OnDestroy {
+export class About implements AfterViewInit {
   private readonly anim = inject(Animations);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly translate = inject(TranslateService);
+
+  protected readonly absaetze = signal<readonly Absatz[]>([]);
 
   /**
-   * Die Fussnote sitzt am Ende des Absatzes, der die Aussage traegt.
-   * Absatz 1 handelt vollstaendig von den Repo-Beschreibungen, Absatz 3
-   * von der HomeLab-Dokumentation.
+   * Projektnamen sind Eigennamen und stehen deshalb bewusst nicht in den
+   * Uebersetzungsdateien. Die Slugs sind dieselben wie in ProjectsData;
+   * der Link setzt sie als Parameter `p`, den die Projektsektion liest.
    */
-  protected readonly paragraphs: readonly Paragraph[] = [
-    { key: 'about.p1', note: 1 },
-    { key: 'about.p2' },
-    { key: 'about.p3', note: 2 },
-    { key: 'about.p4' },
-  ];
-
-  /**
-   * Repo-Namen sind Eigennamen und stehen deshalb bewusst nicht in den
-   * Uebersetzungsdateien.
-   */
-  protected readonly sources: readonly Source[] = [
+  protected readonly belege: readonly Beleg[] = [
     {
       n: 1,
-      links: [
-        { label: 'Coderr_Backend', url: `${GITHUB}/Coderr_Backend` },
-        { label: 'Videoflix_Backend', url: `${GITHUB}/Videoflix_Backend` },
-        { label: 'Quizly_Backend', url: `${GITHUB}/Quizly_Backend` },
-        { label: 'Kanmind_Backend', url: `${GITHUB}/Kanmind_Backend` },
+      titleKey: 'about.sources.backends',
+      projekte: [
+        { label: 'Coderr', slug: 'coderr' },
+        { label: 'Videoflix', slug: 'videoflix' },
+        { label: 'Kanmind', slug: 'kanmind' },
+        { label: 'Quizly', slug: 'quizly' },
       ],
     },
     {
       n: 2,
-      links: [{ label: 'HomeLAB', url: `${GITHUB}/HomeLAB` }],
+      titleKey: 'about.sources.frontends',
+      projekte: [
+        { label: 'JOIN', slug: 'join' },
+        { label: 'PokeDex', slug: 'pokedex' },
+        { label: 'Alien Adventure', slug: 'alien-adventure' },
+      ],
+    },
+    {
+      n: 3,
+      titleKey: 'about.sources.ai',
+      projekte: [
+        { label: 'FIN-Tool', slug: 'fin-vergleichstool' },
+        { label: 'FAIME', slug: 'faime' },
+        { label: 'Kioskbrowser', slug: 'kioskbrowser' },
+      ],
+    },
+    {
+      n: 4,
+      titleKey: 'about.sources.homelab',
+      projekte: [{ label: 'HomeLab', slug: 'homelab' }],
     },
   ];
 
-  private readonly route = inject(ActivatedRoute);
-
-  /**
-   * Welcher Beleg gerade aufleuchtet.
-   *
-   * Das laesst sich nicht ueber die CSS-Pseudoklasse `:target` loesen:
-   * Angulars Router wechselt das Fragment per `history.pushState`, und
-   * pushState aktualisiert `:target` nicht. Ohne diesen Zustand springt
-   * die Seite zwar zum Beleg, aber nichts zeigt an, welcher gemeint ist.
-   */
-  protected readonly highlighted = signal<number | null>(null);
-
-  private timer?: ReturnType<typeof setTimeout>;
-
   constructor() {
-    // Faengt den Direktaufruf einer Beleg-URL ab, etwa wenn jemand
-    // /#beleg-2 teilt oder als Lesezeichen oeffnet.
-    this.route.fragment.pipe(takeUntilDestroyed()).subscribe((fragment) => {
-      const match = fragment?.match(/^beleg-(\d+)$/);
-      if (match) this.highlight(Number(match[1]));
-    });
-  }
-
-  /**
-   * Laesst einen Beleg kurz aufleuchten.
-   *
-   * Wird zusaetzlich zum Fragment-Abo direkt am Klick aufgerufen, weil
-   * `ActivatedRoute.fragment` bei unveraendertem Wert nicht erneut
-   * feuert. Ohne diesen Aufruf bliebe der zweite Klick auf dieselbe
-   * Fussnote wirkungslos, selbst mit onSameUrlNavigation 'reload'.
-   */
-  protected highlight(n: number): void {
-    clearTimeout(this.timer);
-    this.highlighted.set(n);
-    this.timer = setTimeout(() => this.highlighted.set(null), HIGHLIGHT_MS);
+    // stream statt get: liefert bei jedem Sprachwechsel erneut, damit die
+    // Ziffern auch nach dem Umschalten an der richtigen Stelle sitzen.
+    this.translate
+      .stream([...ABSAETZE])
+      .pipe(takeUntilDestroyed())
+      .subscribe((werte: Record<string, string>) => {
+        this.absaetze.set(
+          ABSAETZE.map((key) => ({ key, segmente: zerlege(werte[key] ?? '') })),
+        );
+      });
   }
 
   ngAfterViewInit(): void {
@@ -115,9 +141,5 @@ export class About implements AfterViewInit, OnDestroy {
       stagger: 0.08,
       y: 22,
     });
-  }
-
-  ngOnDestroy(): void {
-    clearTimeout(this.timer);
   }
 }

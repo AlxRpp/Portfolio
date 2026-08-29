@@ -10,7 +10,17 @@
   @include m.content-width;
   display: grid;
   gap: t.sp(8);
+
+  // Einspaltig in Lesereihenfolge: Kopf, Schritte, Fliesstext.
+  grid-template-areas:
+    'head'
+    'steps'
+    'body';
 }
+
+.work__head  { grid-area: head; }
+.work__steps { grid-area: steps; }
+.work__body  { grid-area: body; }
 
 // --- Kopf ---
 
@@ -38,51 +48,124 @@
   font-size: var(--fs-h2);
   font-weight: 700;
   letter-spacing: -.02em;
-  max-width: 20ch;
+  // Weiter als die frueheren 20ch: die Ueberschrift ist laenger und stuende
+  // sonst vierzeilig ueber einer zweispaltigen Sektion.
+  max-width: 34ch;
 }
 
-.work__lead {
+// --- Fliesstext ---
+
+.work__body {
+  display: grid;
+  gap: t.sp(5);
+}
+
+.work__paragraph {
   font-size: var(--fs-prose);
   color: var(--text-secondary);
+  // Deckelt die Zeilenlaenge, seit die Sektion ueber die volle Breite
+  // laeuft. ch misst die Ziffer Null und faellt bei dieser Schrift breiter
+  // aus als das mittlere Zeichen, 68ch landen deshalb bei rund 75 echten
+  // Zeichen und damit am oberen Rand des lesbaren Bereichs.
+  max-width: 68ch;
 }
 
 // --- Schritte ---
 
 .work__steps {
   display: grid;
+  gap: t.sp(4);
+  // Alle Karten gleich hoch, die hoechste gibt das Mass vor. Ohne das
+  // haengt die Hoehe an der Zeilenzahl des jeweiligen Textes und die drei
+  // Karten stehen unterschiedlich hoch untereinander.
+  grid-auto-rows: 1fr;
 }
 
-// Einspaltig stehen Nummer, Titel und Text untereinander. Ab genug Breite
-// wird daraus eine Zeile: Nummer und Titel links, Text rechts, wie in einem
-// Datenblatt. Die Trennlinien bleiben dabei immer an den Schritten, damit
-// die Reihen wie Zeilen einer Tabelle lesbar sind.
+// Karte in Markenfarbe als Parallelogramm.
+//
+// Die Schraege liegt in einem clip-path und nicht in einem skew: skew
+// wuerde die Schrift mitkippen und muesste am Inhalt wieder
+// zurueckgedreht werden. Beide Kanten neigen sich gleich weit, oben
+// rechts und unten links bleiben die aeusseren Punkte stehen, damit die
+// Karte die Spaltenbreite voll ausnutzt.
+//
+// isolation legt einen eigenen Stapelkontext an. Nur dadurch liegt die
+// Ziffer mit z-index -1 ueber der Kartenflaeche und trotzdem unter dem
+// Text; ohne das verschwaende sie hinter dem Hintergrund der Karte.
 .work__step {
-  display: grid;
-  gap: t.sp(3);
-  border-top: 1px solid var(--border-subtle);
-  padding-block: t.sp(5);
+  --work-schraege: 48px;
+  --work-ziffer: 11rem;
 
-  // Schliesst den Block nach unten ab.
-  &:last-child { border-bottom: 1px solid var(--border-subtle); }
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  gap: t.sp(2);
+  // justify-content zentriert die Spur, justify-items setzt den Inhalt
+  // darin nach links. Zusammen ergibt das einen linksbuendigen Textblock,
+  // der als Ganzes mittig im Parallelogramm steht. Mit justify-items:
+  // center allein waere jede Zeile fuer sich zentriert und der kurze
+  // Titel stuende versetzt ueber dem Text.
+  justify-content: center;
+  justify-items: start;
+  // Bei gleicher Kartenhoehe sitzt kuerzerer Inhalt sonst oben.
+  align-content: center;
+  padding: t.sp(4) calc(var(--work-schraege) + #{t.sp(5)});
+  background: var(--brand);
+  color: var(--bg-base);
+  clip-path: polygon(
+    var(--work-schraege) 0,
+    100% 0,
+    calc(100% - var(--work-schraege)) 100%,
+    0 100%
+  );
+
+  // Die mittlere Karte neigt sich andersherum. Ueber nth-child(even)
+  // statt fest auf die zweite Karte: kommt ein Schritt dazu, wechselt die
+  // Richtung weiter ab, statt dass die Reihe die Ordnung verliert.
+  &:nth-child(even) {
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--work-schraege)) 0,
+      100% 100%,
+      var(--work-schraege) 100%
+    );
+  }
 }
 
+// Grosse Ziffer als Wasserzeichen hinter dem Text, ueber die volle
+// Kartenhoehe. Rein dekorativ, im Template aria-hidden.
 .work__number {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: grid;
+  // Senkrecht mittig, waagerecht an der linken Kante. Die Schraege
+  // schneidet die Ziffer dort an, genau wie oben und unten.
+  place-items: center start;
+  padding-left: t.sp(3);
   font-family: var(--font-mono);
-  font-size: var(--fs-small);
-  font-weight: 600;
-  letter-spacing: .08em;
-  color: var(--brand);
+  font-size: var(--work-ziffer);
+  font-weight: 700;
+  letter-spacing: -.04em;
   line-height: 1;
+  // 7 Prozent statt 12: das Wasserzeichen verdunkelt den Untergrund dort,
+  // wo Text darueberliegt, und kostet damit Kontrast. Bei 7 bleibt der Text
+  // ueber der Ziffer bei rund 6,5:1 statt 6,0:1 und die Ziffer ist immer
+  // noch klar zu erkennen.
+  color: color-mix(in srgb, var(--bg-base) 7%, transparent);
+  pointer-events: none;
 }
 
 .work__step-title {
   font-size: var(--fs-h3);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -.01em;
 }
 
 .work__step-text {
   font-size: var(--fs-prose);
-  color: var(--text-secondary);
-  max-width: 66ch;
+  // Nicht --text-secondary: das ist auf die dunkle Flaeche abgestimmt und
+  // verschwaende auf Zyan. Dunkel mit etwas Rueckhalt gegenueber dem Titel.
+  color: color-mix(in srgb, var(--bg-base) 82%, transparent);
+  max-width: 52ch;
 }

@@ -5,22 +5,66 @@
   .work { padding-block: t.sp(10); }
 }
 
-// Ab hier wird aus jedem Schritt eine Zeile: Nummer, Titel, Text.
+// 900 bis 1200 bleibt es einspaltig. Karten und Fliesstext werden dabei
+// gedeckelt und mittig gesetzt, sonst waeren die Karten hier ueber 1000px
+// breit und der Text liefe auf ueber 90 Zeichen pro Zeile.
 //
-// Der Inhaltsbereich wird dafuer auf 60rem begrenzt. Ueber die volle
-// Seitenbreite kaeme der Text sonst auf rund 100 Zeichen pro Zeile, lesbar
-// sind 45 bis 75. Begrenzt und mittig gesetzt liest sich die Sektion wie
-// ein Dokument, was zu einer Prozessbeschreibung ohnehin besser passt.
+// Augenbraue und Ueberschrift bleiben bewusst ausserhalb dieser
+// Begrenzung, also auf voller Inhaltsbreite und an der linken Kante, wie
+// die Koepfe aller anderen Sektionen. Der Kopf steht dadurch etwas weiter
+// links als die Karten darunter; das ist gewollt.
+//
+// Nach oben begrenzt, weil ab laptop die Spaltenaufteilung die Breite
+// bestimmt und der Deckel dort nichts mehr zu suchen hat.
 @include m.mq(tablet-lg) {
-  .work__inner {
-    max-width: 60rem;
-    gap: t.sp(8);
+  @include m.mq(laptop, down) {
+    .work__steps,
+    .work__body {
+      // width zusaetzlich zum Deckel: auto-Raender machen aus einem
+      // Grid-Element ein schrumpfendes, es wird dann nach seinem Inhalt
+      // bemessen statt bis zum Deckel zu wachsen. Die Karten blieben
+      // sonst schmaler als der Fliesstext darunter.
+      width: 100%;
+      max-width: 48rem;
+      margin-inline: auto;
+    }
   }
+}
 
-  .work__step {
-    grid-template-columns: 2.5rem minmax(0, 10rem) minmax(0, 1fr);
-    column-gap: t.sp(6);
-    // Nummer, Titel und erste Textzeile sitzen auf einer Grundlinie.
-    align-items: baseline;
+// Ab hier stehen die drei Schritte links und der Fliesstext rechts.
+//
+// Bewusst erst ab laptop und nicht schon ab tablet-lg: bei 900px waeren
+// die beiden Spalten rund 400 und 290 Pixel breit, die Karten wuerden
+// dort gequetscht und der Text liefe auf gut 30 Zeichen pro Zeile.
+// Darunter laeuft die Sektion einspaltig, Kopf, Karten, Text.
+//
+// Die Sektion nutzt die volle Inhaltsbreite wie "Ueber mich". Die
+// Lesbarkeit haengt deshalb nicht an einer Begrenzung des ganzen Blocks,
+// sondern an der Spaltenaufteilung und an der Deckelung des Absatzes
+// selbst, siehe .work__paragraph.
+//
+// Die Schritte bleiben gestapelt, also Nummer, Titel und Text
+// untereinander.
+@include m.mq(laptop) {
+  .work__inner {
+    // Bei 1200 reicht die Breite nur fuer eine gleichmaessige Teilung.
+    // Mit 7 zu 5 kaeme der Text hier auf 45 Zeichen pro Zeile, also an
+    // den unteren Rand des Lesbaren.
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: t.sp(8);
+    align-items: start;
+    grid-template-areas:
+      'head  head'
+      'steps body';
+  }
+}
+
+// Ab hier ist genug Breite da, um den Karten mehr Raum zu geben als dem
+// Text. Breitere Karten brauchen weniger Zeilen und werden flacher, die
+// schmalere Textspalte wird hoeher: so laufen beide Spalten auf
+// dieselbe Hoehe zu, ohne dass der Text zu schmal wird.
+@include m.mq(desktop) {
+  .work__inner {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   }
 }

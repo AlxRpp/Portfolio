@@ -22,35 +22,41 @@
       />
     </figure>
 
+    <!--
+      Die Segmente stehen bewusst ohne Zeilenumbruch hintereinander: jeder
+      Umbruch im Template waere ein Leerzeichen im Satz, die Ziffer stuende
+      dann abgesetzt statt direkt am Wort.
+
+      Die Ziffer ist nur eine Kennung, kein Link. Fuer Screenreader ist sie
+      ausgeblendet, weil eine vorgelesene Zahl mitten im Satz stoert; die
+      Belege darunter tragen ihre Themen als Text.
+    -->
     <div class="about__body">
-      @for (p of paragraphs; track p.key) {
-        <p class="about__paragraph" data-reveal>
-          {{ p.key | translate }}@if (p.note; as note) {<a
-            class="about__note"
-            routerLink="/"
-            [fragment]="'beleg-' + note"
-            [attr.aria-label]="'about.noteLabel' | translate: { n: note }"
-            (click)="highlight(note)"
-          >{{ note }}</a>}
-        </p>
+      @for (absatz of absaetze(); track absatz.key) {
+        <p class="about__paragraph" data-reveal>@for (teil of absatz.segmente; track $index) {{{ teil.text }}@if (teil.note; as n) {<span class="about__note" aria-hidden="true">{{ n }}</span>}}</p>
       }
     </div>
 
     <aside class="about__sources" data-reveal>
       <h3 class="about__sources-title">{{ 'about.sourcesLabel' | translate }}</h3>
       <ul class="about__sources-list">
-        @for (s of sources; track s.n) {
-          <li
-            class="about__source"
-            [id]="'beleg-' + s.n"
-            [class.is-highlighted]="highlighted() === s.n"
-          >
-            <span class="about__source-n" aria-hidden="true">{{ s.n }}</span>
-            <span class="about__source-links">
-              @for (l of s.links; track l.url) {
-                <a [href]="l.url" target="_blank" rel="noopener noreferrer">{{ l.label }}</a>
+        @for (beleg of belege; track beleg.n) {
+          <li class="about__source" [id]="'beleg-' + beleg.n">
+            <p class="about__source-head">
+              <span class="about__source-n" aria-hidden="true">{{ beleg.n }}</span>
+              {{ beleg.titleKey | translate }}
+            </p>
+            <ul class="about__source-links">
+              @for (projekt of beleg.projekte; track projekt.slug) {
+                <li>
+                  <a
+                    routerLink="/"
+                    [queryParams]="{ p: projekt.slug }"
+                    fragment="projects"
+                  >{{ projekt.label }}</a>
+                </li>
               }
-            </span>
+            </ul>
           </li>
         }
       </ul>
