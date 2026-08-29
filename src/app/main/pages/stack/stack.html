@@ -1,49 +1,60 @@
 <section class="stack" id="stack">
 
-  <div class="stack__head-wrap">
+  <div class="stack__inner">
+
     <header class="stack__head">
       <p class="stack__eyebrow" data-reveal>
         <span class="stack__marker" aria-hidden="true"></span>
         {{ 'stack.eyebrow' | translate }}
       </p>
       <h2 class="stack__heading" data-reveal>{{ 'stack.heading' | translate }}</h2>
+      <p class="stack__lead" data-reveal>{{ 'stack.lead' | translate }}</p>
     </header>
-  </div>
 
-  <!--
-    Das Laufband ist Bild, kein Text. Screenreader bekommen darunter die
-    Namen im Klartext, damit sie nicht verlorengehen.
-  -->
-  <div class="stack__marquee" aria-hidden="true">
+    <!--
+      Vier Spalten nach Zusammenhang. Anders als das fruehere Laufband ist
+      das hier echter Text, deshalb braucht es keine eigene Ausgabe fuer
+      Screenreader mehr.
+    -->
+    <ul class="stack__groups">
+      @for (gruppe of gruppen; track gruppe.id) {
+        <li class="stack__group">
+          <!--
+            Zwei Ebenen mit Absicht: Der Schein sitzt aussen, die
+            beschnittene Flaeche innen. clip-path wird nach dem Filter
+            angewendet, ein drop-shadow auf derselben Karte waere also
+            mit weggeschnitten.
+          -->
+          <div class="stack__card">
+            <h3 class="stack__group-title">
+              {{ 'stack.groups.' + gruppe.id | translate }}
+            </h3>
 
-    @for (reihe of reihen; track reihe.id) {
-      <div class="stack__band" [class]="'is-' + reihe.id">
-        <div class="stack__band-head">
-          <span class="stack__band-label">
-            {{ 'stack.rows.' + reihe.id | translate }}
-          </span>
-        </div>
-
-        <div class="stack__row" [class.stack__row--right]="reihe.richtung === 'right'">
-          <div class="stack__track" [style.--dauer]="reihe.dauer">
-            @for (durchgang of durchgaenge; track durchgang) {
-              @for (item of reihe.items; track $index) {
-                <span class="stack__chip">
+            <ul class="stack__list">
+              @for (item of gruppe.items; track item.name) {
+                <li class="stack__item">
+                  <!--
+                    Die Zelle steht auch ohne Zeichen. Sonst rutschte der
+                    Name in die Zeichenspalte und die Liste verlore ihre
+                    Flucht.
+                  -->
                   <span
                     class="stack__icon"
-                    [style.--icon]="'url(/assets/icons/tech/' + item.icon + '.svg)'"
+                    aria-hidden="true"
+                    [class.is-leer]="!item.icon"
+                    [style.--icon]="
+                      item.icon ? 'url(/assets/icons/tech/' + item.icon + '.svg)' : null
+                    "
                   ></span>
                   {{ item.name }}
-                </span>
+                </li>
               }
-            }
+            </ul>
           </div>
-        </div>
-      </div>
-    }
+        </li>
+      }
+    </ul>
 
   </div>
-
-  <p class="stack__sr">{{ alle.join(', ') }}</p>
 
 </section>

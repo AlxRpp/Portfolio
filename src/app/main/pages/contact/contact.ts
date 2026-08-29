@@ -42,7 +42,33 @@ export class Contact implements AfterViewInit {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
 
+  /**
+   * Zurueck an den Anfang. Sanft, ausser jemand hat weniger Bewegung
+   * eingestellt: eine Seite, die dann ueber sechs Sektionen scrollt,
+   * ist genau das, was diese Einstellung vermeiden soll.
+   */
+  protected nachOben(): void {
+    const sanft = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: sanft ? 'smooth' : 'auto' });
+  }
+
   protected readonly mailAdresse = 'info@alexander-ruppel.de';
+
+  /** Ort aus dem Lebenslauf, dieselbe Angabe wie in der Hero. */
+  protected readonly ort = 'Delbrück';
+
+  /**
+   * Die beiden anderen Saeulen neben dieser Seite. Bewusst hier und nicht
+   * in einer Uebersetzungsdatei: Adressen sind keine Sprache.
+   */
+  protected readonly profile = [
+    { name: 'GitHub', icon: 'github', url: 'https://github.com/AlxRpp' },
+    {
+      name: 'LinkedIn',
+      icon: 'linkedin',
+      url: 'https://www.linkedin.com/in/alexander-ruppel-450706375/',
+    },
+  ] as const;
   protected readonly zustand = signal<Zustand>('ruhe');
 
   protected readonly form = this.fb.nonNullable.group({

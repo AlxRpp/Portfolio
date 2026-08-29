@@ -127,45 +127,50 @@
   "stack": {
     "eyebrow": "Stack",
     "heading": "Womit ich arbeite.",
-    "rows": {
-      "daily": "Täglich",
-      "built": "Schon gebaut",
-      "next": "Aktuell und als Nächstes"
+    "lead": "Kein Projekt gleicht dem anderen. Ein gezielter Stack, um für jede Anforderung exakt die passende Technologie einzusetzen.",
+    "groups": {
+      "work": "Auf der Arbeit",
+      "backend": "Backend",
+      "frontend": "Frontend",
+      "homelab": "HomeLab",
+      "method": "Werkzeuge & Methodik"
     }
   },
   "contact": {
     "eyebrow": "Kontakt",
-    "heading": "Erzähl mir, worum es geht.",
-    "lead": "Ob konkrete Stelle, Projekt oder einfach eine Frage. Ich lese jede Nachricht selbst und melde mich zurück.",
+    "heading": "Bereit für eine Zusammenarbeit?",
+    "lead": "Wenn Sie jemanden suchen, der Anforderungen von Beginn an verstehen möchte, die Verantwortung für den gesamten Prozess übernimmt und Wert auf einen engen Austausch legt: Melden Sie sich direkt.",
     "direct": "Lieber direkt?",
     "form": {
-      "name": "Wie heißt du?",
-      "namePlaceholder": "Dein Name",
+      "name": "Wie heißen Sie?",
+      "namePlaceholder": "Ihr Name",
       "nameError": "Ohne Namen weiß ich nicht, wen ich anschreibe.",
       "mail": "Wohin darf ich antworten?",
-      "mailPlaceholder": "deine@adresse.de",
+      "mailPlaceholder": "ihre@adresse.de",
       "mailError": "Ohne Adresse kann ich nicht zurückschreiben.",
       "mailInvalid": "Diese Adresse sieht nicht vollständig aus.",
       "message": "Worum geht es?",
-      "messagePlaceholder": "Hallo Alex, ich …",
-      "messageError": "Schreib mir kurz, worum es geht.",
+      "messagePlaceholder": "Hallo Herr Ruppel, ich …",
+      "messageError": "Schreiben Sie mir kurz, worum es geht.",
       "privacyPrefix": "Ich habe die",
       "privacyLink": "Datenschutzerklärung",
       "privacySuffix": "gelesen und stimme der Verarbeitung meiner Daten zu.",
-      "privacyError": "Ohne deine Zustimmung darf ich die Nachricht nicht verarbeiten.",
+      "privacyError": "Ohne Ihre Zustimmung darf ich die Nachricht nicht verarbeiten.",
       "submit": "Nachricht senden",
       "sending": "Wird gesendet"
     },
     "status": {
       "ok": "Angekommen. Ich melde mich.",
-      "failed": "Das hat nicht geklappt. Schreib mir gern direkt an info@alexander-ruppel.de."
-    }
+      "failed": "Das hat nicht geklappt. Schreiben Sie mir gern direkt an info@alexander-ruppel.de."
+    },
+    "location": "Standort",
+    "profiles": "Profile",
+    "backToTop": "Nach oben"
   },
   "footer": {
     "imprint": "Impressum",
     "privacy": "Datenschutz",
-    "builtWith": "Gebaut mit Angular und GSAP",
-    "backToTop": "Nach oben"
+    "legalNav": "Rechtliches"
   },
   "legal": {
     "back": "Zurück",

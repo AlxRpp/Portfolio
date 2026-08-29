@@ -4,16 +4,17 @@
 .stack {
   position: relative;
   padding-block: t.sp(9);
-  // Das Laufband laeuft ueber die volle Fensterbreite, der Kopf nicht.
-  overflow: hidden;
 }
 
-.stack__head-wrap { @include m.content-width; }
+.stack__inner { @include m.content-width; }
 
 .stack__head {
   display: grid;
   gap: t.sp(4);
-  max-width: 40ch;
+  // Weiter als die frueheren 40ch: die trugen nur die Ueberschrift, jetzt
+  // steht darunter ein Vorspann, der sonst auf rund 40 Zeichen pro Zeile
+  // liefe und damit unter dem lesbaren Bereich.
+  max-width: 52ch;
   margin-bottom: t.sp(7);
 }
 
@@ -37,129 +38,133 @@
   letter-spacing: -.02em;
 }
 
-// --- Laufband ---
+.stack__lead {
+  font-size: var(--fs-prose);
+  color: var(--text-secondary);
+}
 
-.stack__marquee {
+// --- Spalten ---------------------------------------------------------
+
+.stack__groups {
   display: grid;
-  gap: t.sp(6);
-}
-
-.stack__band {
-  display: grid;
-  gap: t.sp(3);
-}
-
-// Die Beschriftung sitzt im Inhaltsbereich, das Band laeuft darunter ueber
-// die volle Breite. Ohne sie liest sich die dritte Reihe wie "kann ich
-// auch", und das waere nicht wahr.
-.stack__band-head {
-  @include m.content-width;
-}
-
-.stack__band-label {
-  @include m.mono-label;
-  color: var(--text-muted);
-}
-
-// Die dritte Reihe ist bewusst blasser: Was dort laeuft, ist noch nicht
-// belegt, und das soll man sehen, ohne es lesen zu muessen.
-.stack__band.is-next {
-  .stack__band-label { color: var(--brand-dim); }
-  .stack__chip {
-    color: var(--border-strong);
-    border-style: dashed;
-    background: transparent;
-  }
-  .stack__chip:hover { color: var(--text-secondary); }
-}
-
-.stack__row {
-  overflow: hidden;
-
-  // Die Zeichen laufen an den Raendern aus, statt hart abgeschnitten zu
-  // werden. Sonst sieht man die Kante, an der die Schleife ansetzt.
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 7%,
-    #000 93%,
-    transparent 100%
-  );
-
-  // Anhalten, solange der Zeiger darauf liegt. Wer etwas lesen will,
-  // soll es lesen koennen.
-  &:hover .stack__track { animation-play-state: paused; }
-}
-
-.stack__track {
-  display: flex;
-  align-items: center;
   gap: t.sp(4);
-  // Die Spur ist so breit wie ihr Inhalt, nicht wie der Bildschirm.
-  width: max-content;
-  // Die Dauer setzt die Komponente je Reihe als --dauer, siehe stack.ts.
-  // Bewusst ueber eine Variable und nicht als Inline-Stil: Ein Inline-Stil
-  // schlaegt jede Media Query, die Anpassung fuer breite Schirme koennte
-  // dann nie greifen.
-  animation: stack-lauf var(--dauer, 46s) linear infinite;
+  // Gleiche Hoehe fuer alle Spalten. Die Listen sind unterschiedlich lang,
+  // ohne das stuenden die Parallelogramme als Treppe nebeneinander.
+  align-items: stretch;
+  // Die Spalten sind gedeckelt, siehe Media Queries. Damit die Gruppe
+  // trotzdem in der Mitte steht statt links zu kleben.
+  justify-content: center;
 }
 
-// Der Inhalt liegt zweimal vor, deshalb sind 50 Prozent genau ein voller
-// Durchgang. An dieser Stelle sieht der Uebergang identisch aus und die
-// Schleife bleibt unsichtbar.
-@keyframes stack-lauf {
-  to { transform: translateX(-50%); }
+// Traegt den Schein. Muss ein eigenes Element sein: clip-path wird nach
+// dem Filter angewendet, ein drop-shadow auf der Karte selbst waere also
+// mit weggeschnitten. Hier sieht der Filter die fertig beschnittene Form
+// und legt den Schein um ihre Kanten.
+.stack__group {
+  display: grid;
+  filter: drop-shadow(
+    0 0 20px color-mix(in srgb, var(--brand) 42%, transparent)
+  );
 }
 
-.stack__row--right .stack__track { animation-direction: reverse; }
+// Hohes Parallelogramm in Markenfarbe, gleiche Sprache wie die Karten in
+// "Wie ich arbeite": clip-path statt skew, damit die Schrift gerade bleibt
+// und nicht am Inhalt zurueckgedreht werden muss.
+.stack__card {
+  --stack-schraege: 32px;
 
-.stack__chip {
-  display: inline-flex;
+  display: grid;
+  // Oben ausgerichtet: die Spalten sind gleich hoch, aber unterschiedlich
+  // voll. Mittig gesetzt schwaemme die kurze Liste in der Flaeche.
+  align-content: start;
+  gap: t.sp(4);
+  // Oben und unten genug Abstand, damit der Text nicht in die Schraege
+  // laeuft. Seitlich normal, denn dort sind die Kanten senkrecht.
+  padding: calc(var(--stack-schraege) + #{t.sp(4)}) t.sp(4);
+  background: var(--brand);
+  color: var(--bg-base);
+  text-align: center;
+
+  // Die Schraege liegt auf Ober- und Unterkante, die Seiten bleiben
+  // senkrecht. Nur so stehen die vier Spalten sauber nebeneinander.
+  //
+  // In "Wie ich arbeite" liegt sie auf den Seiten, weil eine breite flache
+  // Karte dort ihre kurzen Kanten hat. Bei einer hohen schmalen Spalte
+  // sind die kurzen Kanten oben und unten; seitlich geneigt saehe sie aus
+  // wie ein Trichter statt wie ein gekippter Balken.
+  clip-path: polygon(
+    0 var(--stack-schraege),
+    100% 0,
+    100% calc(100% - var(--stack-schraege)),
+    0 100%
+  );
+}
+
+// Jede zweite Spalte neigt sich andersherum, also 1 und 3 in die eine
+// Richtung, 2 und 4 in die andere. Ueber nth-child(even) statt fest auf
+// einzelne Spalten: kommt eine fuenfte dazu, wechselt die Richtung weiter
+// ab.
+.stack__group:nth-child(even) .stack__card {
+  clip-path: polygon(
+    0 0,
+    100% var(--stack-schraege),
+    100% 100%,
+    0 calc(100% - var(--stack-schraege))
+  );
+}
+
+.stack__group-title {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding-bottom: t.sp(3);
+  border-bottom: 1px solid color-mix(in srgb, var(--bg-base) 30%, transparent);
+}
+
+// Die Liste steht als Block mittig, ausgerichtet ist sie aber innen:
+// alle Zeichen auf einer senkrechten Linie, alle Namen auf einer zweiten.
+//
+// Jedes Paar fuer sich zu zentrieren sieht unruhig aus, weil dann jedes
+// Zeichen je nach Namenslaenge woanders sitzt.
+.stack__list {
+  display: grid;
+  gap: t.sp(3);
+  justify-content: center;
+}
+
+.stack__item {
+  // Feste erste Spalte fuer das Zeichen, damit die Namen unabhaengig von
+  // der Zeichenbreite alle an derselben Kante beginnen.
+  display: grid;
+  grid-template-columns: 20px auto;
   align-items: center;
   gap: t.sp(3);
-  padding: t.sp(3) t.sp(4);
-  white-space: nowrap;
-  border: 1px solid var(--border-subtle);
-  border-radius: t.$radius-md;
-  background: var(--bg-raised);
-  color: var(--text-muted);
+  // Die Karte zentriert ihren Text, hier soll er wieder links stehen.
+  text-align: left;
   font-family: var(--font-mono);
   font-size: var(--fs-small);
-  letter-spacing: .04em;
-  transition:
-    color t.$dur-fast t.$ease,
-    border-color t.$dur-fast t.$ease;
-
-  &:hover {
-    color: var(--text-primary);
-    border-color: var(--border-strong);
-  }
+  letter-spacing: .02em;
+  // Etwas zurueckgenommen gegenueber der Ueberschrift, aber noch klar
+  // lesbar auf der Flaeche.
+  color: color-mix(in srgb, var(--bg-base) 82%, transparent);
 }
 
 // Einfarbig ueber eine Maske statt als Bild. Nur so nimmt das Zeichen die
-// Textfarbe an und wechselt beim Ueberfahren mit.
+// Textfarbe an und steht dunkel auf der Markenflaeche statt in seiner
+// eigenen Herstellerfarbe.
 .stack__icon {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   background: currentColor;
   mask: var(--icon) center / contain no-repeat;
   -webkit-mask: var(--icon) center / contain no-repeat;
 }
 
-/// Die Namen im Klartext fuer Screenreader, weil das Laufband selbst
-/// aria-hidden ist.
-.stack__sr { @include m.visually-hidden; }
-
-@media (prefers-reduced-motion: reduce) {
-  .stack__track { animation: none; }
-
-  // Ohne Lauf muss man selbst schieben koennen, sonst bleibt die Haelfte
-  // unerreichbar.
-  .stack__row {
-    overflow-x: auto;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar { display: none; }
-  }
+// Ohne --icon waere die Maske ungueltig und die Flaeche stuende als
+// gefuelltes Quadrat da. Deshalb hier ausdruecklich nichts zeichnen.
+.stack__icon.is-leer {
+  background: none;
 }

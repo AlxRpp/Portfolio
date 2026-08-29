@@ -3,7 +3,10 @@
 
 .contact {
   position: relative;
-  padding-block: t.sp(9);
+  // Unten deutlich knapper als oben: als letzte Sektion schliesst sie mit
+  // dem Sprung nach oben ab, und der soll dicht ueber der Footerlinie
+  // sitzen statt darueber zu schweben.
+  padding-block: t.sp(9) t.sp(4);
 }
 
 .contact__inner {
@@ -61,32 +64,41 @@
   color: var(--text-secondary);
 }
 
+// Kein Kasten, nur eine Linie. Die drei grauen Felder untereinander
+// sahen aus wie auf jeder zweiten Seite; so liest sich das Formular
+// eher wie ein Brief.
 .contact__input {
   width: 100%;
-  padding: t.sp(3) t.sp(4);
-  font-size: var(--fs-body);
+  padding: t.sp(3) 0;
+  font-size: var(--fs-lead);
   color: var(--text-primary);
-  background: var(--bg-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: t.$radius-md;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--border-strong);
+  border-radius: 0;
   transition:
-    border-color t.$dur-fast t.$ease,
-    background t.$dur-fast t.$ease;
+    border-color t.$dur-base t.$ease,
+    box-shadow t.$dur-base t.$ease;
 
   &::placeholder { color: var(--text-muted); }
 
-  &:hover { border-color: var(--border-strong); }
-
-  &:focus-visible {
+  // Die Linie leuchtet auf, statt dass ein Ring um einen Kasten springt.
+  // Zwei Pixel ueber box-shadow und nicht ueber border-width, sonst
+  // ruckelt das Feld beim Fokussieren um einen Pixel nach oben.
+  &:focus {
     outline: none;
     border-color: var(--brand);
-    background: var(--bg-overlay);
+    box-shadow: 0 1px 0 0 var(--brand);
   }
 }
 
+
 .contact__textarea {
-  resize: vertical;
+  // Feste Groesse: an einer Linie statt an einem Kasten sieht der
+  // Ziehgriff in der Ecke aus wie ein Fehler. Langer Text rollt.
+  resize: none;
   min-height: 8rem;
+  overflow-y: auto;
   line-height: var(--lh-body);
 }
 
@@ -236,10 +248,20 @@
   border-top: 1px solid var(--border-subtle);
 }
 
+// Drei Gruppen untereinander: Adresse, Profile, Standort. Vorher stand
+// dort nur die Mailadresse und die Spalte war zu vier Zwoelfteln leer.
+.contact__direct-group {
+  display: grid;
+  gap: t.sp(3);
+}
+
 .contact__direct-label { @include m.mono-label; }
 
 .contact__mail {
-  font-size: var(--fs-h2);
+  // Kleiner als vorher: sie war die einzige Zeile der Spalte und
+  // entsprechend gross gesetzt. Jetzt steht sie in einer Reihe mit den
+  // Profilen und dem Standort und wuerde die beiden erdruecken.
+  font-size: var(--fs-h3);
   font-weight: 700;
   letter-spacing: -.02em;
   color: var(--brand);
@@ -254,4 +276,68 @@
 
 @media (prefers-reduced-motion: reduce) {
   .contact__spinner { animation-duration: 2s; }
+}
+
+// --- Profile und Standort -------------------------------------------
+
+.contact__profiles {
+  display: grid;
+  gap: t.sp(3);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: t.sp(3);
+    width: fit-content;
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    color: var(--text-secondary);
+    transition: color t.$dur-fast t.$ease;
+    @include m.focus-ring(2px);
+
+    &:hover { color: var(--brand); }
+  }
+}
+
+// Einfarbig ueber eine Maske, damit das Zeichen die Textfarbe annimmt und
+// beim Ueberfahren mitwechselt, statt in seiner Herstellerfarbe zu stehen.
+.contact__profile-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  background: currentColor;
+  mask: var(--icon) center / contain no-repeat;
+  -webkit-mask: var(--icon) center / contain no-repeat;
+}
+
+.contact__ort {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--text-secondary);
+}
+
+// --- Zurueck an den Anfang -------------------------------------------
+
+// Sitzt am Ende der letzten Sektion, direkt ueber dem Footer. Dort steht
+// er da, wo man ankommt, wenn man die Seite durchgelesen hat.
+.contact__top {
+  @include m.mono-label;
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(2);
+  width: fit-content;
+  justify-self: end;
+  // Zusaetzlich zum Zeilenabstand des Rasters: er soll sich vom Formular
+  // absetzen und als Abschluss der Seite lesen, nicht als weiteres Feld.
+  margin-top: t.sp(7);
+  color: var(--text-secondary);
+  transition: color t.$dur-fast t.$ease;
+  @include m.focus-ring(2px);
+
+  span { transition: translate t.$dur-fast t.$ease; }
+
+  &:hover {
+    color: var(--brand);
+    span { translate: 0 -3px; }
+  }
 }

@@ -11,8 +11,4 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class Footer {
   /** Wird beim Laden gesetzt, damit die Jahreszahl nicht veraltet. */
   protected readonly jahr = new Date().getFullYear();
-
-  protected nachOben(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
 }

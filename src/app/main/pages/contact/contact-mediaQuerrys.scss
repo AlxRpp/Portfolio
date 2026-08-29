@@ -2,7 +2,7 @@
 @use 'mixins' as m;
 
 @include m.mq(tablet) {
-  .contact { padding-block: t.sp(10); }
+  .contact { padding-block: t.sp(10) t.sp(4); }
 
   // Name und Adresse nebeneinander, sobald die Breite dafuer reicht.
   .contact__form {
@@ -29,10 +29,17 @@
 
   .contact__head { grid-column: 1 / -1; }
 
+  // Ueber beide Spalten, damit er wirklich an der rechten Kante der
+  // Sektion sitzt und nicht an der des Formulars.
+  .contact__top { grid-column: 1 / -1; }
+
   .contact__direct {
     padding-top: 0;
     border-top: none;
     align-self: start;
+    // Mehr Luft zwischen den drei Gruppen, sobald sie neben dem Formular
+    // stehen und nicht mehr unter ihm.
+    gap: t.sp(6);
   }
 }
 

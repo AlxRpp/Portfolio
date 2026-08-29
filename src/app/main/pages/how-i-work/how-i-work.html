@@ -18,13 +18,21 @@
     <ol class="work__steps">
       @for (step of steps; track step.id; let i = $index) {
         <li class="work__step">
-          <span class="work__number" aria-hidden="true">{{ nummer(i) }}</span>
-          <h3 class="work__step-title">
-            {{ 'howIWork.steps.' + step.id + '.title' | translate }}
-          </h3>
-          <p class="work__step-text">
-            {{ 'howIWork.steps.' + step.id + '.text' | translate }}
-          </p>
+          <!--
+            Zwei Ebenen mit Absicht: Der Schein sitzt aussen, die
+            beschnittene Flaeche innen. clip-path wird nach dem Filter
+            angewendet, ein drop-shadow auf derselben Karte waere also
+            mit weggeschnitten.
+          -->
+          <div class="work__card">
+            <span class="work__number" aria-hidden="true">{{ nummer(i) }}</span>
+            <h3 class="work__step-title">
+              {{ 'howIWork.steps.' + step.id + '.title' | translate }}
+            </h3>
+            <p class="work__step-text">
+              {{ 'howIWork.steps.' + step.id + '.text' | translate }}
+            </p>
+          </div>
         </li>
       }
     </ol>

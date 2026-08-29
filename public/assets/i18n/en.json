@@ -127,16 +127,19 @@
   "stack": {
     "eyebrow": "Stack",
     "heading": "What I work with.",
-    "rows": {
-      "daily": "Daily",
-      "built": "Built with",
-      "next": "Current and next up"
+    "lead": "No two projects are the same. A deliberate stack, so every requirement gets exactly the technology it calls for.",
+    "groups": {
+      "work": "At work",
+      "backend": "Backend",
+      "frontend": "Frontend",
+      "homelab": "HomeLab",
+      "method": "Tools & method"
     }
   },
   "contact": {
     "eyebrow": "Contact",
-    "heading": "Tell me what it is about.",
-    "lead": "A specific role, a project, or just a question. I read every message myself and I will get back to you.",
+    "heading": "Ready to work together?",
+    "lead": "If you are looking for someone who wants to understand the requirements from the start, takes responsibility for the whole process and values close communication: get in touch directly.",
     "direct": "Rather write directly?",
     "form": {
       "name": "What's your name?",
@@ -159,13 +162,15 @@
     "status": {
       "ok": "Received. I will get back to you.",
       "failed": "That did not work. Feel free to write to info@alexander-ruppel.de directly."
-    }
+    },
+    "location": "Location",
+    "profiles": "Profiles",
+    "backToTop": "Back to top"
   },
   "footer": {
     "imprint": "Imprint",
     "privacy": "Privacy",
-    "builtWith": "Built with Angular and GSAP",
-    "backToTop": "Back to top"
+    "legalNav": "Legal"
   },
   "legal": {
     "back": "Back",

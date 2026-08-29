@@ -43,3 +43,37 @@
   display: inline-block;
   will-change: transform;
 }
+
+// --- Bildlaufleiste --------------------------------------------------
+//
+// In den Seitenfarben statt im Grau des Systems: Spur in der Grundfarbe,
+// Griff in der Markenfarbe.
+//
+// Zwei Schreibweisen mit Absicht. `scrollbar-color` ist die
+// standardisierte Eigenschaft, wird vererbt und deckt damit auch die
+// Textarea im Kontaktformular ab. Die ::-webkit-Regeln fangen aeltere
+// Chromium-Staende ab, die die Standardeigenschaft noch nicht kennen.
+html {
+  scrollbar-color: var(--brand) var(--bg-base);
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--brand);
+  border-radius: 999px;
+  // Rand in der Spurfarbe plus padding-box: so entsteht Luft um den
+  // Griff, ohne dass er die volle Breite der Spur ausfuellt.
+  border: 2px solid var(--bg-base);
+  background-clip: padding-box;
+
+  &:hover { background: var(--brand-bright); }
+}

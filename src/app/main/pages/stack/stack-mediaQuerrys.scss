@@ -1,22 +1,28 @@
 @use 'tokens' as t;
 @use 'mixins' as m;
 
+// Die Spalten sind gedeckelt statt 1fr: ueber die volle Breite verteilt
+// waeren die Karten sehr breit fuer ihren kurzen Inhalt. Der Deckel haelt
+// sie schmal, justify-content in stack.scss haelt die Gruppe mittig.
+//
+// Bei zu wenig Platz schrumpfen die Spuren unter den Deckel, weil minmax
+// bei null anfaengt. Deshalb kein Ueberlauf, auch nicht bei fuenf Karten
+// auf einem 1200er Schirm.
 @include m.mq(tablet) {
   .stack { padding-block: t.sp(10); }
 
-  .stack__marquee { gap: t.sp(7); }
+  .stack__groups { grid-template-columns: repeat(2, minmax(0, 264px)); }
+}
 
-  .stack__icon {
-    width: 24px;
-    height: 24px;
-  }
+@include m.mq(tablet-lg) {
+  .stack__groups { grid-template-columns: repeat(3, minmax(0, 264px)); }
 }
 
 @include m.mq(laptop) {
-  .stack__head { margin-bottom: t.sp(8); }
-
-  // Auf breiten Schirmen ist mehr Strecke im Bild, deshalb darf eine
-  // Runde laenger dauern. Der Faktor wirkt auf alle drei Reihen, ihr
-  // Verhaeltnis zueinander bleibt erhalten.
-  .stack__track { animation-duration: calc(var(--dauer, 46s) * 1.3); }
+  // Alle fuenf nebeneinander. Etwas schmaler gedeckelt als bei drei
+  // Spalten, sonst passten sie bei 1440 nicht mehr in die Inhaltsbreite.
+  .stack__groups {
+    grid-template-columns: repeat(5, minmax(0, 248px));
+    column-gap: t.sp(3);
+  }
 }

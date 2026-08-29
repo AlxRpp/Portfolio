@@ -11,6 +11,9 @@
   display: grid;
   gap: t.sp(4);
   align-items: center;
+  // Einspaltig untereinander und mittig. Linksbuendig saehe der schmale
+  // Block unter der breiten Seite aus wie ein Rest.
+  justify-items: center;
 }
 
 .footer__logo {
@@ -51,41 +54,23 @@
   color: var(--text-muted);
 }
 
-.footer__sep { color: var(--border-strong); }
-
-.footer__top {
-  @include m.mono-label;
-  display: inline-flex;
-  align-items: center;
-  gap: t.sp(2);
-  width: fit-content;
-  color: var(--text-secondary);
-  transition: color t.$dur-fast t.$ease;
-  @include m.focus-ring(2px);
-
-  span { transition: translate t.$dur-fast t.$ease; }
-
-  &:hover {
-    color: var(--brand);
-    span { translate: 0 -3px; }
-  }
-}
-
 @include m.mq(tablet) {
   .footer { padding-block: t.sp(7); }
 
   .footer__inner {
-    // Logo links, Links und Angaben in der Mitte, Sprung nach oben rechts.
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas:
-      'logo links top'
-      'logo meta  meta';
+    // Logo links, Jahresangabe mittig, Rechtliches rechts.
+    //
+    // Die beiden aeusseren Spuren sind gleich breit, deshalb steht die
+    // mittlere wirklich in der Mitte der Zeile und nicht in der Mitte des
+    // Restplatzes.
+    grid-template-columns: 1fr auto 1fr;
     column-gap: t.sp(6);
-    row-gap: t.sp(2);
+    // Die mittige Ausrichtung von oben gilt nur einspaltig. Ab hier
+    // bekommt jede Spur ihre eigene, sonst saesse das Logo in der Mitte
+    // seiner Spur statt an der linken Inhaltskante wie im Header.
+    justify-items: start;
   }
 
-  .footer__logo  { grid-area: logo; }
-  .footer__links { grid-area: links; }
-  .footer__meta  { grid-area: meta; }
-  .footer__top   { grid-area: top; justify-self: end; }
+  .footer__meta  { justify-self: center; }
+  .footer__links { justify-self: end; }
 }

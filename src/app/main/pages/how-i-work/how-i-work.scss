@@ -92,7 +92,17 @@
 // isolation legt einen eigenen Stapelkontext an. Nur dadurch liegt die
 // Ziffer mit z-index -1 ueber der Kartenflaeche und trotzdem unter dem
 // Text; ohne das verschwaende sie hinter dem Hintergrund der Karte.
+// Traegt den Schein. Muss ein eigenes Element sein: clip-path wird nach
+// dem Filter angewendet, ein drop-shadow auf der Karte selbst waere also
+// mit weggeschnitten. Hier sieht der Filter die fertig beschnittene Form.
 .work__step {
+  display: grid;
+  filter: drop-shadow(
+    0 0 20px color-mix(in srgb, var(--brand) 42%, transparent)
+  );
+}
+
+.work__card {
   --work-schraege: 48px;
   --work-ziffer: 11rem;
 
@@ -119,17 +129,18 @@
     0 100%
   );
 
-  // Die mittlere Karte neigt sich andersherum. Ueber nth-child(even)
-  // statt fest auf die zweite Karte: kommt ein Schritt dazu, wechselt die
-  // Richtung weiter ab, statt dass die Reihe die Ordnung verliert.
-  &:nth-child(even) {
-    clip-path: polygon(
-      0 0,
-      calc(100% - var(--work-schraege)) 0,
-      100% 100%,
-      var(--work-schraege) 100%
-    );
-  }
+}
+
+// Die mittlere Karte neigt sich andersherum. Ueber nth-child(even) statt
+// fest auf die zweite Karte: kommt ein Schritt dazu, wechselt die Richtung
+// weiter ab, statt dass die Reihe die Ordnung verliert.
+.work__step:nth-child(even) .work__card {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--work-schraege)) 0,
+    100% 100%,
+    var(--work-schraege) 100%
+  );
 }
 
 // Grosse Ziffer als Wasserzeichen hinter dem Text, ueber die volle
