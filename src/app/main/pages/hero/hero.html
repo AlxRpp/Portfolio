@@ -1,5 +1,36 @@
 <section class="hero">
-  <div class="hero__grid" aria-hidden="true"></div>
+
+  <!--
+    Unter 900px gar nicht erst erzeugt: kein SVG, kein Beobachter, keine
+    Zeitleiste. Das Netz kostet dort also nichts.
+  -->
+  @if (signale.netzAn()) {
+    <app-signal-layer bereich="hero" />
+  }
+
+  <!--
+    Rein dekorativ, der Name steht direkt daneben als h1. Deshalb
+    aria-hidden statt eines Alternativtextes.
+
+    Inline und nicht als img, weil das Logo ueber currentColor dieselbe
+    Farbe traegt wie die Bahnen des Signalnetzes. Es wird NICHT
+    gezeichnet: DrawSVG zeichnet bei gefuellten Pfaden die Silhouette,
+    daran ist die alte Fassung auf origin/redesign-hero gescheitert.
+
+    Die Geometrie ist aus dem PNG vermessen und neu aufgebaut, nicht
+    nachgezeichnet: Neigung 24 Grad, Strichstaerke 38 waagerecht, die
+    Schale des R ein echter Kreisring. Dieselbe Form liegt als Datei
+    unter assets/icons/brand/logo.svg.
+  -->
+  <div class="hero__mark" aria-hidden="true" data-reveal>
+    <svg class="hero__mark-svg" focusable="false" xmlns="http://www.w3.org/2000/svg"
+         viewBox="0 0 449 231" fill="currentColor">
+      <path d="M 73,62.75 L 0,127 L 55.5,175.84 L 55.5,138 L 43,127 L 73,100.6 Z"/>
+      <path d="M 150,0 L 188,0 L 290.85,231 L 252.85,231 L 210.27,135.38 L 167.7,231 L 129.7,231 L 191.13,93.03 L 168.86,43 L 85.15,231 L 47.15,231 Z"/>
+      <path d="M 221,0 L 296,0 A 69.5,69.5 0 0 1 322.67,133.68 L 366,231 L 328,231 L 271.58,104.29 L 296,104.29 A 34.79,34.79 0 0 0 330.79,69.5 A 34.79,34.79 0 0 0 296,34.71 L 236.46,34.71 Z"/>
+      <path d="M 393.5,77.16 L 449,126 L 376,190.25 L 376,152.4 L 406,126 L 393.5,115 Z"/>
+    </svg>
+  </div>
 
   <div class="hero__inner">
 
@@ -27,9 +58,4 @@
     </div>
 
   </div>
-
-  <a class="hero__scroll" routerLink="/" fragment="about" data-reveal>
-    <span class="hero__scroll-label">{{ 'hero.scroll' | translate }}</span>
-    <span class="hero__scroll-line" aria-hidden="true"></span>
-  </a>
 </section>

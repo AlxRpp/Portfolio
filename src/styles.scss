@@ -19,6 +19,29 @@
   // Aufklapper. Wird von projects.ts ausgelesen, damit Media Query und
   // Komponente nicht auseinanderlaufen.
   --bp-tablet-lg: #{math.div(map.get(t.$bp, tablet-lg), 1px)};
+
+  // --- Signalnetz ---
+  // Bewusst hier und nicht in hero.scss: Hero und About lesen dieselben
+  // Werte, und die Naht zwischen ihnen haengt daran. Zwei Definitionen
+  // koennten auseinanderlaufen.
+
+  // Wie hoch die waagerechte Linie in der Hero ueber der Unterkante
+  // laeuft, in PIXELN.
+  //
+  // Bewusst kein Bruchteil der Hoehe. Der Textblock steht mittig und
+  // waechst in Pixeln: Bei einem Bruchteil ruecken die beiden mit
+  // sinkender Fensterhoehe aufeinander zu, und irgendwann schneiden sich
+  // Knoepfe und Linie. In Pixeln laesst sich derselbe Wert als Polster
+  // reservieren, siehe hero.scss. Dann ist der Abstand bei jeder Hoehe
+  // garantiert statt nur wahrscheinlich.
+  --signal-einlauf: 130px;
+
+  // Freigehaltenes Band am unteren Rand von About, in Pixeln. about.scss
+  // schlaegt es als Polster auf, damit dort baulich nie Text steht.
+  --signal-band: 88px;
+
+  // Abstand der parallel laufenden Linien, in Pixeln.
+  --signal-abstand: 9px;
 }
 
 // --- Schriften, selbst gehostet, kein externer Aufruf ---

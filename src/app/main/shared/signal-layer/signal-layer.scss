@@ -1,0 +1,36 @@
+:host {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+  // Hinter dem Inhalt. Hero und About heben ihre Inhaltsbloecke dafuer
+  // auf z-index 1.
+  z-index: 0;
+}
+
+.signal {
+  display: block;
+  width: 100%;
+  height: 100%;
+  // Die Punkte laufen auf der Bahn und sitzen an deren Enden halb
+  // ausserhalb der viewBox. Ohne das waeren sie dort angeschnitten.
+  overflow: visible;
+}
+
+.signal__bahn {
+  fill: none;
+  stroke: var(--brand-dim);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: .45;
+}
+
+.signal__punkt-kern {
+  fill: var(--brand);
+}
+
+.signal__punkt-schein {
+  fill: var(--brand);
+  opacity: .18;
+}

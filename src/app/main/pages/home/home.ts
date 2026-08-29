@@ -18,6 +18,7 @@ import { Projects } from '../projects/projects';
 import { Stack } from '../stack/stack';
 import { Contact } from '../contact/contact';
 import { Animations, StageControls } from '../../shared/service/animations';
+import { Signals } from '../../shared/service/signals';
 
 /** Reihenfolge der Tafeln in der Buehne. */
 const PANEL = { hero: 0, about: 1 } as const;
@@ -41,6 +42,7 @@ const ABOUT_HASH = 'about';
 })
 export class Home implements AfterViewInit, OnDestroy {
   private readonly anim = inject(Animations);
+  private readonly signale = inject(Signals);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly destroyRef = inject(DestroyRef);
@@ -79,7 +81,11 @@ export class Home implements AfterViewInit, OnDestroy {
           this.aktiveTafel = index;
           this.aktualisiereHash();
         },
-        onToggle: () => {
+        onToggle: (aktiv) => {
+          // Das Netz erfaehrt die Anordnung ausschliesslich von hier. Es
+          // prueft die Schwelle nicht selbst nach, sonst koennten Buehne
+          // und Netz verschiedener Meinung sein.
+          this.signale.setzeBuehne(aktiv);
           if (this.aufbauDurch) this.haltePosition();
         },
       },
@@ -114,9 +120,28 @@ export class Home implements AfterViewInit, OnDestroy {
     this.springeZuTafel(this.aktuellesFragment());
 
     this.beobachteScrollposition();
+    this.beobachteBuehnenSicht();
     this.vermesseAusloeserNeu();
 
     this.aufbauDurch = true;
+  }
+
+  /**
+   * Meldet dem Signalnetz, ob die Buehne im Blick ist.
+   *
+   * Bewusst die ganze Buehne und nicht die einzelne Sektion: Hero und
+   * About teilen sich einen Takt. Waere nur die eigene Sektion
+   * massgeblich, verstummte About genau dann, wenn die Hero aus dem Bild
+   * faehrt, und bekaeme nie wieder einen Punkt.
+   */
+  private beobachteBuehnenSicht(): void {
+    const beobachter = new IntersectionObserver(
+      ([eintrag]) => this.signale.setzeImBlick(eintrag.isIntersecting),
+      { rootMargin: '10% 0px' },
+    );
+
+    beobachter.observe(this.stage().nativeElement);
+    this.destroyRef.onDestroy(() => beobachter.disconnect());
   }
 
   /**

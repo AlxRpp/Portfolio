@@ -10,15 +10,18 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import type { SplitText } from 'gsap/SplitText';
 import { Animations } from '../../shared/service/animations';
+import { Signals } from '../../shared/service/signals';
+import { SignalLayer } from '../../shared/signal-layer/signal-layer';
 
 @Component({
   selector: 'app-hero',
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, SignalLayer],
   templateUrl: './hero.html',
   styleUrls: ['./hero.scss', './hero-mediaQuerrys.scss'],
 })
 export class Hero implements AfterViewInit, OnDestroy {
   private readonly anim = inject(Animations);
+  protected readonly signale = inject(Signals);
   private readonly translate = inject(TranslateService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 

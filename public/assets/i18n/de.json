@@ -17,11 +17,10 @@
     "role": "Softwareentwickler",
     "location": "Delbrück",
     "name": "Alexander Ruppel",
-    "claim": "Lieber einmal richtig als zweimal schlecht.",
+    "claim": "Lieber einmal richtig\nals zweimal schlecht.",
     "lead": "Erst verstehen, was gebraucht wird, dann sauber umsetzen. Ich baue Software mit dem handwerklichen Anspruch, dass sie vom ersten Tag an fehlerfrei läuft.",
     "ctaProjects": "Projekte ansehen",
-    "ctaContact": "Kontakt",
-    "scroll": "Scrollen"
+    "ctaContact": "Kontakt"
   },
   "about": {
     "eyebrow": "Über mich",

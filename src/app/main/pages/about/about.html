@@ -1,4 +1,9 @@
 <section class="about" id="about">
+
+  @if (signale.netzAn()) {
+    <app-signal-layer bereich="about" />
+  }
+
   <div class="about__inner">
 
     <header class="about__head">

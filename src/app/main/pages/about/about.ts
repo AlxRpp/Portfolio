@@ -9,6 +9,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Animations } from '../../shared/service/animations';
+import { Signals } from '../../shared/service/signals';
+import { SignalLayer } from '../../shared/signal-layer/signal-layer';
 
 /** Ein Stueck Fliesstext, optional gefolgt von einer Belegziffer. */
 interface Segment {
@@ -68,12 +70,13 @@ function zerlege(text: string): Segment[] {
 
 @Component({
   selector: 'app-about',
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, SignalLayer],
   templateUrl: './about.html',
   styleUrls: ['./about.scss', './about-mediaQuerrys.scss'],
 })
 export class About implements AfterViewInit {
   private readonly anim = inject(Animations);
+  protected readonly signale = inject(Signals);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly translate = inject(TranslateService);
 

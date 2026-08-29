@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 449 231" fill="currentColor">
+  <!--
+    Aus dem PNG vermessen und als Geometrie neu aufgebaut, nicht
+    nachgezeichnet. Die tragenden Masse:
+      Neigung      24 Grad gegen die Senkrechte (gemessen 23,88 +/- 0,67)
+      Strichstaerke 38 waagerecht, das sind 34,71 senkrecht zum Strich
+      Schale des R  Kreisring um (296 / 69,5), aussen 69,5, innen 34,79
+                    Der Querbalken liegt tangential am Aussenkreis, die
+                    beiden Waagerechten der Punze am Innenkreis.
+      Winkel        Arme unter 41,35 Grad, um 180 Grad gedreht statt
+                    gespiegelt: links ist der obere Arm der lange.
+    Gegen das Original gerastert deckt sich die Form zu 94,5 Prozent,
+    der mittlere Kantenversatz liegt unter einem Pixel bei 512 Punkten
+    Breite. Die Abweichung ist das Rauschen der alten Rasterung.
+  -->
+  <!-- Winkel links -->
+  <path d="M 73,62.75 L 0,127 L 55.5,175.84 L 55.5,138 L 43,127 L 73,100.6 Z"/>
+  <!-- A -->
+  <path d="M 150,0 L 188,0 L 290.85,231 L 252.85,231 L 210.27,135.38 L 167.7,231 L 129.7,231 L 191.13,93.03 L 168.86,43 L 85.15,231 L 47.15,231 Z"/>
+  <!-- R mit Schale -->
+  <path d="M 221,0 L 296,0 A 69.5,69.5 0 0 1 322.67,133.68 L 366,231 L 328,231 L 271.58,104.29 L 296,104.29 A 34.79,34.79 0 0 0 330.79,69.5 A 34.79,34.79 0 0 0 296,34.71 L 236.46,34.71 Z"/>
+  <!-- Winkel rechts -->
+  <path d="M 393.5,77.16 L 449,126 L 376,190.25 L 376,152.4 L 406,126 L 393.5,115 Z"/>
+</svg>

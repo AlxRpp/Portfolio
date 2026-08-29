@@ -17,11 +17,10 @@
     "role": "Software Engineer",
     "location": "Delbrück",
     "name": "Alexander Ruppel",
-    "claim": "Better done properly once than badly twice.",
+    "claim": "Better done properly once\nthan badly twice.",
     "lead": "First understand what is needed, then build it properly. I hold my software to a craftsman's standard: it runs faultlessly from day one.",
     "ctaProjects": "View projects",
-    "ctaContact": "Get in touch",
-    "scroll": "Scroll"
+    "ctaContact": "Get in touch"
   },
   "about": {
     "eyebrow": "About",

@@ -4,28 +4,39 @@
 @include m.mq(tablet) {
   .hero__inner { padding-inline: t.$content-pad; }
 
-  .hero__grid { background-size: 88px 88px; }
-
-  .hero__scroll {
-    left: t.$content-pad;
-    bottom: t.sp(6);
-  }
+  .hero__mark { margin-inline-start: t.$content-pad; }
 }
 
-@include m.mq(laptop) {
-  // Erst hier eingeblendet: Der Hinweis richtet sich an Mausnutzer.
-  .hero__scroll { display: flex; }
-}
-
-@include m.mq(laptop) {
-  .hero__grid { background-size: 104px 104px; }
-
-  // Sobald der Viewport breiter als der Inhaltsbereich ist, wandert der
-  // Hinweis mit dessen linker Kante mit statt am Fensterrand zu kleben.
-  .hero__scroll {
-    left: max(
+@include m.mq(tablet-lg) {
+  // Ab hier steht das Logo frei in der Tafel statt im Textfluss.
+  //
+  // Es haengt an der rechten Kante des INHALTSBEREICHS, nicht an der des
+  // Fensters. Der Inhalt ist bei 1440px gedeckelt: An einer Fensterkante
+  // ausgerichtet wanderte das Logo darueber hinaus immer weiter nach
+  // aussen und druckte die Textspalte zusammen, obwohl der Bildschirm
+  // breiter wird. Dieselbe max()-Rechnung wie beim Inhalt selbst.
+  .hero__mark {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    right: max(
       #{t.$content-pad},
       calc((100vw - #{t.$content-max}) / 2 + #{t.$content-pad})
     );
+    width: var(--hero-logo-breite);
+    margin: 0;
   }
+
+  // Der Text darf nicht unter das Logo laufen. Weil beide an derselben
+  // Kante haengen, ist das jetzt schlicht Logobreite plus Luft.
+  .hero__inner {
+    padding-right: calc(var(--hero-logo-breite) + #{t.sp(6)});
+  }
+}
+
+@include m.mq(laptop) {
+  .hero {
+    --hero-logo-breite: min(26vw, 380px);
+  }
+
 }
