@@ -4,10 +4,17 @@
 .work {
   position: relative;
   padding-block: t.sp(9);
+  // Gegenstueck zum Schnitt in about.scss: Die Signallinien reichen ueber
+  // die Oberkante hinaus, jede Sektion zeichnet aber nur ihre eigene
+  // Haelfte. Sonst laegen an der Naht zwei Linien uebereinander.
+  overflow: hidden;
 }
 
 .work__inner {
   @include m.content-width;
+  // Ueber dem Signalnetz, das als eigene Ebene im Hintergrund liegt.
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: t.sp(8);
 

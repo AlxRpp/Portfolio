@@ -1,7 +1,7 @@
 import type { Pixelpunkt, Stuetzpunkt } from '../interfaces/signal.interface';
 
-/** Eckenradius in Pixeln. */
-const RADIUS = 12;
+/** Eckenradius in Pixeln, wenn keiner angegeben wird. */
+export const RADIUS = 12;
 
 /**
  * Unterhalb dieser Laenge gelten zwei Punkte als derselbe. Verhindert
@@ -14,7 +14,7 @@ const EPS = 0.01;
  * Rechnet die Stuetzpunkte in Pixel um und setzt die Strecke dazwischen
  * aus waagerechten, senkrechten und 45-Grad-Segmenten zusammen.
  *
- * Getrennt von `baueBahn`, weil sich auf der Punktliste pruefen laesst,
+ * Getrennt vom Zeichnen, weil sich auf der Punktliste pruefen laesst,
  * dass wirklich nur erlaubte Winkel entstehen. Am fertigen d-String mit
  * seinen Rundungen ginge das nicht mehr.
  */
@@ -42,7 +42,7 @@ export function baueEcken(
     }
 
     // Der Versatz kommt NACH dem Rasten, sonst zoege das Raster die
-    // parallelen Linien wieder aufeinander.
+    // Punkte wieder von ihrer Sollstelle weg.
     return { x: x + (p.xVersatz ?? 0), y: y + (p.yVersatz ?? 0) };
   });
 
@@ -57,19 +57,75 @@ export function baueEcken(
 }
 
 /**
- * Baut den d-String. Ecken werden ausgerundet, damit die Bahn wie eine
- * gefraeste Leiterbahn aussieht und nicht wie ein Treppenmuster.
+ * Versetzt einen Streckenzug senkrecht zu sich selbst.
+ *
+ * `d` groesser null versetzt nach rechts, bezogen auf die Laufrichtung.
+ *
+ * Das ist der einzige richtige Weg zu einem parallelen Buendel. Versetzt
+ * man stattdessen die Stuetzpunkte von Hand, stimmt der Abstand nur auf
+ * den Geraden: In einer 45-Grad-Schraege spreizt dasselbe Buendel um 41
+ * Prozent auf, bei einer anderen Neigung um einen anderen Faktor. Hier
+ * werden die Segmente selbst verschoben und die Ecken als deren
+ * Schnittpunkte neu bestimmt. Damit stimmt der Abstand bei jedem Winkel.
+ */
+export function versetze(
+  ecken: readonly Pixelpunkt[],
+  d: number,
+): Pixelpunkt[] {
+  if (ecken.length < 2) return [];
+  if (d === 0) return [...ecken];
+
+  const richtung: Pixelpunkt[] = [];
+  const normale: Pixelpunkt[] = [];
+
+  for (let i = 0; i < ecken.length - 1; i++) {
+    const dx = ecken[i + 1].x - ecken[i].x;
+    const dy = ecken[i + 1].y - ecken[i].y;
+    const l = Math.hypot(dx, dy);
+    if (l < EPS) return [];
+    const u = { x: dx / l, y: dy / l };
+    richtung.push(u);
+    // Rechte Normale in Bildschirmkoordinaten, y zeigt nach unten.
+    normale.push({ x: -u.y, y: u.x });
+  }
+
+  const schieb = (p: Pixelpunkt, n: Pixelpunkt): Pixelpunkt => ({
+    x: p.x + d * n.x,
+    y: p.y + d * n.y,
+  });
+
+  const raus: Pixelpunkt[] = [schieb(ecken[0], normale[0])];
+
+  for (let i = 1; i < ecken.length - 1; i++) {
+    const vor = schieb(ecken[i], normale[i - 1]);
+    const nach = schieb(ecken[i], normale[i]);
+    // Laufen beide Segmente in dieselbe Richtung, gibt es keinen
+    // Schnittpunkt. Dann liegen die verschobenen Punkte ohnehin
+    // aufeinander und einer von beiden genuegt.
+    raus.push(schneide(vor, richtung[i - 1], nach, richtung[i]) ?? nach);
+  }
+
+  raus.push(schieb(ecken[ecken.length - 1], normale[normale.length - 1]));
+  return raus;
+}
+
+/**
+ * Schreibt einen Streckenzug als d-String.
+ *
+ * `radius` null ergibt scharfe Gehrungen, und das ist der Regelfall fuer
+ * ein Buendel: Gerundet braeuchte jede Linie ihren eigenen Radius, damit
+ * die Boegen konzentrisch bleiben. Konstruierbar ist das nur, wenn die
+ * angrenzenden Segmente mindestens doppelt so lang sind wie der groesste
+ * dieser Radien. An der Ecke zum rechten Rand stehen dafuer 44 Pixel zur
+ * Verfuegung, noetig waeren bis zu 61.
  *
  * Gibt bei jeder entarteten Eingabe den leeren String zurueck. Ein d mit
  * NaN darin rendert wortlos nichts und ist von Hand kaum zu finden.
  */
-export function baueBahn(
-  punkte: readonly Stuetzpunkt[],
-  breite: number,
-  hoehe: number,
-  raster: number,
+export function zeichne(
+  ecken: readonly Pixelpunkt[],
+  radius: number = 0,
 ): string {
-  const ecken = baueEcken(punkte, breite, hoehe, raster);
   if (ecken.length < 2) return '';
 
   const teile = [`M ${n(ecken[0].x)},${n(ecken[0].y)}`];
@@ -84,11 +140,15 @@ export function baueBahn(
 
     // Nie groesser als das halbe kuerzere Segment. Sonst ueberlappen sich
     // zwei Rundungen und der Pfad schlaegt zurueck.
-    const r = Math.min(RADIUS, l1 / 2, l2 / 2);
+    const r = Math.min(Math.max(radius, 0), l1 / 2, l2 / 2);
+
+    if (r < EPS) {
+      teile.push(`L ${n(p.x)},${n(p.y)}`);
+      continue;
+    }
 
     const a = zwischen(p, vor, r / l1);
     const b = zwischen(p, nach, r / l2);
-
     teile.push(`L ${n(a.x)},${n(a.y)}`);
     teile.push(`Q ${n(p.x)},${n(p.y)} ${n(b.x)},${n(b.y)}`);
   }
@@ -98,6 +158,17 @@ export function baueBahn(
 
   const d = teile.join(' ');
   return d.includes('NaN') ? '' : d;
+}
+
+/** Umrechnen, verbinden und zeichnen in einem Schritt. */
+export function baueBahn(
+  punkte: readonly Stuetzpunkt[],
+  breite: number,
+  hoehe: number,
+  raster: number,
+  radius: number = RADIUS,
+): string {
+  return zeichne(baueEcken(punkte, breite, hoehe, raster), radius);
 }
 
 /**
@@ -125,6 +196,19 @@ function route(a: Pixelpunkt, b: Pixelpunkt, schraegeZuerst: boolean): Pixelpunk
   return adx > ady
     ? [{ x: a.x + sx * (adx - d), y: a.y }, b]
     : [{ x: a.x, y: a.y + sy * (ady - d) }, b];
+}
+
+/** Schnittpunkt zweier Geraden, jeweils aus Punkt und Richtung. */
+function schneide(
+  p1: Pixelpunkt,
+  d1: Pixelpunkt,
+  p2: Pixelpunkt,
+  d2: Pixelpunkt,
+): Pixelpunkt | null {
+  const nenner = d1.x * d2.y - d1.y * d2.x;
+  if (Math.abs(nenner) < 1e-9) return null;
+  const t = ((p2.x - p1.x) * d2.y - (p2.y - p1.y) * d2.x) / nenner;
+  return { x: p1.x + d1.x * t, y: p1.y + d1.y * t };
 }
 
 function entdoppeln(punkte: Pixelpunkt[]): Pixelpunkt[] {

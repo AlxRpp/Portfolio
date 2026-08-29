@@ -68,3 +68,16 @@
     grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   }
 }
+
+// Haelt den Streifen am rechten Rand frei, in dem die Signallinien
+// senkrecht durchlaufen.
+//
+// Baulich statt gehofft, dieselbe Vorgehensweise wie beim Band in
+// about.scss: content-width laesst den Text sonst bis 32px an die Kante
+// laufen, und dort ist das Buendel aus sieben Linien schon 54px breit.
+//
+// Erst ab tablet-lg: Darunter wird der Layer gar nicht erst erzeugt, das
+// Polster waere dann nur verschenkte Breite.
+@include m.mq(tablet-lg) {
+  .work__inner { padding-right: var(--signal-rail-frei); }
+}

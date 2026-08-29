@@ -1,8 +1,13 @@
 import { Injectable, computed, signal } from '@angular/core';
 import type { Anordnung } from '../interfaces/signal.interface';
+import type { PlanWerte } from './signal-plan';
 
 /** Ab dieser Breite gibt es ueberhaupt ein Netz. */
 const MIN_BREITE = 900;
+
+/** Die Sektionen in der Reihenfolge, in der die Punkte sie durchlaufen. */
+export type Bereich = 'hero' | 'about' | 'arbeit';
+export const KETTE: readonly Bereich[] = ['hero', 'about', 'arbeit'];
 
 /**
  * Kuerzeste und laengste Pause zwischen zwei Punkten, in Sekunden.
@@ -18,6 +23,9 @@ export const PAUSE_MAX = 2.4;
 export const TEMPO_MIN = 150;
 export const TEMPO_MAX = 430;
 
+/** Verzoegerung des ersten Punktes, damit der Name vorher durchlaeuft. */
+export const VORLAUF = 1.2;
+
 /**
  * Zufallswert zwischen zwei Grenzen.
  *
@@ -30,9 +38,6 @@ export function spanne(min: number, max: number, neigung = 1): number {
   return min + (max - min) * Math.random() ** neigung;
 }
 
-/** Verzoegerung des ersten Punktes, damit der Name vorher durchlaeuft. */
-export const VORLAUF = 1.2;
-
 /**
  * Haelt den Zustand des Signalnetzes.
  *
@@ -42,9 +47,30 @@ export const VORLAUF = 1.2;
  */
 @Injectable({ providedIn: 'root' })
 export class Signals {
+  /**
+   * Die Masse des Netzes, EINMAL zentral aus CSS gelesen.
+   *
+   * Bewusst hier und nicht in jedem Layer einzeln. Zwei Stellen, die
+   * dieselbe Zahl unabhaengig ermitteln, koennen auseinanderlaufen, und
+   * genau das ist passiert: Der Layer las im Konstruktor, also bevor
+   * sein Element im Dokument hing. getComputedStyle liefert dann nichts
+   * und die Ersatzwerte im Code griffen. Wenn das nur einer der beiden
+   * Layer tut, treffen sich die Linien an der Naht nicht mehr.
+   *
+   * document.documentElement haengt immer im Dokument, hier kann das
+   * nicht passieren.
+   */
+  readonly werte = signal<PlanWerte>({
+    einlauf: 130,
+    band: 88,
+    abstand: 9,
+    rail: 44,
+    taper: 400,
+  });
+
   private readonly buehne = signal(false);
-  private readonly imBlick = signal(true);
   private readonly breitGenug = signal(false);
+  private readonly sichtbar = signal(true);
 
   /**
    * Welche Anordnung gilt. Wird NICHT selbst aus einer Media Query
@@ -59,39 +85,86 @@ export class Signals {
   /** Ob der Layer ueberhaupt erzeugt wird. */
   readonly netzAn = computed(() => this.breitGenug());
 
-  /** Ob der Takt laufen darf. */
-  readonly laeuft = computed(() => this.breitGenug() && this.imBlick());
+  /**
+   * Ob der Takt laufen darf.
+   *
+   * Haengt bewusst NICHT daran, welche Sektion gerade im Blick ist. Ein
+   * Punkt soll die ganze Kette durchlaufen, und dafuer muessen auch die
+   * Sektionen weiterlaufen, die man gerade nicht sieht. Sonst risse der
+   * Strom ab, sobald man scrollt. Gespart wird stattdessen dort, wo es
+   * wirklich zaehlt: im Hintergrundtab.
+   */
+  readonly laeuft = computed(() => this.breitGenug() && this.sichtbar());
 
   /**
-   * Meldet, dass ein Punkt die Hero verlassen hat und About ihn
-   * uebernehmen soll.
+   * Wer einen uebergebenen Punkt entgegennimmt, je Sektion.
    *
-   * Bewusst ein Ereignis und keine geteilte Zeitrechnung: About muesste
-   * sonst wissen, wie lange die Hero-Bahn dauert. So kennt jede Tafel nur
-   * ihre eigene Geometrie.
+   * Bewusst eine direkte Rueckmeldung und kein Signal mit Effekt: Ein
+   * Signal wird erst im naechsten Aenderungslauf ausgewertet, die
+   * Uebernahme kaeme also ein Bild zu spaet. Genau das sah man als
+   * kurzes Blinken an der Naht. So laeuft sie im selben Zug wie das Ende
+   * des vorigen Punktes.
    *
-   * Der Zaehler steigt bei jeder Uebergabe, damit zwei Uebergaben auf
-   * derselben Bahn zwei verschiedene Werte sind und der Effekt in About
-   * beide Male anspringt.
+   * Das Tempo reist mit, damit die naechste Sektion genauso schnell
+   * weiterfaehrt: Sonst wechselte der Punkt an der Naht die
+   * Geschwindigkeit, und aus einem durchlaufenden wuerden sichtbar zwei.
    */
-  readonly staffel = signal<{
-    bahn: string;
-    /**
-     * Das Tempo des uebergebenen Punktes. Reist mit, damit About genauso
-     * schnell weiterfaehrt: Sonst wechselte der Punkt genau an der Naht
-     * die Geschwindigkeit, und aus einem durchlaufenden Punkt wuerden
-     * sichtbar zwei.
-     */
-    tempo: number;
-    nr: number;
-  } | null>(null);
+  private readonly empfaenger = new Map<
+    Bereich,
+    (bahn: number, tempo: number) => void
+  >();
 
-  private nr = 0;
+  /** Meldet eine Sektion an. Die Rueckgabe meldet sie wieder ab. */
+  melde(
+    bereich: Bereich,
+    nimm: (bahn: number, tempo: number) => void,
+  ): () => void {
+    this.empfaenger.set(bereich, nimm);
+    return () => {
+      if (this.empfaenger.get(bereich) === nimm) {
+        this.empfaenger.delete(bereich);
+      }
+    };
+  }
 
   constructor() {
     const mq = window.matchMedia(`(min-width: ${MIN_BREITE}px)`);
     this.breitGenug.set(mq.matches);
     mq.addEventListener('change', (e) => this.breitGenug.set(e.matches));
+
+    const pruefeSicht = () =>
+      this.sichtbar.set(document.visibilityState === 'visible');
+    pruefeSicht();
+    document.addEventListener('visibilitychange', pruefeSicht);
+
+    // Neu lesen, wenn sich das Fenster aendert: --signal-taper rechnet
+    // mit 50vw und ist damit von der Fensterbreite abhaengig.
+    this.liesWerte();
+    window.addEventListener('resize', () => this.liesWerte(), { passive: true });
+  }
+
+  /**
+   * Liest die Masse aus CSS.
+   *
+   * Alle fuenf sind in styles.scss per @property als <length>
+   * registriert. Ohne diese Registrierung gaebe getPropertyValue den
+   * TEXT der Eigenschaft zurueck statt ihres Wertes, aus
+   * clamp(...) wuerde also kein Pixelwert und parseFloat scheiterte.
+   */
+  private liesWerte(): void {
+    const stil = getComputedStyle(document.documentElement);
+    const zahl = (name: string, ersatz: number): number => {
+      const n = parseFloat(stil.getPropertyValue(name));
+      return Number.isFinite(n) ? n : ersatz;
+    };
+
+    this.werte.set({
+      einlauf: zahl('--signal-einlauf', 130),
+      band: zahl('--signal-band', 88),
+      abstand: zahl('--signal-abstand', 9),
+      rail: zahl('--signal-rail', 44),
+      taper: zahl('--signal-taper', 400),
+    });
   }
 
   setzeBuehne(aktiv: boolean): void {
@@ -99,16 +172,12 @@ export class Signals {
   }
 
   /**
-   * Ob die Buehne im Blick ist. Gilt fuer Hero UND About zusammen: Waere
-   * nur die eigene Sektion massgeblich, verstummte About in dem Moment,
-   * in dem die Hero aus dem Bild faehrt, und bekaeme nie wieder einen
-   * Punkt.
+   * Gibt einen Punkt an die naechste Sektion der Kette weiter. Am Ende
+   * der Kette passiert nichts, der Punkt ist dann angekommen.
    */
-  setzeImBlick(sichtbar: boolean): void {
-    this.imBlick.set(sichtbar);
-  }
-
-  uebergib(bahn: string, tempo: number): void {
-    this.staffel.set({ bahn, tempo, nr: ++this.nr });
+  weiter(von: Bereich, bahn: number, tempo: number): void {
+    const ziel = KETTE[KETTE.indexOf(von) + 1];
+    if (!ziel) return;
+    this.empfaenger.get(ziel)?.(bahn, tempo);
   }
 }

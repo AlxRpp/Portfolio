@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Pixelpunkt, Stuetzpunkt } from '../interfaces/signal.interface';
-import { baueBahn, baueEcken } from './signal-path';
+import { baueBahn, baueEcken, versetze, zeichne } from './signal-path';
 
 /** Nur waagerecht, senkrecht oder exakt 45 Grad ist erlaubt. */
 function erlaubterWinkel(a: Pixelpunkt, b: Pixelpunkt): boolean {
@@ -94,5 +94,83 @@ describe('baueBahn', () => {
     ];
 
     expect(baueBahn(punkte, 1200, 700, 88)).not.toContain('NaN');
+  });
+});
+
+describe('versetze', () => {
+  /** Einheitsrichtung eines Segments. */
+  function richtung(a: Pixelpunkt, b: Pixelpunkt): Pixelpunkt {
+    const l = Math.hypot(b.x - a.x, b.y - a.y);
+    return { x: (b.x - a.x) / l, y: (b.y - a.y) / l };
+  }
+
+  /** Abstand von `p` zur Geraden durch `a` mit Richtung `u`. */
+  function abstand(p: Pixelpunkt, a: Pixelpunkt, u: Pixelpunkt): number {
+    return Math.abs((p.x - a.x) * u.y - (p.y - a.y) * u.x);
+  }
+
+  // Waagerecht, dann 45 Grad abwaerts, dann senkrecht. Genau die
+  // Kombination, an der von Hand versetzte Stuetzpunkte scheitern: Auf
+  // den Geraden stimmt der Abstand, in der Schraege spreizt das Buendel
+  // um 41 Prozent auf.
+  const zug: Pixelpunkt[] = [
+    { x: 0, y: 100 },
+    { x: 200, y: 100 },
+    { x: 260, y: 160 },
+    { x: 260, y: 400 },
+  ];
+
+  it('haelt den Abstand in jedem Segment, auch in der Schraege', () => {
+    for (const d of [-27, -9, 9, 27]) {
+      const versetzt = versetze(zug, d);
+      expect(versetzt).toHaveLength(zug.length);
+
+      for (let i = 0; i < zug.length - 1; i++) {
+        const u = richtung(zug[i], zug[i + 1]);
+        const v = richtung(versetzt[i], versetzt[i + 1]);
+
+        // Gleiche Richtung: die Parallele darf nicht kippen.
+        expect(v.x).toBeCloseTo(u.x);
+        expect(v.y).toBeCloseTo(u.y);
+
+        // Und beide Endpunkte liegen genau |d| von der Ursprungsgeraden
+        // entfernt, unabhaengig vom Winkel des Segments.
+        expect(abstand(versetzt[i], zug[i], u)).toBeCloseTo(Math.abs(d));
+        expect(abstand(versetzt[i + 1], zug[i], u)).toBeCloseTo(Math.abs(d));
+      }
+    }
+  });
+
+  it('versetzt nach rechts bezogen auf die Laufrichtung', () => {
+    // Nach rechts heisst bei einem nach rechts laufenden Segment nach
+    // unten, denn y zeigt in Bildschirmkoordinaten nach unten.
+    const waagerecht: Pixelpunkt[] = [
+      { x: 0, y: 50 },
+      { x: 100, y: 50 },
+    ];
+    expect(versetze(waagerecht, 10)[0].y).toBeCloseTo(60);
+    expect(versetze(waagerecht, -10)[0].y).toBeCloseTo(40);
+  });
+
+  it('laesst den Zug bei Versatz null unveraendert', () => {
+    expect(versetze(zug, 0)).toEqual(zug);
+  });
+
+  it('liefert bei entarteten Eingaben eine leere Liste', () => {
+    expect(versetze([], 5)).toEqual([]);
+    expect(versetze([{ x: 1, y: 1 }], 5)).toEqual([]);
+    // Zwei gleiche Punkte ergeben ein Segment der Laenge null.
+    expect(versetze([{ x: 1, y: 1 }, { x: 1, y: 1 }], 5)).toEqual([]);
+  });
+});
+
+describe('zeichne', () => {
+  it('setzt ohne Radius scharfe Gehrungen', () => {
+    const ecken: Pixelpunkt[] = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 10 },
+    ];
+    expect(zeichne(ecken)).toBe('M 0,0 L 10,0 L 10,10');
   });
 });

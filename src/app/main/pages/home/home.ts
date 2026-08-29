@@ -120,28 +120,9 @@ export class Home implements AfterViewInit, OnDestroy {
     this.springeZuTafel(this.aktuellesFragment());
 
     this.beobachteScrollposition();
-    this.beobachteBuehnenSicht();
     this.vermesseAusloeserNeu();
 
     this.aufbauDurch = true;
-  }
-
-  /**
-   * Meldet dem Signalnetz, ob die Buehne im Blick ist.
-   *
-   * Bewusst die ganze Buehne und nicht die einzelne Sektion: Hero und
-   * About teilen sich einen Takt. Waere nur die eigene Sektion
-   * massgeblich, verstummte About genau dann, wenn die Hero aus dem Bild
-   * faehrt, und bekaeme nie wieder einen Punkt.
-   */
-  private beobachteBuehnenSicht(): void {
-    const beobachter = new IntersectionObserver(
-      ([eintrag]) => this.signale.setzeImBlick(eintrag.isIntersecting),
-      { rootMargin: '10% 0px' },
-    );
-
-    beobachter.observe(this.stage().nativeElement);
-    this.destroyRef.onDestroy(() => beobachter.disconnect());
   }
 
   /**

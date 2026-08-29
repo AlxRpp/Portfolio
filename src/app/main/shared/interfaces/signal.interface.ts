@@ -34,10 +34,14 @@ export interface Pixelpunkt {
   y: number;
 }
 
-export interface Bahn {
-  id: string;
-  punkte: Stuetzpunkt[];
-}
+/**
+ * Der Plan einer Sektion: EINE Mittellinie.
+ *
+ * Die sieben sichtbaren Linien entstehen daraus als echte Parallelen,
+ * siehe versetze() in signal-path.ts. Sie hier einzeln zu fuehren waere
+ * der Fehler gewesen: Von Hand versetzte Stuetzpunkte halten den Abstand
+ * nur auf den Geraden, in jeder Schraege laeuft das Buendel auseinander.
+ */
 
 /**
  * `buehne`: Hero und About stehen nebeneinander, die Naht ist senkrecht.
@@ -46,5 +50,5 @@ export interface Bahn {
 export type Anordnung = 'buehne' | 'gestapelt';
 
 export interface Plan {
-  bahnen: Bahn[];
+  mitte: Stuetzpunkt[];
 }

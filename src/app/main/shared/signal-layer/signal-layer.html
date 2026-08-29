@@ -3,15 +3,15 @@
   Text steht, deshalb aria-hidden und focusable="false".
 -->
 <svg class="signal" [attr.viewBox]="viewBox()" aria-hidden="true" focusable="false">
-  @for (bahn of bahnen(); track bahn.id) {
-    <path class="signal__bahn" [attr.d]="bahn.d" [attr.data-bahn]="bahn.id" />
+  @for (bahn of bahnen(); track bahn.nr) {
+    <path class="signal__bahn" [attr.d]="bahn.d" [attr.data-bahn]="bahn.nr" />
 
     <!--
       Zwei Kreise statt eines drop-shadow: Ein Filter wird bei jedem Bild
       neu gerechnet und ist die teuerste Loesung. Der blasse Kreis
       darunter sieht genauso aus und kostet nichts.
     -->
-    <g class="signal__punkt" [attr.data-bahn]="bahn.id" opacity="0">
+    <g class="signal__punkt" [attr.data-bahn]="bahn.nr" opacity="0">
       <circle class="signal__punkt-schein" r="7" />
       <circle class="signal__punkt-kern" r="3" />
     </g>

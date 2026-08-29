@@ -26,6 +26,13 @@
   }
   display: grid;
   align-content: center;
+  // Beschneidet die Signallinien an der Unterkante.
+  //
+  // Sie reichen absichtlich ein Stueck darueber hinaus, damit wirklich
+  // alle sieben die Kante erreichen. Ohne diesen Schnitt zeichnete
+  // About dasselbe Stueck wie die naechste Sektion, und zwei Linien
+  // uebereinander leuchten heller als eine.
+  overflow: hidden;
 }
 
 .about__inner {

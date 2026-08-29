@@ -11,6 +11,46 @@
 // Einzige Quelle fuer die Schwelle der horizontalen Buehne. SCSS nutzt die
 // Variablen direkt in der Media Query, home.ts liest diese Werte hier aus.
 // So kann die Bedingung in CSS und TypeScript nicht auseinanderlaufen.
+// --- Werte, die TypeScript ausliest ---------------------------------
+//
+// signal-layer.ts liest diese vier ueber getComputedStyle aus. Sie
+// MUESSEN registriert sein.
+//
+// Eine nicht registrierte Custom Property liefert dort ihren TEXT
+// zurueck, nicht ihren Wert: Aus clamp(400px, calc(50vw - 176px), 780px)
+// wird dann kein Pixelwert, parseFloat scheitert, und der Ersatzwert im
+// Code greift. Das faellt nicht auf, es sieht nur so aus, als haette die
+// Aenderung in CSS keine Wirkung. Genau daran ist die Laenge der
+// Schraegen einmal stillschweigend haengengeblieben.
+//
+// Als <length> registriert loest der Browser calc() und clamp() auf und
+// gibt einen absoluten Pixelwert heraus.
+@property --signal-einlauf {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 130px;
+}
+@property --signal-band {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 88px;
+}
+@property --signal-abstand {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 9px;
+}
+@property --signal-rail {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 44px;
+}
+@property --signal-taper {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 400px;
+}
+
 :root {
   --stage-min-width: #{math.div(t.$stage-min-width, 1px)};
   --stage-min-height: #{math.div(t.$stage-min-height, 1px)};
@@ -42,6 +82,33 @@
 
   // Abstand der parallel laufenden Linien, in Pixeln.
   --signal-abstand: 9px;
+
+  // Abstand der Buendelmitte vom rechten Rand. Dort laufen die Linien
+  // von About senkrecht nach unten in die naechste Sektion.
+  --signal-rail: 44px;
+
+  // Waagerechte Laenge der langen Schraegen von About nach "Wie ich
+  // arbeite". Sie soll zwischen dem zweiten und dritten Beleg beginnen.
+  //
+  // Die Belege stehen ab Laptopbreite in vier Spalten im rechten
+  // Drittel. Der Knick soll bei der zweiten Spalte sitzen, also bei
+  // "Frontends".
+  //
+  // EINE BELEGSPALTE IST 141 PIXEL BREIT. Sitzt der Knick daneben,
+  // verschiebt man die 320 unten um genau diesen Betrag: groesser heisst
+  // weiter LINKS, kleiner weiter rechts. Das ist die einzige Stelle, an
+  // der die Laenge der Schraegen festgelegt wird.
+  //
+  // Die Grenzen des clamp fangen schmale und sehr breite Fenster ab, wo
+  // die Formel sonst zu kurz beziehungsweise absurd lang wuerde.
+  --signal-taper: clamp(300px, calc(50vw - 320px), 900px);
+
+  // Was dafuer am rechten Rand freigehalten wird. Muss groesser sein als
+  // --signal-rail plus die halbe Buendelbreite, sonst laeuft die
+  // aeusserste Linie in den Text. Bei sieben Linien à 9px sind das
+  // 44 + 27 = 71, also reichen 88 mit Luft.
+  --signal-rail-frei: 88px;
+
 }
 
 // --- Schriften, selbst gehostet, kein externer Aufruf ---

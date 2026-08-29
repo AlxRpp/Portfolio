@@ -6,6 +6,8 @@ import {
 } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Animations } from '../../shared/service/animations';
+import { Signals } from '../../shared/service/signals';
+import { SignalLayer } from '../../shared/signal-layer/signal-layer';
 
 /** Ein Schritt der Arbeitsweise. Die Reihenfolge traegt die Bedeutung. */
 interface Step {
@@ -15,12 +17,13 @@ interface Step {
 
 @Component({
   selector: 'app-how-i-work',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, SignalLayer],
   templateUrl: './how-i-work.html',
   styleUrls: ['./how-i-work.scss', './how-i-work-mediaQuerrys.scss'],
 })
 export class HowIWork implements AfterViewInit {
   private readonly anim = inject(Animations);
+  protected readonly signale = inject(Signals);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
