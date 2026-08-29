@@ -14,7 +14,10 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import type { Anker } from '../../shared/interfaces/signal.interface';
 import { Animations } from '../../shared/service/animations';
+import { Signals } from '../../shared/service/signals';
+import { SignalLayer } from '../../shared/signal-layer/signal-layer';
 
 type Zustand = 'ruhe' | 'sendet' | 'ok' | 'fehler';
 
@@ -31,7 +34,7 @@ const ENDPUNKT = '/sendMail.php';
 
 @Component({
   selector: 'app-contact',
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, SignalLayer],
   templateUrl: './contact.html',
   styleUrls: ['./contact.scss', './contact-mediaQuerrys.scss'],
 })
@@ -39,8 +42,18 @@ export class Contact implements AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly http = inject(HttpClient);
   private readonly anim = inject(Animations);
+  protected readonly signale = inject(Signals);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Wo der Absendeknopf sitzt, damit die Linien wirklich hineinlaufen.
+   *
+   * Gemessen statt gerechnet: Seine Lage haengt an der Hoehe des
+   * Formulars, und die haengt an Schriftgroesse und Sprache. Aus
+   * Bruchteilen laesst sich das nicht ableiten.
+   */
+  protected readonly anker = signal<readonly Anker[]>([]);
 
   /**
    * Zurueck an den Anfang. Sanft, ausser jemand hat weniger Bewegung
@@ -181,8 +194,48 @@ export class Contact implements AfterViewInit {
     return Boolean(c && c.invalid && c.touched);
   }
 
+  /**
+   * Haelt die Lage des Absendeknopfes aktuell.
+   *
+   * Ein ResizeObserver auf der Sektion UND auf dem Knopf: Waechst das
+   * Formular, etwa weil eine Fehlermeldung erscheint, rutscht der Knopf
+   * nach unten, ohne dass sich seine eigene Groesse aendert.
+   */
+  private beobachteKnopf(): void {
+    const sektion = this.host.nativeElement.querySelector<HTMLElement>('.contact');
+    const knopf =
+      this.host.nativeElement.querySelector<HTMLElement>('.contact__submit');
+    if (!sektion || !knopf) return;
+
+    const messen = () => {
+      const s = sektion.getBoundingClientRect();
+      const k = knopf.getBoundingClientRect();
+      const stil = getComputedStyle(document.documentElement);
+      const rail = parseFloat(stil.getPropertyValue('--signal-rail')) || 44;
+
+      this.anker.set([
+        {
+          // Auf halber Knopfhoehe, damit das Buendel mittig hineinlaeuft.
+          oben: k.top + k.height / 2 - s.top,
+          // Abstand von der Schiene am linken Rand bis zur linken Kante
+          // des Knopfes.
+          nah: k.left - s.left - rail,
+        },
+      ]);
+    };
+
+    const beobachter = new ResizeObserver(messen);
+    beobachter.observe(sektion);
+    beobachter.observe(knopf);
+    this.destroyRef.onDestroy(() => beobachter.disconnect());
+
+    messen();
+  }
+
   ngAfterViewInit(): void {
     const el = this.host.nativeElement;
+
+    this.beobachteKnopf();
 
     this.anim.staggerChildren(el, '.contact__head [data-reveal]', {
       scroll: true,

@@ -26,3 +26,13 @@
     column-gap: t.sp(3);
   }
 }
+
+// Haelt den Streifen am rechten Rand frei, in dem die Signallinien nach
+// unten laufen. Dieselbe Vorgehensweise wie in
+// how-i-work-mediaQuerrys.scss.
+//
+// Erst ab tablet-lg: Darunter wird der Layer gar nicht erst erzeugt, das
+// Polster waere dann nur verschenkte Breite.
+@include m.mq(tablet-lg) {
+  .stack__inner { padding-right: var(--signal-rail-frei); }
+}

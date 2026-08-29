@@ -7,15 +7,18 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { StackData } from '../../shared/service/stack-data';
 import { Animations } from '../../shared/service/animations';
+import { Signals } from '../../shared/service/signals';
+import { SignalLayer } from '../../shared/signal-layer/signal-layer';
 
 @Component({
   selector: 'app-stack',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, SignalLayer],
   templateUrl: './stack.html',
   styleUrls: ['./stack.scss', './stack-mediaQuerrys.scss'],
 })
 export class Stack implements AfterViewInit {
   private readonly data = inject(StackData);
+  protected readonly signale = inject(Signals);
   private readonly anim = inject(Animations);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 

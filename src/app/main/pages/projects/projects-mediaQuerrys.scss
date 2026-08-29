@@ -1,28 +1,24 @@
 @use 'tokens' as t;
 @use 'mixins' as m;
 
-@include m.mq(tablet) {
-  .projects { padding-block: t.sp(10); }
-}
-
-// Ab hier stehen Liste und Detail nebeneinander. Dieselbe Schwelle liest
-// projects.ts aus --bp-tablet-lg, damit Aufklapper und Zweispalter nicht
-// gleichzeitig oder gar nicht greifen.
+// Ab hier haengen die Karten am Rueckgrat: eine Haelfte je Seite, mit
+// Luft zur Mitte, in der die Signallinien laufen.
+//
+// Darunter stapeln sie sich schlicht untereinander. Dort gibt es kein
+// Netz, also auch keine Mitte, an der etwas haengen koennte.
 @include m.mq(tablet-lg) {
-  .projects__body {
-    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
-    gap: t.sp(6);
-    align-items: start;
+  .projects__karte { width: 100%; }
+
+  .projects__zweig {
+    // Die Karte belegt hoechstens eine Haelfte, abzueglich der Luft zur
+    // Mittellinie.
+    // Derselbe Wert, aus dem der Zweig seine Laenge nimmt. Nur so
+    // trifft er die Kante der Karte.
+    --zweig-luft: var(--signal-zweig);
+
+    .projects__karte { max-width: calc(50% - var(--zweig-luft)); }
   }
 
-  .projects__panel { padding: t.sp(6); }
-}
-
-@include m.mq(laptop) {
-  .projects__inner { gap: t.sp(8); }
-
-  .projects__body {
-    grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
-    gap: t.sp(7);
-  }
+  .projects__zweig.is-links { justify-content: flex-start; }
+  .projects__zweig:not(.is-links) { justify-content: flex-end; }
 }

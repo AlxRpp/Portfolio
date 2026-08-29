@@ -71,7 +71,8 @@
     "confidentialNote": "Client project under a confidentiality agreement. No link, no screenshot.",
     "actions": {
       "live": "View live",
-      "code": "Code"
+      "code": "Code",
+      "details": "Details"
     },
     "scope": {
       "backendOnly": "Backend. The frontend was provided.",
@@ -90,7 +91,6 @@
       "pokedex": "Pokedex app built on a public REST API.",
       "alienAdventure": "2D jump and run in the browser."
     },
-    "tabsLabel": "Projects by area",
     "tabs": {
       "current": "Current",
       "work": "At work",
@@ -100,14 +100,7 @@
     "labels": {
       "description": "Description",
       "implementation": "How it was built",
-      "duration": "Time to build",
       "stack": "Stack"
-    },
-    "durationUnit": {
-      "day": "day",
-      "days": "days",
-      "week": "week",
-      "weeks": "weeks"
     },
     "impl": {
       "fin": "Fullstack build: NestJS on the backend, React on the frontend, the analysis in Python. Connected to the group AI gateway.",
@@ -121,7 +114,10 @@
       "join": "Built by a team of three and organised entirely through Git. No framework, the Kanban board works with the browser drag and drop events. Firebase as the data store.",
       "pokedex": "My first hands-on use of a public API. The PokeAPI serves the data page by page and the cards are built from it in the browser.",
       "alienAdventure": "Object oriented in JavaScript: movable objects, drawable objects, levels and audio are kept clearly apart. The game loop draws onto a canvas."
-    }
+    },
+    "shotAlt": "Screenshot of {{name}}",
+    "modalClose": "Close",
+    "branchLabel": "Category"
   },
   "stack": {
     "eyebrow": "Stack",

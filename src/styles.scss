@@ -45,6 +45,21 @@
   inherits: true;
   initial-value: 44px;
 }
+@property --signal-bogen {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 380px;
+}
+@property --signal-bogen-kontakt {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 96px;
+}
+@property --signal-zweig {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 64px;
+}
 @property --signal-taper {
   syntax: '<length>';
   inherits: true;
@@ -102,6 +117,34 @@
   // Die Grenzen des clamp fangen schmale und sehr breite Fenster ab, wo
   // die Formel sonst zu kurz beziehungsweise absurd lang wuerde.
   --signal-taper: clamp(300px, calc(50vw - 320px), 900px);
+
+  // Wie weit die Linie auf dem Weg vom rechten Rand zur Mitte von
+  // Projects nach unten kommt.
+  //
+  // Nicht der Winkel: Der ergibt sich daraus und aus der Fensterbreite
+  // und ist auf breiten Schirmen flacher. Fest auf 45 Grad koestete der
+  // Weg zur Mitte die halbe Fensterbreite an Hoehe, auf einem 2560er
+  // Schirm also ueber 1200 Pixel leere Flaeche.
+  --signal-bogen: 220px;
+
+  // Dasselbe fuer Contact, aber viel flacher.
+  //
+  // Dort wechselt das Buendel auf die linke Seite und muss damit fertig
+  // sein, BEVOR der Inhalt anfaengt: Faellt es tiefer, quert die Schraege
+  // die Ueberschrift. Der Wert ist deshalb genau das obere Polster der
+  // Sektion, t.sp(9).
+  --signal-bogen-kontakt: 96px;
+
+  // Abstand der Projektkarten von der Mittellinie. Derselbe Wert legt
+  // die Laenge der Zweige fest, deshalb treffen sie ihre Karte.
+  --signal-zweig: 64px;
+
+
+  // Wie weit die Seiten der Projektkarten geneigt sind. Der Zweig
+  // rechnet sie mit ein, damit er die geneigte Kante trifft und nicht
+  // den rechteckigen Kasten dahinter.
+  --projekt-schraege: 26px;
+
 
   // Was dafuer am rechten Rand freigehalten wird. Muss groesser sein als
   // --signal-rail plus die halbe Buendelbreite, sonst laeuft die

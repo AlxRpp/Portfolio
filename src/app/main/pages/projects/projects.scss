@@ -4,15 +4,18 @@
 .projects {
   position: relative;
   padding-block: t.sp(9);
+  // Beschneidet die Signallinien an den Kanten, siehe about.scss.
+  overflow: hidden;
 }
 
 .projects__inner {
   @include m.content-width;
+  // Ueber dem Signalnetz, das als eigene Ebene im Hintergrund liegt.
+  position: relative;
+  z-index: 1;
   display: grid;
-  gap: t.sp(7);
+  gap: t.sp(6);
 }
-
-// --- Kopf ---
 
 .projects__head {
   display: grid;
@@ -46,107 +49,238 @@
   color: var(--text-secondary);
 }
 
-// --- Reiter ---
+// --- Rueckgrat und Zweige --------------------------------------------
 
-.projects__tabs {
-  position: relative;
-  display: flex;
-  gap: t.sp(1);
-  // Passen die Reiter nicht in eine Zeile, laufen sie seitlich weiter
-  // statt umzubrechen. Das haelt das Band immer einzeilig.
-  overflow-x: auto;
-  scrollbar-width: none;
-  border-bottom: 1px solid var(--border-subtle);
-
-  &::-webkit-scrollbar { display: none; }
+// Die Karten haengen abwechselnd links und rechts an der Mittellinie,
+// die der Signal-Layer zeichnet. Je Karte eine eigene Zeile: Zwei
+// nebeneinander haetten keinen Zweig, der sie einzeln erreicht.
+.projects__strang {
+  display: grid;
+  gap: t.sp(7);
 }
 
-.projects__tab {
-  @include m.mono-label;
-  display: inline-flex;
-  align-items: center;
-  gap: t.sp(2);
-  padding: t.sp(3) t.sp(4);
-  white-space: nowrap;
-  color: var(--text-muted);
-  transition: color t.$dur-fast t.$ease;
-  @include m.focus-ring(-2px);
+.projects__zweig { display: flex; }
 
-  &:hover { color: var(--text-secondary); }
-
-  &.is-active { color: var(--text-primary); }
+// Leuchtet auf, waehrend der Punkt ihren Rand abfaehrt. Der Schein
+// liegt als eigene Ebene darueber statt als Hintergrund: So bleibt der
+// Grund der Karte unangetastet und der Text darauf lesbar.
+// Traegt den Schein. Muss ein eigenes Element sein: clip-path wird nach
+// dem Filter angewendet, ein drop-shadow auf der Flaeche selbst waere
+// also mit weggeschnitten. Hier sieht der Filter die fertig beschnittene
+// Form und legt den Schein um ihre Kanten.
+//
+// Im Ruhezustand ein leiser Schein, damit die Karte nicht flach auf dem
+// Grund klebt. Trifft ein Punkt sie, atmet er einmal auf.
+.projects__karte {
+  display: grid;
+  filter: drop-shadow(
+    0 0 14px color-mix(in srgb, var(--brand) 22%, transparent)
+  );
 }
 
-// Wandert per Flip unter den aktiven Reiter. Flip.fit setzt Breite und
-// Position, deshalb steht hier nur die Optik.
-.projects__tab-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
+.projects__karte.is-puls {
+  animation: karte-atmen 1.6s t.$ease;
+}
+
+@keyframes karte-atmen {
+  0%, 100% {
+    filter: drop-shadow(
+      0 0 14px color-mix(in srgb, var(--brand) 22%, transparent)
+    );
+  }
+  30% {
+    filter: drop-shadow(
+      0 0 22px color-mix(in srgb, var(--brand) 36%, transparent)
+    );
+  }
+}
+
+// Wer weniger Bewegung eingestellt hat, bekommt kein Atmen. Der ruhige
+// Schein bleibt, es geht also nichts verloren.
+@media (prefers-reduced-motion: reduce) {
+  .projects__karte.is-puls { animation: none; }
+}
+
+// Parallelogramm in Markenfarbe, dieselbe Sprache wie die Karten in
+// "Wie ich arbeite": clip-path statt skew, damit die Schrift gerade
+// bleibt und nicht am Inhalt zurueckgedreht werden muss.
+//
+// Die Schraege liegt auf den Seiten, denn eine breite flache Karte hat
+// dort ihre kurzen Kanten.
+.projects__flaeche {
+  display: grid;
+  gap: t.sp(4);
+  // Seitlich genug Abstand, damit der Text nicht in die Schraege laeuft.
+  padding: t.sp(5) calc(var(--projekt-schraege) + #{t.sp(5)});
   background: var(--brand);
-  pointer-events: none;
+  color: var(--bg-base);
+
+  clip-path: polygon(
+    var(--projekt-schraege) 0,
+    100% 0,
+    calc(100% - var(--projekt-schraege)) 100%,
+    0 100%
+  );
 }
 
-.projects__count {
-  font-size: .85em;
-  color: var(--text-muted);
+// Jede zweite neigt sich andersherum, also die links haengenden anders
+// als die rechts. So laufen die vier nicht wie eine Treppe.
+.projects__zweig:not(.is-links) .projects__flaeche {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--projekt-schraege)) 0,
+    100% 100%,
+    var(--projekt-schraege) 100%
+  );
 }
 
-// --- Liste und Detail ---
+.projects__karte-titel {
+  @include m.mono-label;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: t.sp(2);
+  color: var(--bg-base);
+  opacity: .75;
+}
 
-.projects__body {
+
+.projects__eintraege {
   display: grid;
-  gap: t.sp(5);
-  padding-top: t.sp(5);
+  gap: t.sp(1);
 }
 
-// Der Balken liegt hinter der Liste und wird per Flip auf den aktiven
-// Eintrag geschoben. Deshalb traegt der Eintrag selbst keinen Hintergrund
-// mehr, sonst waeren es zwei.
-.projects__list-wrap { position: relative; }
-
-.projects__highlight {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: var(--brand-wash);
-  border-radius: t.$radius-md;
-  pointer-events: none;
-}
-
-.projects__list {
-  position: relative;
+.projects__eintrag {
   display: grid;
-}
-
-.projects__item {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: t.sp(3);
+  gap: t.sp(1);
   width: 100%;
   text-align: left;
-  padding: t.sp(3) t.sp(3);
-  border-radius: t.$radius-md;
-  color: var(--text-secondary);
-  transition:
-    background t.$dur-fast t.$ease,
-    color t.$dur-fast t.$ease;
+  padding: t.sp(3);
+  border-radius: t.$radius-sm;
+  color: var(--bg-base);
+  transition: background t.$dur-fast t.$ease;
   @include m.focus-ring(-2px);
 
-  &:hover { color: var(--text-primary); }
-
-  &.is-active { color: var(--text-primary); }
+  &:hover { background: rgb(10 14 17 / .12); }
 }
 
-.projects__item-title {
+.projects__eintrag-fuss {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: t.sp(4);
+}
+
+.projects__eintrag-titel {
   font-size: var(--fs-body);
   font-weight: 600;
 }
 
-.projects__item-year {
+
+// Bewusst gedeckelt und nicht gekuerzt: Der ganze Satz steht im Modal,
+// hier soll nur so viel stehen, dass man ihn aufmachen will.
+.projects__eintrag-text {
+  font-size: var(--fs-small);
+  line-height: var(--lh-snug);
+  opacity: .78;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+// Der Hinweis, dass hier etwas aufgeht. Ohne ihn sieht die Zeile aus wie
+// eine Liste und nicht wie ein Schalter.
+.projects__eintrag-mehr {
+  @include m.mono-label;
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(1);
+  color: var(--bg-base);
+  white-space: nowrap;
+  transition: opacity t.$dur-fast t.$ease;
+
+  span { transition: translate t.$dur-fast t.$ease; }
+
+  .projects__eintrag:hover & span { translate: 3px 0; }
+}
+
+// --- Modal -----------------------------------------------------------
+
+.projects__modal {
+  // Muss ausdruecklich gesetzt werden: Ein dialog zentriert sich sonst
+  // ueber sein margin: auto, und der Reset setzt margin auf null.
+  margin: auto;
+  width: min(52rem, calc(100vw - #{t.sp(6)}));
+  max-height: calc(100svh - #{t.sp(8)});
+  padding: 0;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-strong);
+  border-radius: t.$radius-lg;
+  color: var(--text-primary);
+  overflow: auto;
+
+  &::backdrop {
+    background: rgb(6 9 11 / .72);
+    backdrop-filter: blur(3px);
+  }
+}
+
+.projects__modal-inhalt {
+  display: grid;
+  gap: t.sp(4);
+  padding: t.sp(6);
+}
+
+.projects__modal-zu {
+  @include m.mono-label;
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(2);
+  justify-self: end;
+  padding: t.sp(2) t.sp(3);
+  border: 1px solid var(--border-strong);
+  border-radius: t.$radius-sm;
+  transition: color t.$dur-fast t.$ease, border-color t.$dur-fast t.$ease;
+  @include m.focus-ring(2px);
+
+  &:hover {
+    color: var(--brand);
+    border-color: var(--brand);
+  }
+}
+
+.projects__shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: t.$radius-md;
+  border: 1px solid var(--border-subtle);
+}
+
+.projects__modal-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: t.sp(3);
+}
+
+.projects__titel {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.projects__status {
+  @include m.mono-label;
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(2);
+  white-space: nowrap;
+}
+
+.projects__year {
   @include m.mono-label;
   color: var(--text-muted);
 }
@@ -163,39 +297,7 @@
   &.is-archived { background: var(--border-strong); }
 }
 
-// --- Detailflaeche ---
-
-.projects__panel {
-  display: grid;
-  align-content: start;
-  gap: t.sp(4);
-  padding: t.sp(5);
-  background: var(--bg-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: t.$radius-lg;
-}
-
-.projects__panel-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: t.sp(3);
-}
-
-.projects__status {
-  @include m.mono-label;
-  display: inline-flex;
-  align-items: center;
-  gap: t.sp(2);
-  white-space: nowrap;
-}
-
-.projects__year {
-  @include m.mono-label;
-  color: var(--text-muted);
-}
-
-// --- Inhaltsbloecke der Detailflaeche ---
+// --- Inhalt im Modal ---------------------------------------------
 
 .projects__block {
   display: grid;
@@ -205,33 +307,6 @@
 .projects__label {
   @include m.mono-label;
   color: var(--brand-dim);
-}
-
-.projects__duration {
-  display: flex;
-  align-items: baseline;
-  gap: t.sp(2);
-}
-
-.projects__duration-value {
-  font-size: var(--fs-h2);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -.02em;
-  // Feste Ziffernbreite, damit die Zahl beim Hochzaehlen nicht springt.
-  font-variant-numeric: tabular-nums;
-  color: var(--brand);
-}
-
-.projects__duration-unit {
-  @include m.mono-label;
-  color: var(--text-secondary);
-}
-
-.projects__title {
-  font-size: var(--fs-h3);
-  font-weight: 600;
-  letter-spacing: -.01em;
 }
 
 .projects__text {

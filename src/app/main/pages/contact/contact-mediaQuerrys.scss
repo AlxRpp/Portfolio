@@ -46,3 +46,26 @@
 @include m.mq(laptop) {
   .contact__inner { column-gap: t.sp(9); }
 }
+
+// Haelt links so viel frei, wie das Buendel wirklich braucht, und nur
+// dann, wenn der natuerliche Rand nicht schon reicht.
+//
+// In den Sektionen darueber laeuft die Schiene rechts, dort verschiebt
+// ein Polster nichts. Hier liegt sie links, und ein festes Polster
+// schoebe Ueberschrift und Formular nach rechts aus der Flucht mit allen
+// anderen Sektionen.
+//
+// Der Inhalt ist bei 1440px gedeckelt und mittig. Ab rund 1552px
+// Fensterbreite traegt der freie Rand das Buendel von allein, dann bleibt
+// es bei den ueblichen 32px und nichts verrutscht. Darunter wird nur die
+// Differenz aufgeschlagen.
+@include m.mq(tablet-lg) {
+  .contact__inner {
+    padding-left: max(
+      #{t.$content-pad},
+      calc(
+        var(--signal-rail-frei) - max(0px, (100vw - #{t.$content-max}) / 2)
+      )
+    );
+  }
+}

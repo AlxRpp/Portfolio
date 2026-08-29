@@ -7,12 +7,14 @@ import {
   effect,
   inject,
   input,
+  output,
   signal,
   untracked,
 } from '@angular/core';
 import { gsap } from 'gsap';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
-import { LINIEN, PLAENE, versatz } from '../service/signal-plan';
+import type { Anker } from '../interfaces/signal.interface';
+import { HAUPT, PLAENE, versatz } from '../service/signal-plan';
 import { baueEcken, versetze, zeichne } from '../service/signal-path';
 import {
   KETTE,
@@ -29,8 +31,14 @@ import {
 gsap.registerPlugin(MotionPathPlugin);
 
 interface GezeichneteBahn {
-  nr: number;
+  /** Eindeutig ueber alle Straenge hinweg, etwa "haupt-3". */
+  id: string;
   d: string;
+}
+
+interface GezeichneterStrang {
+  id: string;
+  bahnen: GezeichneteBahn[];
 }
 
 /**
@@ -56,6 +64,21 @@ export class SignalLayer {
 
   readonly bereich = input.required<Bereich>();
 
+  /**
+   * Wo Zweige hin sollen. Nur Projects liefert etwas, alle anderen
+   * Sektionen haben keine.
+   */
+  readonly anker = input<readonly Anker[]>([]);
+
+  /**
+   * Meldet die laufende Nummer eines Zweiges, sobald ein Punkt an dessen
+   * Karte angekommen ist.
+   *
+   * Die Sektion kann daran ihre Karte aufleuchten lassen. Der Layer
+   * selbst weiss nichts von Karten, er kennt nur Geometrie.
+   */
+  readonly ankunft = output<number>();
+
   private readonly breite = signal(0);
   private readonly hoehe = signal(0);
 
@@ -70,21 +93,21 @@ export class SignalLayer {
   private ersterLauf = true;
 
   /** Welche Bahnen gerade einen Punkt tragen. */
-  private readonly belegt = new Set<number>();
+  private readonly belegt = new Set<string>();
 
   protected readonly viewBox = computed(
     () => `0 0 ${this.breite()} ${this.hoehe()}`,
   );
 
   /**
-   * Die sichtbaren Linien.
+   * Die sichtbaren Linien, nach Straengen gruppiert.
    *
-   * Der Plan liefert nur die Mittellinie. Die sieben Linien entstehen
-   * daraus als echte Parallelen: Segmente senkrecht verschieben, Ecken
-   * als deren Schnittpunkte neu bestimmen. Von Hand versetzte
+   * Der Plan liefert je Strang nur die Mittellinie. Die Parallelen
+   * entstehen daraus per versetze(): Segmente senkrecht verschieben,
+   * Ecken als deren Schnittpunkte neu bestimmen. Von Hand versetzte
    * Stuetzpunkte haetten den Abstand nur auf den Geraden gehalten.
    */
-  protected readonly bahnen = computed<GezeichneteBahn[]>(() => {
+  protected readonly straenge = computed<GezeichneterStrang[]>(() => {
     const b = this.breite();
     const h = this.hoehe();
     if (!(b > 0) || !(h > 0)) return [];
@@ -93,14 +116,32 @@ export class SignalLayer {
     // rechnen alle Sektionen garantiert mit denselben Zahlen, und die
     // Nahtstellen zwischen ihnen koennen nicht auseinanderlaufen.
     const w = this.signale.werte();
-    const plan = PLAENE[this.bereich()](this.signale.anordnung(), w);
-    const mitte = baueEcken(plan.mitte, b, h, 0);
-    if (mitte.length < 2) return [];
+    const plan = PLAENE[this.bereich()](
+      this.signale.anordnung(),
+      w,
+      this.anker(),
+    );
 
-    return Array.from({ length: LINIEN }, (_, i) => ({
-      nr: i,
-      d: zeichne(versetze(mitte, versatz(i, w.abstand))),
-    }));
+    return plan.straenge
+      .map((strang) => {
+        const mitte = baueEcken(strang.mitte, b, h, 0);
+        if (mitte.length < 2) return { id: strang.id, bahnen: [] };
+
+        return {
+          id: strang.id,
+          bahnen: Array.from({ length: strang.anzahl }, (_, i) => ({
+            id: `${strang.id}-${i}`,
+            d: zeichne(
+              versetze(mitte, versatz(i, w.abstand, strang.anzahl)),
+              // Nur einlinige Straenge duerfen runden. Ein Buendel
+              // braeuchte je Linie einen eigenen Radius, damit die Boegen
+              // konzentrisch bleiben.
+              strang.anzahl === 1 ? (strang.radius ?? 0) : 0,
+            ),
+          })),
+        };
+      })
+      .filter((s) => s.bahnen.length > 0);
   });
 
   constructor() {
@@ -116,13 +157,13 @@ export class SignalLayer {
     // Groessenaenderung die Bahnlaengen aendern, und daran, ob das Netz
     // ueberhaupt laufen darf.
     effect(() => {
-      const bahnen = this.bahnen();
+      const straenge = this.straenge();
       const laeuft = this.signale.laeuft();
 
       this.naechster?.kill();
       this.naechster = undefined;
 
-      if (this.reduziert || !bahnen.length || !laeuft) return;
+      if (this.reduziert || !straenge.length || !laeuft) return;
       // Nur der Kopf der Kette erzeugt Punkte. Alle weiteren Sektionen
       // bekommen sie von ihrem Vorgaenger uebergeben, damit ein Punkt
       // ueber die Naht hinweg wie derselbe Punkt aussieht.
@@ -136,14 +177,14 @@ export class SignalLayer {
     // Uebernimmt Punkte vom Vorgaenger. Direkt und nicht ueber ein
     // Signal, damit die Uebergabe im selben Bild passiert.
     //
-    // Erst nach dem ersten Rendern, NICHT hier im Konstruktor: bereich
-    // ist ein input.required, und ein solcher Zugriff wirft, solange der
-    // Wert noch nicht gesetzt ist. Die Komponente stuerbe beim Erzeugen
-    // und es waere gar nichts zu sehen.
+    // Erst nach dem ersten Rendern, NICHT im Konstruktor: bereich ist ein
+    // input.required, und ein solcher Zugriff wirft, solange der Wert
+    // noch nicht gesetzt ist. Die Komponente stuerbe beim Erzeugen und es
+    // waere gar nichts zu sehen.
     afterNextRender(() => {
       this.destroyRef.onDestroy(
-        this.signale.melde(this.bereich(), (bahn, tempo) =>
-          this.schicke(bahn, tempo, false),
+        this.signale.melde(this.bereich(), (nr, tempo) =>
+          this.schicke(`${HAUPT}-${nr}`, tempo, false),
         ),
       );
     });
@@ -177,20 +218,24 @@ export class SignalLayer {
   }
 
   /**
-   * Schickt einen Punkt auf eine gerade freie Linie.
+   * Schickt einen Punkt auf eine gerade freie Linie des Durchgangs.
    *
    * Zufaellig gewaehlt statt reihum: Reihum waere bei sieben Linien ein
    * sichtbar wanderndes Muster. Sind alle belegt, passiert nichts und der
    * naechste Versuch kommt ohnehin gleich.
    */
   private schickeFreie(): void {
-    const frei = untracked(() =>
-      this.bahnen().map((b) => b.nr).filter((nr) => !this.belegt.has(nr)),
+    const haupt = untracked(
+      () => this.straenge().find((s) => s.id === HAUPT)?.bahnen ?? [],
     );
+    const frei = haupt.map((b) => b.id).filter((id) => !this.belegt.has(id));
     if (!frei.length) return;
 
-    const nr = frei[Math.floor(Math.random() * frei.length)];
-    this.schicke(nr, spanne(TEMPO_MIN, TEMPO_MAX), true);
+    this.schicke(
+      frei[Math.floor(Math.random() * frei.length)],
+      spanne(TEMPO_MIN, TEMPO_MAX),
+      true,
+    );
   }
 
   /**
@@ -200,11 +245,102 @@ export class SignalLayer {
    * festen Zahl: Sonst kroeche der Punkt auf der langen Bahn und schoesse
    * ueber die kurze, und das liest man sofort als falsch.
    */
+  private schicke(id: string, tempo: number, geboren: boolean): void {
+    if (this.reduziert || this.belegt.has(id)) return;
+
+    const wurzel = this.host.nativeElement;
+    const pfad = wurzel.querySelector<SVGPathElement>(`path[data-bahn="${id}"]`);
+    const punkt = wurzel.querySelector<SVGGElement>(`g[data-bahn="${id}"]`);
+    if (!pfad || !punkt) return;
+
+    // Solange der Pfad nicht im DOM haengt oder leer ist, liefert
+    // getTotalLength null. Dann faehrt kein Punkt, statt an Ort und
+    // Stelle zu blinken.
+    const laenge = pfad.getTotalLength();
+    if (!(laenge > 0)) return;
+
+    // Nur den Teil fahren, der wirklich in der Sektion liegt.
+    const { von, bis } = this.sichtbar(pfad, laenge);
+    const strecke = bis - von;
+    if (!(strecke > 0)) return;
+
+    this.belegt.add(id);
+    if (id.startsWith(`${HAUPT}-`)) this.schickeZweige(pfad, von, tempo);
+
+    // Einblenden NUR bei der Geburt am Anfang der Kette.
+    //
+    // Bei einer Uebergabe waere es falsch: Der Punkt ist dort schon
+    // unterwegs, er faengt nicht an. Ihn dort erneut einblenden zu lassen
+    // sah aus, als verschwaende er an der Naht kurz.
+    if (geboren) {
+      gsap.fromTo(punkt, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'none' });
+    } else {
+      gsap.set(punkt, { opacity: 1 });
+    }
+
+    gsap.to(punkt, {
+      duration: strecke / tempo,
+      ease: 'none',
+      motionPath: {
+        path: pfad,
+        align: pfad,
+        alignOrigin: [0.5, 0.5],
+        start: von / laenge,
+        end: bis / laenge,
+      },
+      onComplete: () => {
+        gsap.set(punkt, { opacity: 0 });
+        this.belegt.delete(id);
+
+        if (id.startsWith(`${HAUPT}-`)) {
+          // Der Durchgang gibt an die naechste Sektion weiter.
+          this.signale.weiter(this.bereich(), nummer(id), tempo);
+        } else {
+          // Ein Zweig endet an seiner Karte. Genau dann soll sie
+          // reagieren, deshalb erst hier die Meldung.
+          this.ankunft.emit(nummer(id.slice(0, id.lastIndexOf('-'))));
+        }
+      },
+    });
+  }
+
+  /**
+   * Schickt Punkte auf die Zweige, sobald der Punkt des Durchgangs ihre
+   * Abzweigung erreicht.
+   *
+   * Die Verzoegerung wird aus der Geometrie gerechnet: Der Zweig beginnt
+   * auf dem Rueckgrat, seine Anfangshoehe sagt also, wie weit der Punkt
+   * bis dahin gelaufen ist. Bei gleichem Tempo sieht es aus, als spalte
+   * sich der Punkt genau dort auf.
+   */
+  private schickeZweige(haupt: SVGPathElement, von: number, tempo: number): void {
+    const startY = haupt.getPointAtLength(von).y;
+    const wurzel = this.host.nativeElement;
+
+    for (const strang of untracked(() => this.straenge())) {
+      if (strang.id === HAUPT) continue;
+
+      const erste = strang.bahnen[0];
+      const pfad = wurzel.querySelector<SVGPathElement>(
+        `path[data-bahn="${erste.id}"]`,
+      );
+      if (!pfad) continue;
+
+      const abzweig = pfad.getPointAtLength(0).y;
+      if (abzweig <= startY) continue;
+
+      const wartezeit = (abzweig - startY) / tempo;
+      for (const bahn of strang.bahnen) {
+        gsap.delayedCall(wartezeit, () => this.schicke(bahn.id, tempo, true));
+      }
+    }
+  }
+
   /**
    * Der Abschnitt des Pfades, der zwischen Ober- und Unterkante liegt.
    *
-   * Die Pfade reichen an der Naht absichtlich ueber die Sektionskante
-   * hinaus, damit wirklich alle sieben Linien den Rand erreichen.
+   * Die Pfade reichen an schraegen Nahtstellen absichtlich ueber die
+   * Sektionskante hinaus, damit wirklich alle Linien den Rand erreichen.
    * Beschnitten wird per overflow: hidden, die LINIE sieht dadurch
    * richtig aus. Der Punkt aber fuehre diesen Ueberstand unsichtbar ab,
    * und weil die naechste Sektion ihren Ueberstand ebenfalls unsichtbar
@@ -212,10 +348,6 @@ export class SignalLayer {
    *
    * Gesucht wird per Intervallhalbierung. Das geht, weil y auf diesen
    * Pfaden monoton laeuft: Sie steigen nie wieder an.
-   *
-   * Bewusst am Pfad gemessen und nicht aus dem Plan gerechnet: So gilt es
-   * fuer jede Bahn einzeln. Die sieben queren die Kante naemlich an
-   * sieben verschiedenen Stellen, weil sie schraeg darauf treffen.
    */
   private sichtbar(
     pfad: SVGPathElement,
@@ -238,59 +370,9 @@ export class SignalLayer {
     const bis = y(laenge) > h ? grenze((l) => y(l) > h, von, laenge) : laenge;
     return { von, bis };
   }
+}
 
-  private schicke(nr: number, tempo: number, geboren: boolean): void {
-    if (this.reduziert || this.belegt.has(nr)) return;
-
-    const wurzel = this.host.nativeElement;
-    const pfad = wurzel.querySelector<SVGPathElement>(`path[data-bahn="${nr}"]`);
-    const punkt = wurzel.querySelector<SVGGElement>(`g[data-bahn="${nr}"]`);
-    if (!pfad || !punkt) return;
-
-    // Solange der Pfad nicht im DOM haengt oder leer ist, liefert
-    // getTotalLength null. Dann faehrt kein Punkt, statt an Ort und
-    // Stelle zu blinken.
-    const laenge = pfad.getTotalLength();
-    if (!(laenge > 0)) return;
-
-    // Nur den Teil fahren, der wirklich in der Sektion liegt.
-    const { von, bis } = this.sichtbar(pfad, laenge);
-    const strecke = bis - von;
-    if (!(strecke > 0)) return;
-
-    this.belegt.add(nr);
-
-    // Einblenden NUR bei der Geburt am Anfang der Kette.
-    //
-    // Bei einer Uebergabe waere es falsch: Der Punkt ist dort schon
-    // unterwegs, er faengt nicht an. Ihn dort erneut einblenden zu
-    // lassen sah aus, als verschwaende er an der Naht kurz.
-    //
-    // Zwei getrennte Tweens, bewusst nicht einer mit nachtraeglich
-    // gesetzter Dauer: .duration() skaliert die GANZE Bewegung, das
-    // Einblenden liefe dann ueber die volle Strecke statt nur ueber den
-    // Anfang.
-    if (geboren) {
-      gsap.fromTo(punkt, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'none' });
-    } else {
-      gsap.set(punkt, { opacity: 1 });
-    }
-
-    gsap.to(punkt, {
-      duration: strecke / tempo,
-      ease: 'none',
-      motionPath: {
-        path: pfad,
-        align: pfad,
-        alignOrigin: [0.5, 0.5],
-        start: von / laenge,
-        end: bis / laenge,
-      },
-      onComplete: () => {
-        gsap.set(punkt, { opacity: 0 });
-        this.belegt.delete(nr);
-        this.signale.weiter(this.bereich(), nr, tempo);
-      },
-    });
-  }
+/** Die Nummer aus einer Bahnkennung wie "haupt-3". */
+function nummer(id: string): number {
+  return Number(id.slice(id.lastIndexOf('-') + 1));
 }

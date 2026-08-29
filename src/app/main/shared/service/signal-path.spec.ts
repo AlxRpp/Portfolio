@@ -174,3 +174,27 @@ describe('zeichne', () => {
     expect(zeichne(ecken)).toBe('M 0,0 L 10,0 L 10,10');
   });
 });
+
+describe('baueEcken mit direkt', () => {
+  it('verbindet ohne Zerlegung, unter beliebigem Winkel', () => {
+    const punkte: Stuetzpunkt[] = [
+      { x: 1, y: 0 },
+      { x: 0, y: 0.2, direkt: true },
+    ];
+
+    // Ohne direkt zerlegt der Bauer die Strecke in ein waagerechtes und
+    // ein 45-Grad-Segment, also drei Punkte. Mit direkt bleiben es zwei.
+    expect(baueEcken(punkte, 1000, 1000, 0)).toEqual([
+      { x: 1000, y: 0 },
+      { x: 0, y: 200 },
+    ]);
+  });
+
+  it('zerlegt ohne direkt weiterhin in erlaubte Winkel', () => {
+    const punkte: Stuetzpunkt[] = [
+      { x: 1, y: 0 },
+      { x: 0, y: 0.2 },
+    ];
+    expect(baueEcken(punkte, 1000, 1000, 0).length).toBeGreaterThan(2);
+  });
+});

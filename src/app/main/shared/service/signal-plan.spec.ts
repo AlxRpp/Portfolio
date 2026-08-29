@@ -1,13 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import type { Anordnung } from '../interfaces/signal.interface';
 import {
+  HAUPT,
   LINIEN,
+  ZWEIG_LINIEN,
   aboutPlan,
   arbeitPlan,
   heroPlan,
+  kontaktPlan,
+  projektePlan,
+  stackPlan,
   versatz,
   type PlanWerte,
 } from './signal-plan';
+import type { Anker, Plan } from '../interfaces/signal.interface';
+import { KETTE } from './signals';
+
+/** Die Mittellinie des Durchgangs. Alles andere sind Zweige. */
+function haupt(plan: Plan) {
+  const strang = plan.straenge.find((s) => s.id === HAUPT);
+  expect(strang, 'Jeder Plan braucht einen Durchgang').toBeDefined();
+  return strang!.mitte;
+}
 
 const ANORDNUNGEN: Anordnung[] = ['buehne', 'gestapelt'];
 const WERTE: PlanWerte = {
@@ -16,6 +30,9 @@ const WERTE: PlanWerte = {
   abstand: 9,
   rail: 44,
   taper: 428,
+  bogen: 380,
+  bogenKontakt: 96,
+  zweig: 64,
 };
 
 /** Steigung eines Abschnitts zwischen zwei Stuetzpunkten, in Pixeln. */
@@ -29,7 +46,7 @@ function weg(a: { xVersatz?: number; yVersatz?: number },
 
 describe('versatz', () => {
   it('legt das Buendel um die Mittellinie herum', () => {
-    const alle = Array.from({ length: LINIEN }, (_, i) => versatz(i, WERTE.abstand));
+    const alle = Array.from({ length: LINIEN }, (_, i) => versatz(i, WERTE.abstand, LINIEN));
 
     // Symmetrisch: sonst haengt das Buendel bei vielen Linien aus dem
     // reservierten Streifen heraus.
@@ -43,7 +60,7 @@ describe('versatz', () => {
   it('haelt das Buendel im reservierten Streifen am rechten Rand', () => {
     // --signal-rail-frei ist 88. Die aeusserste Linie liegt bei
     // rail plus halber Buendelbreite und muss darunter bleiben.
-    const halb = Math.abs(versatz(0, WERTE.abstand));
+    const halb = Math.abs(versatz(0, WERTE.abstand, LINIEN));
     expect(WERTE.rail + halb).toBeLessThan(88);
   });
 });
@@ -51,7 +68,7 @@ describe('versatz', () => {
 describe('signal-plan', () => {
   it('startet die Hero an der linken Kante', () => {
     for (const a of ANORDNUNGEN) {
-      expect(heroPlan(a, WERTE).mitte[0].x).toBe(0);
+      expect(haupt(heroPlan(a, WERTE))[0].x).toBe(0);
     }
   });
 
@@ -59,7 +76,7 @@ describe('signal-plan', () => {
     // Sonst steht das Buendel der Hero schraeg, waehrend About es
     // waagerecht erwartet, und die Linien treffen sich an der Naht
     // nicht mehr. Genau so war die Naht einmal kaputt.
-    const mitte = heroPlan('buehne', WERTE).mitte;
+    const mitte = haupt(heroPlan('buehne', WERTE));
     const vorletzt = mitte.at(-2)!;
     const letzt = mitte.at(-1)!;
 
@@ -69,7 +86,7 @@ describe('signal-plan', () => {
   });
 
   it('laesst die Schraege der Hero unter 45 Grad laufen', () => {
-    const mitte = heroPlan('buehne', WERTE).mitte;
+    const mitte = haupt(heroPlan('buehne', WERTE));
     const oben = mitte[1];
     const unten = mitte[2];
 
@@ -85,7 +102,7 @@ describe('signal-plan', () => {
     // Knick in die falsche Richtung.
     expect(WERTE.einlauf).toBeGreaterThan(WERTE.band / 2);
 
-    const mitte = heroPlan('buehne', WERTE).mitte;
+    const mitte = haupt(heroPlan('buehne', WERTE));
     const anfang = mitte[0];
     const ende = mitte[mitte.length - 1];
 
@@ -98,7 +115,7 @@ describe('signal-plan', () => {
 
   it('knickt About im Band ab und verlaesst es in der Schraegen', () => {
     for (const a of ANORDNUNGEN) {
-      const [ein, knick, aus] = aboutPlan(a, WERTE).mitte;
+      const [ein, knick, aus] = haupt(aboutPlan(a, WERTE));
 
       // Waagerecht im Band, ueber der Unterkante und nicht darauf.
       expect(ein.y).toBe(1);
@@ -124,8 +141,8 @@ describe('signal-plan', () => {
 
   it('setzt die Schraege in "Wie ich arbeite" auf derselben Geraden fort', () => {
     for (const a of ANORDNUNGEN) {
-      const aus = aboutPlan(a, WERTE).mitte.at(-1)!;
-      const [ein, knick] = arbeitPlan(a, WERTE).mitte;
+      const aus = haupt(aboutPlan(a, WERTE)).at(-1)!;
+      const [ein, knick] = haupt(arbeitPlan(a, WERTE));
 
       expect(aus.y).toBe(1);
       expect(ein.y).toBe(0);
@@ -153,7 +170,7 @@ describe('signal-plan', () => {
   });
 
   it('endet in "Wie ich arbeite" senkrecht in der Schiene', () => {
-    const [, knick, unten] = arbeitPlan('buehne', WERTE).mitte;
+    const [, knick, unten] = haupt(arbeitPlan('buehne', WERTE));
     expect(knick.xVersatz).toBe(unten.xVersatz);
     expect(knick.xVersatz).toBe(-WERTE.rail);
     expect(unten.y).toBe(1);
@@ -163,7 +180,7 @@ describe('signal-plan', () => {
     // Der Knick liegt um die volle Schraegenlaenge links von der
     // Schiene. Waere er kuerzer, saesse er am rechten Rand statt bei den
     // Belegen.
-    const [, knick, aus] = aboutPlan('buehne', WERTE).mitte;
+    const [, knick, aus] = haupt(aboutPlan('buehne', WERTE));
 
     // Der Knick liegt um die volle Schraegenlaenge plus die Schiene
     // links vom rechten Rand.
@@ -179,5 +196,172 @@ describe('signal-plan', () => {
     // Sie ist deutlich laenger als der Streifen am Rand, sonst saesse
     // der Knick dort statt bei den Belegen.
     expect(WERTE.taper).toBeGreaterThan(WERTE.rail * 2);
+  });
+
+  it('uebergibt senkrecht an Projects, ohne Ueberstand', () => {
+    // Senkrechte Naht: Die Parallelen stehen dort waagerecht, alle Linien
+    // erreichen die Kante gleichzeitig. Der Ueberstand, den der schraege
+    // Uebergang zwischen About und "Wie ich arbeite" braucht, waere hier
+    // also falsch.
+    for (const a of ANORDNUNGEN) {
+      const aus = haupt(arbeitPlan(a, WERTE)).at(-1)!;
+      const ein = haupt(projektePlan(a, WERTE, []))[0];
+
+      expect(aus.y).toBe(1);
+      expect(ein.y).toBe(0);
+      expect(aus.xVersatz).toBe(ein.xVersatz);
+      expect(aus.yVersatz ?? 0).toBe(0);
+      expect(ein.yVersatz ?? 0).toBe(0);
+    }
+  });
+
+  it('laeuft erst senkrecht und dann in einer geraden Strecke zur Mitte', () => {
+    const mitte = haupt(projektePlan('buehne', WERTE, []));
+    const [ein, knick, ankunft, runter] = mitte;
+
+    // Das senkrechte Stueck am Anfang ist kein Schmuck: Die Parallelen
+    // stehen senkrecht auf der Laufrichtung. Boege Projects sofort in die
+    // flache Schraege ab, laegen seine Linien an der Naht fast
+    // waagerecht, waehrend "Wie ich arbeite" senkrecht ankommt.
+    expect(ein.x).toBe(1);
+    expect(knick.x).toBe(1);
+    expect(ein.xVersatz).toBe(knick.xVersatz);
+    expect(knick.yVersatz!).toBeGreaterThan(0);
+
+    // Danach EINE gerade Strecke zur Mitte, nicht zerlegt.
+    expect(ankunft.direkt).toBe(true);
+    expect(ankunft.x).toBe(0.5);
+    expect(ankunft.yVersatz).toBe(WERTE.bogen);
+
+    // Und von dort senkrecht nach unten.
+    expect(runter.x).toBe(0.5);
+    expect(runter.y).toBe(1);
+  });
+
+  it('setzt den Zweig an der aeussersten Bahn an, nicht in der Mitte', () => {
+    // Aus der Mitte muesste er die halbe Buendelbreite queren und dabei
+    // alle anderen Bahnen schneiden. Von aussen geht er frei ab.
+    const aussen = Math.abs(versatz(0, WERTE.abstand, LINIEN));
+    const anker: Anker[] = [
+      { oben: 300, nah: -260 },
+      { oben: 800, nah: 260 },
+    ];
+    const zweige = projektePlan('buehne', WERTE, anker).straenge.filter(
+      (s) => s.id !== HAUPT,
+    );
+
+    expect(zweige).toHaveLength(anker.length);
+    expect(aussen).toBeGreaterThan(0);
+
+    zweige.forEach((z, i) => {
+      const a = anker[i];
+      const [ab, an] = z.mitte;
+      const seite = Math.sign(a.nah);
+
+      // Genau zwei Punkte: von der aeusseren Bahn an die Karte.
+      expect(z.mitte).toHaveLength(2);
+      expect(z.anzahl).toBe(1);
+
+      // Ansatz auf der aeussersten Bahn, auf der Seite der Karte.
+      expect(ab.xVersatz).toBeCloseTo(seite * aussen);
+
+      // Ende genau auf der oberen Ecke, die zu den Bahnen zeigt.
+      expect(an.xVersatz).toBe(a.nah);
+      expect(an.yVersatz).toBe(a.oben);
+
+      // Unter 45 Grad: gleicher Weg zur Seite wie nach unten.
+      expect(an.yVersatz! - ab.yVersatz!).toBeCloseTo(
+        Math.abs(a.nah - seite * aussen),
+      );
+    });
+  });
+
+  it('bringt das Buendel im Stack zurueck auf dieselbe Schiene', () => {
+    for (const a of ANORDNUNGEN) {
+      const aus = haupt(projektePlan(a, WERTE, [])).at(-1)!;
+      const mitte = haupt(stackPlan(a, WERTE));
+      const [ein, knick, ankunft, runter] = mitte;
+
+      // Senkrechte Naht in der Mitte: Projects endet dort, Stack faengt
+      // dort an. Beide senkrecht, also ohne Ueberstand.
+      expect(aus.x).toBe(0.5);
+      expect(ein.x).toBe(0.5);
+      expect(ein.yVersatz ?? 0).toBe(0);
+
+      // Erst ein Stueck senkrecht, sonst schliesst die Naht nicht.
+      expect(knick.x).toBe(0.5);
+      expect(knick.yVersatz!).toBeGreaterThan(0);
+
+      // Dann in EINER geraden Strecke zurueck an den rechten Rand.
+      expect(ankunft.direkt).toBe(true);
+      expect(ankunft.x).toBe(1);
+      expect(ankunft.xVersatz).toBe(-WERTE.rail);
+
+      // Und dort senkrecht hinunter, auf genau der Schiene, auf der die
+      // Linien schon durch "Wie ich arbeite" liefen.
+      expect(runter.x).toBe(1);
+      expect(runter.xVersatz).toBe(-WERTE.rail);
+      expect(runter.y).toBe(1);
+      expect(haupt(arbeitPlan(a, WERTE)).at(-1)!.xVersatz).toBe(runter.xVersatz);
+    }
+  });
+
+  it('fuehrt die Linien in Contact bis in den Absendeknopf', () => {
+    const knopf: Anker = { oben: 900, nah: 260 };
+
+    for (const a of ANORDNUNGEN) {
+      const aus = haupt(stackPlan(a, WERTE)).at(-1)!;
+      const mitte = haupt(kontaktPlan(a, WERTE, [knopf]));
+      const [ein, knick, ankunft, runter, ziel] = mitte;
+
+      // Senkrechte Naht an der rechten Schiene: Stack endet dort, Contact
+      // faengt dort an.
+      expect(aus.x).toBe(1);
+      expect(aus.xVersatz).toBe(-WERTE.rail);
+      expect(ein.x).toBe(1);
+      expect(ein.xVersatz).toBe(-WERTE.rail);
+
+      // Erst senkrecht, sonst schliesst die Naht nicht.
+      expect(knick.xVersatz).toBe(ein.xVersatz);
+      expect(knick.yVersatz!).toBeGreaterThan(0);
+
+      // Dann in EINER geraden Strecke hinueber zur linken Schiene. Hier
+      // wechselt das Buendel die Seite.
+      expect(ankunft.direkt).toBe(true);
+      expect(ankunft.x).toBe(0);
+      expect(ankunft.xVersatz).toBe(WERTE.rail);
+
+      // Und zwar viel flacher als in Projects und Stack: Das Buendel muss
+      // links angekommen sein, BEVOR der Inhalt anfaengt. Faellt es
+      // tiefer, quert die Schraege die Ueberschrift.
+      expect(ankunft.yVersatz).toBe(WERTE.bogenKontakt);
+      expect(WERTE.bogenKontakt).toBeLessThan(WERTE.bogen);
+
+      // Senkrecht hinunter auf Knopfhoehe.
+      expect(runter.x).toBe(0);
+      expect(runter.xVersatz).toBe(WERTE.rail);
+      expect(runter.yVersatz).toBe(knopf.oben);
+
+      // Und waagerecht hinein, auf derselben Hoehe.
+      expect(ziel.yVersatz).toBe(knopf.oben);
+      expect(ziel.xVersatz).toBe(WERTE.rail + knopf.nah);
+    }
+  });
+
+  it('endet ohne gemessenen Knopf sauber an der Unterkante', () => {
+    // Beim ersten Aufbau ist noch nichts gemessen. Dann soll die Linie
+    // trotzdem richtig aussehen und nicht ins Nichts zeigen.
+    const mitte = haupt(kontaktPlan('buehne', WERTE, []));
+    const letzt = mitte.at(-1)!;
+
+    expect(letzt.x).toBe(0);
+    expect(letzt.y).toBe(1);
+    expect(letzt.xVersatz).toBe(WERTE.rail);
+  });
+
+  it('laesst Contact als letztes Glied nichts weitergeben', () => {
+    // Dort laufen die Linien in den Absendeknopf, und genau dort ist der
+    // Punkt angekommen.
+    expect(KETTE.at(-1)).toBe('kontakt');
   });
 });

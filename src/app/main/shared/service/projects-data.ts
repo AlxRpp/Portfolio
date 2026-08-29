@@ -25,7 +25,6 @@ export class ProjectsData {
       confidential: true,
       tech: ['NestJS', 'React', 'Python', 'KI-Gateway'],
       descriptionKey: 'fin',
-      duration: { value: 8, unit: 'days' },
     },
     {
       slug: 'quizly',
@@ -37,7 +36,6 @@ export class ProjectsData {
       tech: ['Django', 'Python', 'Whisper', 'Gemini API'],
       repoUrl: `${GITHUB}/Quizly_Backend`,
       descriptionKey: 'quizly',
-      duration: { value: 4, unit: 'days' },
       scopeKey: 'backendOnly',
     },
     {
@@ -62,7 +60,6 @@ export class ProjectsData {
       liveUrl: 'https://coderr.alexander-ruppel.de',
       repoUrl: `${GITHUB}/Coderr_Backend`,
       descriptionKey: 'coderr',
-      duration: { value: 7, unit: 'weeks' },
       scopeKey: 'backendOnly',
     },
     {
@@ -75,7 +72,6 @@ export class ProjectsData {
       tech: ['JavaScript', 'PWA', 'Supabase', 'Firebase'],
       liveUrl: 'https://faime.de',
       descriptionKey: 'faime',
-      duration: { value: 2, unit: 'weeks' },
       scopeKey: 'employerCode',
     },
 
@@ -91,7 +87,6 @@ export class ProjectsData {
       tech: ['Django', 'ffmpeg', 'HLS', 'Docker'],
       repoUrl: `${GITHUB}/Videoflix_Backend`,
       descriptionKey: 'videoflix',
-      duration: { value: 3, unit: 'weeks' },
       scopeKey: 'backendOnly',
     },
     {
@@ -104,7 +99,6 @@ export class ProjectsData {
       tech: ['Django', 'DRF'],
       repoUrl: `${GITHUB}/Kanmind_Backend`,
       descriptionKey: 'kanmind',
-      duration: { value: 4, unit: 'weeks' },
       scopeKey: 'backendOnly',
     },
     {
@@ -116,10 +110,10 @@ export class ProjectsData {
       confidential: true,
       tech: ['Android SDK', 'Kiosk-Mode', 'REST-API'],
       descriptionKey: 'kioskbrowser',
-      duration: { value: 1, unit: 'weeks' },
     },
     {
       slug: 'join',
+      image: 'join.jpg',
       category: 'frontend',
       title: 'JOIN',
       status: 'live',
@@ -129,10 +123,10 @@ export class ProjectsData {
       liveUrl: 'https://join.alexander-ruppel.de',
       repoUrl: `${GITHUB}/JOIN`,
       descriptionKey: 'join',
-      duration: { value: 3, unit: 'weeks' },
     },
     {
       slug: 'pokedex',
+      image: 'pokedex.jpg',
       category: 'frontend',
       title: 'PokeDex',
       status: 'live',
@@ -142,10 +136,10 @@ export class ProjectsData {
       liveUrl: 'https://pokedex.alexander-ruppel.de',
       repoUrl: `${GITHUB}/PokeDex`,
       descriptionKey: 'pokedex',
-      duration: { value: 4, unit: 'weeks' },
     },
     {
       slug: 'alien-adventure',
+      image: 'alien-adventure.jpg',
       category: 'frontend',
       title: 'Alien Adventure',
       status: 'live',
@@ -155,7 +149,6 @@ export class ProjectsData {
       liveUrl: 'https://alien-adventure.alexander-ruppel.de',
       repoUrl: `${GITHUB}/AlienAdventure`,
       descriptionKey: 'alienAdventure',
-      duration: { value: 6, unit: 'weeks' },
     },
   ]);
 

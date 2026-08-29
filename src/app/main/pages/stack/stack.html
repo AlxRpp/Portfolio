@@ -1,5 +1,9 @@
 <section class="stack" id="stack">
 
+  @if (signale.netzAn()) {
+    <app-signal-layer bereich="stack" />
+  }
+
   <div class="stack__inner">
 
     <header class="stack__head">

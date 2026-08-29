@@ -6,8 +6,28 @@ import type { PlanWerte } from './signal-plan';
 const MIN_BREITE = 900;
 
 /** Die Sektionen in der Reihenfolge, in der die Punkte sie durchlaufen. */
-export type Bereich = 'hero' | 'about' | 'arbeit';
-export const KETTE: readonly Bereich[] = ['hero', 'about', 'arbeit'];
+export type Bereich =
+  | 'hero'
+  | 'about'
+  | 'arbeit'
+  | 'projekte'
+  | 'stack'
+  | 'kontakt';
+
+/**
+ * Die Sektionen in der Reihenfolge, in der die Punkte sie durchlaufen.
+ *
+ * Contact steht am Ende und gibt nicht weiter: Dort laufen die Linien in
+ * den Absendeknopf, und genau dort ist der Punkt angekommen.
+ */
+export const KETTE: readonly Bereich[] = [
+  'hero',
+  'about',
+  'arbeit',
+  'projekte',
+  'stack',
+  'kontakt',
+];
 
 /**
  * Kuerzeste und laengste Pause zwischen zwei Punkten, in Sekunden.
@@ -66,6 +86,9 @@ export class Signals {
     abstand: 9,
     rail: 44,
     taper: 400,
+    bogen: 380,
+    bogenKontakt: 96,
+    zweig: 64,
   });
 
   private readonly buehne = signal(false);
@@ -164,6 +187,9 @@ export class Signals {
       abstand: zahl('--signal-abstand', 9),
       rail: zahl('--signal-rail', 44),
       taper: zahl('--signal-taper', 400),
+      bogen: zahl('--signal-bogen', 380),
+      bogenKontakt: zahl('--signal-bogen-kontakt', 96),
+      zweig: zahl('--signal-zweig', 64),
     });
   }
 

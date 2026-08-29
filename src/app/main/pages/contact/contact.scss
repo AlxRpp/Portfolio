@@ -3,6 +3,8 @@
 
 .contact {
   position: relative;
+  // Beschneidet die Signallinien an den Kanten, siehe about.scss.
+  overflow: hidden;
   // Unten deutlich knapper als oben: als letzte Sektion schliesst sie mit
   // dem Sprung nach oben ab, und der soll dicht ueber der Footerlinie
   // sitzen statt darueber zu schweben.
@@ -11,6 +13,9 @@
 
 .contact__inner {
   @include m.content-width;
+  // Ueber dem Signalnetz, das als eigene Ebene im Hintergrund liegt.
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: t.sp(7);
 }

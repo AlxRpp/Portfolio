@@ -50,7 +50,8 @@ export function baueEcken(
   for (let i = 1; i < pixel.length; i++) {
     const von = alle[alle.length - 1];
     // Die Kennzeichnung gehoert zum Zielpunkt des Segments.
-    alle.push(...route(von, pixel[i], Boolean(punkte[i].schraegeZuerst)));
+    if (punkte[i].direkt) alle.push(pixel[i]);
+    else alle.push(...route(von, pixel[i], Boolean(punkte[i].schraegeZuerst)));
   }
 
   return entdoppeln(alle);

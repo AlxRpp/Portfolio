@@ -10,11 +10,6 @@ export type ProjectStatus = 'live' | 'ongoing' | 'archived';
  */
 export type ProjectCategory = 'current' | 'work' | 'backend' | 'frontend';
 
-export interface ProjectDuration {
-  value: number;
-  unit: 'days' | 'weeks';
-}
-
 export interface Project {
   slug: string;
 
@@ -50,10 +45,16 @@ export interface Project {
   descriptionKey: string;
 
   /**
-   * Umsetzungsdauer. Optional, weil sie nicht fuer jedes Projekt belegt
-   * ist. Wo sie fehlt, entfaellt der Block, statt eine Zahl zu raten.
+   * Dateiname eines Screenshots unter assets/images/projects.
+   *
+   * Optional: Wo keiner vorliegt, zeigt die Karte eine Flaeche in
+   * Markenfarbe statt eines Platzhalterbildes.
+   *
+   * Bei `confidential` wird das Feld NICHT ausgewertet. Die Sperre sitzt
+   * im Template, damit ein spaeter nachgetragenes Bild ein Kundenprojekt
+   * nicht versehentlich zeigt.
    */
-  duration?: ProjectDuration;
+  image?: string;
 
   /**
    * i18n-Key eines Hinweises zum Umfang, etwa dass das Frontend vorgegeben

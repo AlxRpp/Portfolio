@@ -321,6 +321,102 @@ export class Animations {
   }
 
   /**
+   * Schiebt Elemente beim Hereinscrollen vom Bildschirmrand an ihren
+   * Platz.
+   *
+   * Der Weg wird je Element aus seiner tatsaechlichen Lage gerechnet und
+   * nicht fest vorgegeben: Eine feste Zahl waere auf einem schmalen
+   * Bildschirm zu viel und auf einem breiten zu wenig, das Element
+   * begaenne dann sichtbar mitten im Bild.
+   *
+   * Als Funktion uebergeben, damit GSAP sie bei jedem `refresh` neu
+   * auswertet. Nach einer Groessenaenderung stimmte der Weg sonst nicht
+   * mehr.
+   *
+   * WICHTIG: Bewegt wird das Element selbst. Wird seine Lage anderswo
+   * vermessen, etwa um eine Linie daran anzudocken, darf dort NICHT
+   * dasselbe Element gemessen werden: getBoundingClientRect rechnet die
+   * Verschiebung mit.
+   */
+  slideVomRand(
+    container: Element,
+    selector: string,
+    vonLinks: boolean,
+    o: RevealOptions = {},
+  ): void {
+    const items = container.querySelectorAll<HTMLElement>(selector);
+    if (!items.length) return;
+
+    if (this.reduced) {
+      this.settle(items);
+      return;
+    }
+
+    items.forEach((el) => {
+      gsap.from(el, {
+        opacity: 0,
+        x: () => {
+          const r = el.getBoundingClientRect();
+          // Vollstaendig aus dem Bild heraus, plus etwas Luft, damit auch
+          // der Schein des drop-shadow draussen bleibt.
+          return vonLinks ? -(r.right + 48) : window.innerWidth - r.left + 48;
+        },
+        duration: o.duration ?? DUR.slow,
+        ease: EASE,
+        scrollTrigger: {
+          trigger: el,
+          start: o.start ?? 'top 85%',
+          once: true,
+          invalidateOnRefresh: true,
+        },
+      });
+    });
+  }
+
+  /**
+   * Merkt sich die Lage einer Gruppe von Elementen, BEVOR sich das
+   * Layout aendert.
+   *
+   * Getrennt von `ordneNeu`, weil die Aenderung dazwischen liegt und
+   * Angular sie erst im naechsten Zeichnen umsetzt. Ein einziger Aufruf
+   * mit Rueckruf ginge deshalb nicht.
+   */
+  merkeLage(elemente: ArrayLike<Element>): ReturnType<typeof Flip.getState> {
+    return Flip.getState(elemente as Element[]);
+  }
+
+  /**
+   * Bewegt die Elemente von der gemerkten Lage an ihre neue.
+   *
+   * Genau dafuer ist Flip gebaut: Es vergleicht vorher und nachher und
+   * legt die Bewegung selbst. Von Hand muesste man fuer jede Karte
+   * Versatz und Groesse ausrechnen und bei jeder Rasteraenderung
+   * nachziehen.
+   *
+   * `absolute` nimmt die bewegten Elemente waehrend der Bewegung aus dem
+   * Fluss. Ohne das schieben sich die uebrigen Karten waehrend der
+   * Animation noch einmal, und es ruckelt.
+   */
+  ordneNeu(lage: ReturnType<typeof Flip.getState>): void {
+    if (this.reduced) return;
+
+    Flip.from(lage, {
+      duration: 0.5,
+      ease: EASE,
+      absolute: true,
+      nested: true,
+      onEnter: (els) =>
+        gsap.fromTo(
+          els,
+          { opacity: 0, scale: 0.94 },
+          { opacity: 1, scale: 1, duration: 0.4, ease: EASE },
+        ),
+      onLeave: (els) =>
+        gsap.to(els, { opacity: 0, scale: 0.94, duration: 0.25, ease: EASE }),
+    });
+  }
+
+  /**
    * Schiebt eine Markierung auf ein anderes Element, in Position UND
    * Groesse.
    *

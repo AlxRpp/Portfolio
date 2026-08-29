@@ -1,4 +1,9 @@
 <section class="contact" id="contact">
+
+  @if (signale.netzAn()) {
+    <app-signal-layer bereich="kontakt" [anker]="anker()" />
+  }
+
   <div class="contact__inner">
 
     <header class="contact__head">

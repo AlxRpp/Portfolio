@@ -1,4 +1,4 @@
-import { Location, NgTemplateOutlet } from '@angular/common';
+import { Location } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -12,128 +12,134 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   Project,
   ProjectCategory,
-  ProjectDuration,
 } from '../../shared/interfaces/project.interface';
 import { ProjectsData } from '../../shared/service/projects-data';
 import { Animations } from '../../shared/service/animations';
+import type { Anker } from '../../shared/interfaces/signal.interface';
+import { Signals } from '../../shared/service/signals';
+import { SignalLayer } from '../../shared/signal-layer/signal-layer';
 
 /** Suchparameter, in dem das gewaehlte Projekt in der Adresszeile steht. */
 const URL_PARAM = 'p';
 
+/**
+ * Wie lange eine Karte nachleuchtet, wenn ein Punkt sie trifft.
+ * Muss zur Animation karte-atmen in projects.scss passen.
+ */
+const PULS_MS = 1600;
+
+/**
+ * Reihenfolge der Zweige am Rueckgrat, von oben nach unten.
+ *
+ * Bewusst nicht die Reihenfolge aus dem Interface: Sie erzaehlt einen
+ * Weg. Erst was im Job entstanden ist, dann was gerade laeuft, danach
+ * die beiden Seiten der eigenen Arbeit.
+ */
+const ZWEIGE: readonly ProjectCategory[] = [
+  'work',
+  'current',
+  'backend',
+  'frontend',
+];
+
 @Component({
   selector: 'app-projects',
-  imports: [TranslatePipe, NgTemplateOutlet],
+  imports: [TranslatePipe, SignalLayer],
   templateUrl: './projects.html',
   styleUrls: ['./projects.scss', './projects-mediaQuerrys.scss'],
 })
 export class Projects implements AfterViewInit {
   protected readonly data = inject(ProjectsData);
+  protected readonly signale = inject(Signals);
   private readonly anim = inject(Animations);
-  private readonly translate = inject(TranslateService);
   private readonly location = inject(Location);
   private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly categories: readonly ProjectCategory[] = [
-    'current',
-    'work',
-    'backend',
-    'frontend',
-  ];
-
-  protected readonly activeCategory = signal<ProjectCategory>('current');
-  protected readonly activeSlug = signal('');
+  private readonly modal = viewChild<ElementRef<HTMLDialogElement>>('modal');
+  private readonly strang = viewChild<ElementRef<HTMLElement>>('strang');
 
   /**
-   * true, sobald Liste und Detail nebeneinander passen. Darunter erscheint
-   * das Detail als Aufklapper direkt unter dem angetippten Eintrag, weil
-   * drei Bereiche nebeneinander auf einem Handy nicht funktionieren.
+   * Wo die Zweige hin sollen: die Mitte jeder Karte und ihre Seite.
+   *
+   * Als einziges gemessen statt gerechnet. Die Karten sind je nach
+   * Inhalt verschieden hoch, ihre Lage laesst sich also nicht aus
+   * Bruchteilen ableiten, und ein Zweig, der seine Karte verfehlt, sieht
+   * kaputt aus.
    */
-  protected readonly breit = signal(false);
+  protected readonly anker = signal<readonly Anker[]>([]);
 
-  protected readonly liste = computed(() =>
-    this.data.byCategory(this.activeCategory()),
-  );
+  /**
+   * Welche Karte gerade aufleuchtet, waehrend der Punkt ihren Rand
+   * abfaehrt. Nur eine zur Zeit: Kaeme wirklich einmal ein zweiter Punkt
+   * dazu, gewinnt der neuere, und das faellt niemandem auf.
+   */
+  protected readonly leuchtet = signal<number | null>(null);
+
+  private aus?: ReturnType<typeof setTimeout>;
+
+  /**
+   * Der Signal-Layer meldet, dass ein Punkt an einer Karte angekommen
+   * ist. Er kennt nur Geometrie und weiss nichts von Karten, deshalb
+   * kommt die Zuordnung hier.
+   */
+  protected beiAnkunft(zweig: number): void {
+    clearTimeout(this.aus);
+    this.leuchtet.set(zweig);
+    // Etwas laenger als die Animation, damit die Klasse nicht mitten
+    // darin abfaellt und der Schein hart abbricht.
+    this.aus = setTimeout(() => this.leuchtet.set(null), PULS_MS + 100);
+  }
+
+  /** Welches Projekt im Modal steht. Leer heisst: Modal zu. */
+  private readonly gewaehlt = signal('');
 
   protected readonly aktives = computed(() =>
-    this.data.getBySlug(this.activeSlug()),
+    this.data.getBySlug(this.gewaehlt()),
   );
 
-  private readonly listenBalken =
-    viewChild<ElementRef<HTMLElement>>('listenBalken');
-  private readonly reiterBalken =
-    viewChild<ElementRef<HTMLElement>>('reiterBalken');
+  protected readonly gruppen = computed(() =>
+    ZWEIGE.map((kategorie) => ({
+      kategorie,
+      projekte: this.data.byCategory(kategorie),
+    })),
+  );
 
   constructor() {
-    this.beobachteBreite();
-    this.stelleAuswahlHer();
     this.folgeAuswahlAusUrl();
   }
 
-  // --- Auswahl -------------------------------------------------------
+  // --- Modal ---------------------------------------------------------
 
-  protected waehleKategorie(category: ProjectCategory): void {
-    if (category === this.activeCategory()) return;
-    this.activeCategory.set(category);
+  protected oeffne(p: Project): void {
+    this.gewaehlt.set(p.slug);
+    this.schreibeAuswahlInUrl(p.slug);
 
-    // Beim Reiterwechsel das erste Projekt der Kategorie zeigen, damit die
-    // Detailflaeche nie leer steht.
-    const erstes = this.data.byCategory(category)[0];
-    if (erstes) this.waehleProjekt(erstes.slug);
-    else this.nachDemZeichnen(() => this.setzeBalken(true));
-  }
-
-  protected waehleProjekt(slug: string): void {
-    const gewechselt = slug !== this.activeSlug();
-    this.activeSlug.set(slug);
-    this.schreibeAuswahlInUrl(slug);
-
-    this.nachDemZeichnen(() => {
-      this.setzeBalken(true);
-      if (gewechselt) this.baueDetailAuf();
+    // Erst im naechsten Frame: showModal auf einem Dialog, dessen Inhalt
+    // Angular noch nicht gezeichnet hat, oeffnet ein leeres Fenster.
+    requestAnimationFrame(() => {
+      const d = this.modal()?.nativeElement;
+      if (d && !d.open) d.showModal();
     });
   }
 
-  /**
-   * Fuehrt etwas aus, nachdem Angular die Aenderung gezeichnet hat. Ohne
-   * das misst Flip noch die alten Positionen.
-   */
-  private nachDemZeichnen(fn: () => void): void {
-    requestAnimationFrame(() => requestAnimationFrame(fn));
+  protected schliesse(): void {
+    this.modal()?.nativeElement.close();
   }
 
   /**
-   * Pfeiltasten im Reiterband, wie es die WAI-ARIA-Praxis fuer Tabs
-   * vorsieht. Ohne das waeren die Reiter nur mit der Maus bedienbar.
+   * Laeuft auch, wenn der Dialog ueber Escape oder den Hintergrund
+   * geschlossen wird. Deshalb wird hier aufgeraeumt und nicht in
+   * schliesse(), sonst blieben Auswahl und Adresszeile stehen.
    */
-  protected onTabKey(event: KeyboardEvent): void {
-    const schritt =
-      event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-
-    if (schritt === 0) {
-      if (event.key === 'Home') this.springeZuReiter(0);
-      else if (event.key === 'End') this.springeZuReiter(this.categories.length - 1);
-      else return;
-    } else {
-      const i = this.categories.indexOf(this.activeCategory());
-      const ziel = (i + schritt + this.categories.length) % this.categories.length;
-      this.springeZuReiter(ziel);
-    }
-
-    event.preventDefault();
-  }
-
-  private springeZuReiter(index: number): void {
-    const category = this.categories[index];
-    this.waehleKategorie(category);
-    this.host.nativeElement
-      .querySelector<HTMLButtonElement>(`#tab-${category}`)
-      ?.focus();
+  protected beimSchliessen(): void {
+    this.gewaehlt.set('');
+    this.schreibeAuswahlInUrl('');
   }
 
   // --- Zustand in der Adresszeile ------------------------------------
@@ -145,7 +151,8 @@ export class Projects implements AfterViewInit {
    */
   private schreibeAuswahlInUrl(slug: string): void {
     const url = new URL(window.location.href);
-    url.searchParams.set(URL_PARAM, slug);
+    if (slug) url.searchParams.set(URL_PARAM, slug);
+    else url.searchParams.delete(URL_PARAM);
     this.location.replaceState(url.pathname + url.search + url.hash);
   }
 
@@ -153,15 +160,11 @@ export class Projects implements AfterViewInit {
    * Uebernimmt eine Auswahl, die von aussen kommt, etwa aus den Belegen
    * der About-Sektion.
    *
-   * Bewusst ueber NavigationEnd und nicht ueber queryParamMap: die Auswahl
-   * innerhalb der Sektion wird per Location.replaceState geschrieben,
-   * davon erfaehrt der Router nichts. Sein Parameterstrom liefe damit
-   * auseinander mit dem, was wirklich in der Adresszeile steht.
-   * window.location ist hier die verlaessliche Quelle.
-   *
-   * Ohne Projekt in der Adresszeile passiert nichts: ein Sprung auf
-   * #projects aus der Navigation darf die getroffene Auswahl nicht
-   * zuruecksetzen.
+   * Bewusst ueber NavigationEnd und nicht ueber queryParamMap: Die
+   * Auswahl innerhalb der Sektion wird per Location.replaceState
+   * geschrieben, davon erfaehrt der Router nichts. Sein Parameterstrom
+   * liefe damit auseinander mit dem, was wirklich in der Adresszeile
+   * steht. window.location ist hier die verlaessliche Quelle.
    */
   private folgeAuswahlAusUrl(): void {
     this.router.events
@@ -172,41 +175,8 @@ export class Projects implements AfterViewInit {
       .subscribe(() => {
         const ausUrl = new URLSearchParams(window.location.search).get(URL_PARAM);
         const projekt = ausUrl ? this.data.getBySlug(ausUrl) : undefined;
-        if (!projekt || projekt.slug === this.activeSlug()) return;
-
-        // Ueber waehleProjekt statt ueber die Signale direkt, damit
-        // Reiterbalken und Detailflaeche mitgezogen werden.
-        this.activeCategory.set(projekt.category);
-        this.waehleProjekt(projekt.slug);
+        if (projekt && projekt.slug !== this.gewaehlt()) this.oeffne(projekt);
       });
-  }
-
-  private stelleAuswahlHer(): void {
-    const ausUrl = new URLSearchParams(window.location.search).get(URL_PARAM);
-    const projekt = ausUrl ? this.data.getBySlug(ausUrl) : undefined;
-
-    if (projekt) {
-      this.activeCategory.set(projekt.category);
-      this.activeSlug.set(projekt.slug);
-      return;
-    }
-
-    const erstes = this.data.byCategory(this.activeCategory())[0];
-    if (erstes) this.activeSlug.set(erstes.slug);
-  }
-
-  // --- Breite --------------------------------------------------------
-
-  private beobachteBreite(): void {
-    const wurzel = getComputedStyle(document.documentElement);
-    const schwelle = parseFloat(wurzel.getPropertyValue('--bp-tablet-lg'));
-    const mq = window.matchMedia(`(min-width: ${schwelle}px)`);
-
-    this.breit.set(mq.matches);
-
-    const beiWechsel = (e: MediaQueryListEvent) => this.breit.set(e.matches);
-    mq.addEventListener('change', beiWechsel);
-    this.destroyRef.onDestroy(() => mq.removeEventListener('change', beiWechsel));
   }
 
   // --- i18n-Keys -----------------------------------------------------
@@ -228,68 +198,69 @@ export class Projects implements AfterViewInit {
   }
 
   /**
-   * Einheit der Dauer in Einzahl oder Mehrzahl. Ohne das steht bei einer
-   * Woche "1 Wochen" auf der Seite.
+   * Pfad zum Bildschirmfoto, oder nichts.
+   *
+   * Die Sperre fuer Kundenprojekte sitzt hier und nicht im Template:
+   * Traegt jemand spaeter ein Bild nach, ohne an die
+   * Verschwiegenheitspflicht zu denken, wird es trotzdem nicht gezeigt.
    */
-  protected dauerEinheit(d: ProjectDuration): string {
-    const einzahl = d.value === 1;
-    const key =
-      d.unit === 'days'
-        ? einzahl
-          ? 'day'
-          : 'days'
-        : einzahl
-          ? 'week'
-          : 'weeks';
-    return `projects.durationUnit.${key}`;
+  protected bild(p: Project): string | null {
+    if (p.confidential || !p.image) return null;
+    return `/assets/images/projects/${p.image}`;
   }
 
-  // --- Bewegung ------------------------------------------------------
+  /**
+   * Haelt die Ankerpunkte aktuell.
+   *
+   * Ein ResizeObserver auf der Sektion UND auf jeder Karte: Aendert eine
+   * Karte ihre Hoehe, etwa weil die echte Schrift nachgeladen wurde,
+   * verschiebt das alle darunter. Nur die Sektion zu beobachten reichte
+   * nicht, wenn sich deren Gesamthoehe dabei zufaellig nicht aendert.
+   */
+  private beobachteKarten(): void {
+    const sektion = this.host.nativeElement.querySelector<HTMLElement>('.projects');
+    const wurzel = this.strang()?.nativeElement;
+    if (!sektion || !wurzel) return;
 
-  /** Schiebt Auswahlbalken und Reiter-Unterstreichung an ihren Platz. */
-  private setzeBalken(animiert: boolean): void {
-    const el = this.host.nativeElement;
+    const messen = () => {
+      const s = sektion.getBoundingClientRect();
+      // Bezug ist die Mittellinie, dort laeuft das Rueckgrat.
+      const mitte = s.left + s.width / 2;
+      const karten = [...wurzel.querySelectorAll<HTMLElement>('[data-karte]')];
 
-    const eintrag = el.querySelector<HTMLElement>('.projects__item.is-active');
-    const listenBalken = this.listenBalken()?.nativeElement;
-    if (eintrag && listenBalken) {
-      this.anim.moveHighlight(listenBalken, eintrag, animiert);
+      // Der Zweig trifft die obere Ecke, die zu den Bahnen zeigt.
+      //
+      // Dort ist keine Korrektur fuer die Schraege noetig: Bei beiden
+      // Neigungsrichtungen liegt genau diese Ecke auf der Ecke des
+      // rechteckigen Kastens, die Schraege wirkt sich erst nach unten
+      // hin aus.
+      this.anker.set(
+        karten.map((karte) => {
+          const r = karte.getBoundingClientRect();
+          const linksHerum = r.right <= mitte;
+          return {
+            oben: r.top - s.top,
+            nah: (linksHerum ? r.right : r.left) - mitte,
+          };
+        }),
+      );
+    };
+
+    const beobachter = new ResizeObserver(messen);
+    beobachter.observe(sektion);
+    for (const karte of wurzel.querySelectorAll('[data-karte]')) {
+      beobachter.observe(karte);
     }
+    this.destroyRef.onDestroy(() => beobachter.disconnect());
+    this.destroyRef.onDestroy(() => clearTimeout(this.aus));
 
-    const reiter = el.querySelector<HTMLElement>('.projects__tab.is-active');
-    const reiterBalken = this.reiterBalken()?.nativeElement;
-    if (reiter && reiterBalken) {
-      this.anim.moveUnderline(reiterBalken, reiter, animiert);
-    }
-  }
-
-  /** Laesst die Bloecke der Detailflaeche nacheinander einlaufen. */
-  private baueDetailAuf(): void {
-    const panel = this.host.nativeElement.querySelector('.projects__panel');
-    if (!panel) return;
-
-    this.anim.revealBlocks(panel, '[data-block]');
-
-    const dauer = this.aktives()?.duration;
-    const zahl = panel.querySelector<HTMLElement>('[data-duration]');
-    const einheit = panel.querySelector<HTMLElement>('.projects__duration-unit');
-    if (!zahl || !dauer) return;
-
-    this.anim.counterUp(zahl, dauer.value, {
-      duration: 0.7,
-      delay: 0.25,
-      // Einheit laeuft mit, sonst steht beim Zaehlen kurz "1 Wochen".
-      onValue: (wert) => {
-        if (!einheit) return;
-        einheit.textContent = this.translate.instant(
-          this.dauerEinheit({ value: wert, unit: dauer.unit }),
-        );
-      },
-    });
+    messen();
   }
 
   ngAfterViewInit(): void {
     const el = this.host.nativeElement;
+
+    this.beobachteKarten();
 
     this.anim.staggerChildren(el, '.projects__head [data-reveal]', {
       scroll: true,
@@ -297,23 +268,26 @@ export class Projects implements AfterViewInit {
       y: 20,
     });
 
-    this.anim.revealEach(el, '.projects__browser', { y: 28, duration: 0.6 });
-
-    // Erster Aufbau ohne Bewegung, danach folgt der Balken jedem Klick.
-    this.nachDemZeichnen(() => this.setzeBalken(false));
-
-    // Und noch einmal, sobald die echte Schrift steht. Bis dahin sind die
-    // Reiter in der Ersatzschrift breiter, der Balken saesse sonst
-    // dauerhaft auf den Maszen von vorher.
-    void document.fonts.ready.then(() =>
-      this.nachDemZeichnen(() => this.setzeBalken(false)),
+    // Die Karten schieben sich vom Bildschirmrand herein, jede von der
+    // Seite, an der ihr Zweig sie haelt.
+    //
+    // Bewegt wird die innere Flaeche, NICHT das Element mit data-karte.
+    // Dessen Kasten wird vermessen, damit der Zweig seine Ecke trifft,
+    // und getBoundingClientRect rechnet Transformationen mit: Waehrend
+    // des Hereinschiebens laege der Anker sonst weit daneben, und die
+    // Linie zeigte ins Leere.
+    //
+    // Weil der Anker stillsteht, dockt die Flaeche am Ende von selbst
+    // genau an der Verbindung an.
+    this.anim.slideVomRand(
+      el,
+      '.projects__zweig.is-links .projects__flaeche',
+      true,
     );
-
-    // Bei Groessenaenderung sitzt der Balken sonst auf der alten Stelle.
-    const beiResize = () => this.nachDemZeichnen(() => this.setzeBalken(false));
-    window.addEventListener('resize', beiResize, { passive: true });
-    this.destroyRef.onDestroy(() =>
-      window.removeEventListener('resize', beiResize),
+    this.anim.slideVomRand(
+      el,
+      '.projects__zweig:not(.is-links) .projects__flaeche',
+      false,
     );
   }
 }
