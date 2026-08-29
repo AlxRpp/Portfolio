@@ -19,6 +19,11 @@
   // Aufklapper. Wird von projects.ts ausgelesen, damit Media Query und
   // Komponente nicht auseinanderlaufen.
   --bp-tablet-lg: #{math.div(map.get(t.$bp, tablet-lg), 1px)};
+
+  // Schwelle, ab der das Monogramm neben dem Text steht. hero.ts
+  // liest sie aus, damit die Mausneigung nur dort haengt, wo die
+  // Marke ueberhaupt sichtbar ist.
+  --bp-laptop: #{math.div(map.get(t.$bp, laptop), 1px)};
 }
 
 // --- Schriften, selbst gehostet, kein externer Aufruf ---

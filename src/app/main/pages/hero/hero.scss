@@ -32,6 +32,34 @@
   padding-inline: t.$content-pad-sm;
 }
 
+// --- Monogramm -------------------------------------------------------
+
+// Steht erst ab Laptopbreite neben dem Text. Darunter fehlt die Breite:
+// die Textspalte fiele sonst unter ihre lesbare Zeilenlaenge.
+.hero__mark {
+  display: none;
+  color: var(--brand);
+
+  // Einziger Regler fuer die Groesse der Marke. Bewusst eine Variable
+  // und keine feste Zahl im max-width: so laesst sie sich je Breakpoint
+  // nachziehen, ohne die Regel zu wiederholen.
+  --hero-mark-max: 480px;
+}
+
+.hero__mark-svg {
+  display: block;
+  width: 100%;
+  max-width: var(--hero-mark-max);
+  height: auto;
+  margin-inline: auto;
+
+  // Die Kontur beim Zeichnen sitzt auf der Pfadmitte und ragt damit zur
+  // Haelfte ueber die viewBox hinaus. Ein SVG beschneidet seinen
+  // Anzeigebereich per Voreinstellung, die Kontur waere sonst an den
+  // aeusseren Kanten angeschnitten.
+  overflow: visible;
+}
+
 .hero__eyebrow {
   @include m.mono-label;
   display: flex;

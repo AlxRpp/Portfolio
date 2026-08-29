@@ -3,27 +3,47 @@
 
   <div class="hero__inner">
 
-    <p class="hero__eyebrow" data-reveal>
-      <span class="hero__dot" aria-hidden="true"></span>
-      {{ 'hero.role' | translate }}
-      <span class="hero__sep" aria-hidden="true">&middot;</span>
-      {{ 'hero.location' | translate }}
-    </p>
+    <div class="hero__text">
 
-    <h1 class="hero__name">{{ 'hero.name' | translate }}</h1>
+      <p class="hero__eyebrow" data-reveal>
+        <span class="hero__dot" aria-hidden="true"></span>
+        {{ 'hero.role' | translate }}
+        <span class="hero__sep" aria-hidden="true">&middot;</span>
+        {{ 'hero.location' | translate }}
+      </p>
 
-    <p class="hero__claim" data-reveal>{{ 'hero.claim' | translate }}</p>
+      <h1 class="hero__name">{{ 'hero.name' | translate }}</h1>
 
-    <p class="hero__lead" data-reveal>{{ 'hero.lead' | translate }}</p>
+      <p class="hero__claim" data-reveal>{{ 'hero.claim' | translate }}</p>
 
-    <div class="hero__actions" data-reveal>
-      <a class="btn btn--primary" routerLink="/" fragment="projects">
-        {{ 'hero.ctaProjects' | translate }}
-        <span aria-hidden="true">&rarr;</span>
-      </a>
-      <a class="btn btn--ghost" routerLink="/" fragment="contact">
-        {{ 'hero.ctaContact' | translate }}
-      </a>
+      <p class="hero__lead" data-reveal>{{ 'hero.lead' | translate }}</p>
+
+      <div class="hero__actions" data-reveal>
+        <a class="btn btn--primary" routerLink="/" fragment="projects">
+          {{ 'hero.ctaProjects' | translate }}
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="btn btn--ghost" routerLink="/" fragment="contact">
+          {{ 'hero.ctaContact' | translate }}
+        </a>
+      </div>
+
+    </div>
+
+    <!--
+      Rein dekorativ, der Name steht direkt daneben als h1. Deshalb
+      aria-hidden statt eines Alternativtextes.
+
+      Das SVG steht inline und nicht als <img>, weil DrawSVG die
+      einzelnen Pfade im DOM braucht. Ein Bild kann es nicht animieren.
+    -->
+    <div class="hero__mark" aria-hidden="true">
+      <svg class="hero__mark-svg" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="25 79 282 148" fill="currentColor">
+      <path d="M122.34 79.77 L143 80 L208.45 222.19 L208 227 L184 226 L159.1 170.75 L158 166 L156 166 L151.01 180.61 L131 226 L106 226 L140.63 148.11 C142.98 143.61 144.34 140.62 143.29 135.54 L136.6 121.1 L131 111 L79 226 L54 226 L66.77 195.03 L115.44 87.5 C118.71 80.12 118.71 80.12 122.34 79.77 Z"/>
+      <path d="M163 80 L202.32 79.77 C217.23 79.77 230.66 82.78 241.94 93.06 C252.24 104.21 254.75 117.05 254.18 131.7 C253.28 143.29 245.52 152.67 237 160 C230.04 165 230.04 165 227 165 L254.34 222.3 L255 226 L229 226 L194.64 151.74 L194 147 L197.4 146.89 C208.21 146.45 217.09 146.05 225.59 138.7 C230.26 133.08 229.56 125.89 229 119 C227.38 114.23 224.88 111.19 221 108 C214.99 105.29 210.01 104.54 203.47 104.49 L173 104 L168.02 94.13 C163 84.13 163 84.13 163 80 Z"/>
+      <path d="M73 120 C75.08 143.17 75.08 143.17 70.54 148.93 L55 161 C56.57 165.04 59.44 167.47 62.62 170.25 L68 175 L61 191 C55.92 189.5 52.89 186.4 49.19 182.81 L25 161 C26.55 157.16 28.93 154.99 32 152.25 L69.07 121.36 L73 120 Z"/>
+      <path d="M268 127 L280.5 136.19 L307 159 L301.8 166.21 L265.79 198.69 L260 201 L258.75 181.36 L260.38 177.18 L264 176 L264 174 L278 160 L275.59 158.34 C267.41 151.98 267.41 151.98 266.23 146.28 L268 127 Z"/>
+      </svg>
     </div>
 
   </div>

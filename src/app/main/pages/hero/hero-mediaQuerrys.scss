@@ -29,3 +29,16 @@
     );
   }
 }
+
+@include m.mq(laptop) {
+  // Zwei Spalten: Text links, Monogramm rechts. Dieselbe Schwelle, ab
+  // der auch die horizontale Buehne greift.
+  .hero__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, .8fr);
+    align-items: center;
+    gap: t.sp(8);
+  }
+
+  .hero__mark { display: block; }
+}

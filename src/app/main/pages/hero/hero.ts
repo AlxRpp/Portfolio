@@ -23,8 +23,33 @@ export class Hero implements AfterViewInit, OnDestroy {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private split?: SplitText;
+  private logo?: gsap.core.Timeline;
+  private tiltAus?: () => void;
 
   async ngAfterViewInit(): Promise<void> {
+    // Das Monogramm haengt weder an der Uebersetzung noch an der Schrift.
+    // Es startet deshalb sofort und wartet nicht auf beides mit, sonst
+    // begaenne es erst, wenn die Schrift geladen ist.
+    const el = this.host.nativeElement;
+    const mark = el.querySelector('.hero__mark-svg');
+    if (mark) {
+      this.logo = this.anim.drawLogo(mark, { delay: 0.3 });
+    }
+
+    // Die Neigung haengt am Wrapper, nicht am SVG: so stoeren sich
+    // Zeichnen und Kippen nicht, das eine laeuft auf den Pfaden, das
+    // andere auf dem Kasten darueber.
+    //
+    // Bezug ist die ganze Sektion, damit die Marke schon auf Bewegung
+    // reagiert, bevor der Zeiger sie erreicht.
+    const kasten = el.querySelector<HTMLElement>('.hero__mark');
+    if (kasten) {
+      const schwelle = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--bp-laptop'),
+      );
+      this.tiltAus = this.anim.tiltOnPointer(kasten, el, { minWidth: schwelle });
+    }
+
     // SplitText zerlegt den Text, der in diesem Moment im DOM steht, und
     // friert ihn als einzelne Zeichen ein. Beides muss deshalb vorher
     // fertig sein:
@@ -40,7 +65,6 @@ export class Hero implements AfterViewInit, OnDestroy {
     // gerendert hat, bevor gemessen wird.
     await this.nextFrames(2);
 
-    const el = this.host.nativeElement;
     const name = el.querySelector('.hero__name');
 
     if (name) {
@@ -57,6 +81,8 @@ export class Hero implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     // Zeichen wieder zu normalem Text zusammenführen.
     this.split?.revert();
+    this.logo?.kill();
+    this.tiltAus?.();
   }
 
   private nextFrames(count: number): Promise<void> {
