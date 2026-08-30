@@ -82,6 +82,12 @@
   display: block;
   width: 100%;
   height: auto;
+
+  // Die Kontur beim Zeichnen sitzt auf der Pfadmitte und ragt damit zur
+  // Haelfte ueber die viewBox hinaus. Ein SVG beschneidet seinen
+  // Anzeigebereich per Voreinstellung, die Kontur waere sonst an den
+  // aeusseren Kanten angeschnitten.
+  overflow: visible;
 }
 
 .hero__eyebrow {

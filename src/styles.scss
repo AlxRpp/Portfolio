@@ -74,6 +74,11 @@
 }
 
 :root {
+  // Schwelle, ab der das Monogramm ueberhaupt sichtbar ist. hero.ts
+  // liest sie aus, damit die Mausneigung nur dort haengt, wo es etwas
+  // zu neigen gibt.
+  --bp-tablet-lg: #{math.div(map.get(t.$bp, tablet-lg), 1px)};
+
   --stage-min-width: #{math.div(t.$stage-min-width, 1px)};
   --stage-min-height: #{math.div(t.$stage-min-height, 1px)};
 

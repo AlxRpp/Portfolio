@@ -4,8 +4,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { Flip } from 'gsap/Flip';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 
-gsap.registerPlugin(ScrollTrigger, SplitText, ScrollToPlugin, Flip);
+gsap.registerPlugin(ScrollTrigger, SplitText, ScrollToPlugin, Flip, DrawSVGPlugin);
 
 /** Gemeinsame Bewegungssprache: langsam, präzise, kein Bounce. */
 const EASE = 'power2.out';
@@ -42,6 +43,21 @@ export interface StageOptions {
    * rutscht mit, und dieselbe Scrollposition zeigt danach etwas anderes.
    */
   onToggle?: (aktiv: boolean) => void;
+}
+
+export interface TiltOptions {
+  /** Groesster Ausschlag in Grad. */
+  max?: number;
+  /** Tiefe der Perspektive in Pixeln. Kleiner heisst staerker raeumlich. */
+  perspective?: number;
+  /** Seitlicher Versatz am Rand des Bezugs, in Pixeln. */
+  shift?: number;
+  /**
+   * Nur oberhalb dieser Fensterbreite aktiv. Ohne Angabe immer aktiv.
+   * Verhindert, dass die Neigung an einem Element haengt, das gar nicht
+   * sichtbar ist.
+   */
+  minWidth?: number;
 }
 
 export interface RevealOptions {
@@ -535,6 +551,131 @@ export class Animations {
         start: o.start ?? 'top 80%',
         once: true,
       },
+    };
+  }
+
+  /**
+   * Zeichnet ein Logo einmal beim Laden: erst laeuft eine Kontur um die
+   * Formen, dann fuellt sich die Flaeche und die Kontur nimmt sich
+   * wieder zurueck.
+   *
+   * DrawSVG animiert ausschliesslich Konturen, nie Flaechen. Die Pfade
+   * des Logos sind aber reine Flaechen ohne stroke. Die Kontur wird
+   * deshalb hier gesetzt und am Ende wieder auf null gefahren, damit der
+   * Endzustand exakt das unveraenderte Logo ist und nicht eine Fassung
+   * mit Rand.
+   *
+   * Die Rueckgabe ist die Timeline, damit die Komponente sie beim
+   * Zerstoeren beenden kann.
+   */
+  drawLogo(svg: Element, o: RevealOptions = {}): gsap.core.Timeline | undefined {
+    const paths = svg.querySelectorAll('path');
+    if (!paths.length) return undefined;
+
+    if (this.reduced) {
+      gsap.set(paths, { fillOpacity: 1, strokeWidth: 0 });
+      return undefined;
+    }
+
+    // Ausgangszustand sofort setzen, nicht erst als ersten Schritt der
+    // Timeline. Die traegt eine Verzoegerung, das fertige Logo stuende
+    // sonst erst sichtbar da und verschwaende beim Start wieder.
+    gsap.set(paths, {
+      fillOpacity: 0,
+      stroke: 'currentColor',
+      strokeWidth: 1.5,
+      drawSVG: '0%',
+    });
+
+    const tl = gsap.timeline({ delay: o.delay ?? 0 });
+
+    tl.to(paths, {
+        drawSVG: '100%',
+        duration: o.duration ?? 1.2,
+        stagger: 0.12,
+        ease: 'power1.inOut',
+      })
+      // Fuellung setzt kurz vor dem Ende der Kontur ein, damit die Form
+      // nicht erst leer stehenbleibt und dann springt.
+      .to(paths, { fillOpacity: 1, duration: 0.5, ease: EASE }, '-=0.35')
+      .to(paths, { strokeWidth: 0, duration: 0.4, ease: EASE }, '<');
+
+    return tl;
+  }
+
+  /**
+   * Laesst ein Element der Maus nachkippen, damit es sich wie ein Koerper
+   * im Raum anfuehlt und nicht wie ein aufgeklebtes Bild.
+   *
+   * `bezug` ist die Flaeche, ueber der die Maus gemessen wird, also
+   * ueblicherweise die ganze Sektion und nicht das Element selbst. Sonst
+   * spraenge die Neigung erst an, wenn der Zeiger die Marke trifft, und
+   * beim Verlassen wieder zurueck.
+   *
+   * Zwei Voraussetzungen, sonst passiert nichts: ein echter Zeiger, denn
+   * auf einem Touchgeraet gibt es kein Schweben, und keine reduzierte
+   * Bewegung.
+   *
+   * Die Rueckgabe raeumt die Ereignisse wieder ab. Ohne das haengen sie
+   * am Dokument weiter, wenn die Komponente laengst zerstoert ist.
+   */
+  tiltOnPointer(
+    el: HTMLElement,
+    bezug: HTMLElement,
+    o: TiltOptions = {},
+  ): () => void {
+    const feinerZeiger = window.matchMedia('(hover: hover) and (pointer: fine)');
+    if (this.reduced || !feinerZeiger.matches) return () => {};
+
+    const max = o.max ?? 12;
+    const shift = o.shift ?? 10;
+    const minWidth = o.minWidth ?? 0;
+
+    gsap.set(el, {
+      transformPerspective: o.perspective ?? 900,
+      transformOrigin: 'center center',
+    });
+
+    // quickTo statt gsap.to je Bewegung: das erzeugt einen einzigen
+    // wiederverwendeten Tween statt bei jedem Mausereignis einen neuen.
+    const zuRotX = gsap.quickTo(el, 'rotationX', { duration: 0.7, ease: 'power3.out' });
+    const zuRotY = gsap.quickTo(el, 'rotationY', { duration: 0.7, ease: 'power3.out' });
+    const zuX = gsap.quickTo(el, 'x', { duration: 0.7, ease: 'power3.out' });
+    const zuY = gsap.quickTo(el, 'y', { duration: 0.7, ease: 'power3.out' });
+
+    const ruhe = () => {
+      zuRotX(0);
+      zuRotY(0);
+      zuX(0);
+      zuY(0);
+    };
+
+    const bewege = (e: PointerEvent) => {
+      if (window.innerWidth < minWidth) return;
+
+      const r = bezug.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+
+      // -1 am linken und oberen Rand, +1 am rechten und unteren.
+      const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+      const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
+
+      // Waagerechte Mausbewegung dreht um die senkrechte Achse, deshalb
+      // nx auf rotationY. Das Vorzeichen bei rotationX ist umgekehrt,
+      // damit die Marke sich zum Zeiger neigt statt von ihm weg.
+      zuRotY(nx * max);
+      zuRotX(-ny * max);
+      zuX(nx * shift);
+      zuY(ny * shift);
+    };
+
+    bezug.addEventListener('pointermove', bewege);
+    bezug.addEventListener('pointerleave', ruhe);
+
+    return () => {
+      bezug.removeEventListener('pointermove', bewege);
+      bezug.removeEventListener('pointerleave', ruhe);
+      gsap.killTweensOf(el);
     };
   }
 

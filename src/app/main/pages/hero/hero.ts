@@ -8,6 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import type { gsap } from 'gsap';
 import type { SplitText } from 'gsap/SplitText';
 import { Animations } from '../../shared/service/animations';
 import { Signals } from '../../shared/service/signals';
@@ -26,8 +27,31 @@ export class Hero implements AfterViewInit, OnDestroy {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private split?: SplitText;
+  private logo?: gsap.core.Timeline;
+  private tiltAus?: () => void;
 
   async ngAfterViewInit(): Promise<void> {
+    // Das Monogramm haengt weder an der Uebersetzung noch an der Schrift.
+    // Es startet deshalb sofort und wartet nicht mit, sonst begaenne es
+    // erst, wenn die Schrift geladen ist.
+    const marke = this.host.nativeElement;
+    const svg = marke.querySelector('.hero__mark-svg');
+    if (svg) this.logo = this.anim.drawLogo(svg, { delay: 0.3 });
+
+    // Die Neigung haengt am Kasten um das SVG, nicht am SVG selbst: So
+    // stoeren sich Zeichnen und Kippen nicht, das eine laeuft auf den
+    // Pfaden, das andere auf dem Kasten darueber.
+    //
+    // Bezug ist die ganze Sektion, damit die Marke schon auf Bewegung
+    // reagiert, bevor der Zeiger sie erreicht.
+    const kasten = marke.querySelector<HTMLElement>('.hero__mark');
+    if (kasten) {
+      const schwelle = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--bp-tablet-lg'),
+      );
+      this.tiltAus = this.anim.tiltOnPointer(kasten, marke, { minWidth: schwelle });
+    }
+
     // SplitText zerlegt den Text, der in diesem Moment im DOM steht, und
     // friert ihn als einzelne Zeichen ein. Beides muss deshalb vorher
     // fertig sein:
@@ -60,6 +84,8 @@ export class Hero implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     // Zeichen wieder zu normalem Text zusammenführen.
     this.split?.revert();
+    this.logo?.kill();
+    this.tiltAus?.();
   }
 
   private nextFrames(count: number): Promise<void> {

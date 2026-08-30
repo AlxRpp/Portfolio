@@ -22,7 +22,13 @@
     Schale des R ein echter Kreisring. Dieselbe Form liegt als Datei
     unter assets/icons/brand/logo.svg.
   -->
-  <div class="hero__mark" aria-hidden="true" data-reveal>
+  <!--
+    Kein data-reveal: Die Marke bringt ihren eigenen Auftritt mit, das
+    Zeichnen in hero.ts. Beides zusammen schriebe auf denselben Kasten,
+    die Einblendung ein y, die Mausneigung x, y und zwei Drehungen. Sie
+    wuerden sich gegenseitig ueberschreiben.
+  -->
+  <div class="hero__mark" aria-hidden="true">
     <svg class="hero__mark-svg" focusable="false" xmlns="http://www.w3.org/2000/svg"
          viewBox="0 0 449 231" fill="currentColor">
       <path d="M 73,62.75 L 0,127 L 55.5,175.84 L 55.5,138 L 43,127 L 73,100.6 Z"/>
