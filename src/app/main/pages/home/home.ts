@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { Hero } from '../hero/hero';
 import { About } from '../about/about';
@@ -63,6 +63,16 @@ export class Home implements AfterViewInit, OnDestroy {
    */
   private aufbauDurch = false;
 
+  /**
+   * Wie die laufende Navigation ausgeloest wurde.
+   *
+   * Gebraucht wird das beim Sprung nach oben: Ein Klick soll dorthin
+   * fuehren, der Zurueck-Knopf nicht. Dort stellt der Router die alte
+   * Scrollposition wieder her, und die duerfen wir nicht ueberschreiben.
+   * NavigationEnd traegt diese Angabe nicht mehr, deshalb hier gemerkt.
+   */
+  private ausloeser: NavigationStart['navigationTrigger'] = 'imperative';
+
   ngAfterViewInit(): void {
     // Die Schwelle steht in _tokens.scss und wird in styles.scss als
     // CSS-Variable ausgegeben. So nutzen Media Query und ScrollTrigger
@@ -103,6 +113,13 @@ export class Home implements AfterViewInit, OnDestroy {
     // waere dann tot, bis man eine andere Sektion anspringt. NavigationEnd
     // feuert dagegen bei jeder Navigation, auch bei gleicher URL, weil
     // onSameUrlNavigation in app.config.ts auf 'reload' steht.
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationStart => e instanceof NavigationStart),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((e) => (this.ausloeser = e.navigationTrigger));
+
     this.router.events
       .pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
@@ -220,7 +237,21 @@ export class Home implements AfterViewInit, OnDestroy {
    * Refresh. Ein zweiter Aufruf auf dieselbe Stelle kostet nichts.
    */
   private springeZuAnker(fragment: string | null): void {
-    if (!fragment) return;
+    // Ohne Anker ist das Ziel der Anfang der Seite. Genau dorthin fuehren
+    // die beiden Logos in Kopf- und Fusszeile, sie tragen routerLink="/"
+    // ohne Fragment.
+    //
+    // Der Router scrollt dafuer selbst nach oben, ueber
+    // scrollPositionRestoration. Zwei Bilder spaeter dreht der Refresh
+    // das aber zurueck, genau wie beim Ankersprung: Man klickt auf das
+    // Logo und bleibt stehen.
+    //
+    // Nur bei einem Klick, nicht beim Zurueck-Knopf. Dort stellt der
+    // Router absichtlich die Position wieder her, an der man vorher war.
+    if (!fragment) {
+      if (this.ausloeser === 'imperative') window.scrollTo(0, 0);
+      return;
+    }
 
     // In der laufenden Buehne liegt About seitlich versetzt. Dorthin
     // fuehrt nur die Buehnensteuerung, siehe springeZuTafel.

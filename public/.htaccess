@@ -1,0 +1,25 @@
+# Rueckfallregel fuer die Einzelseitenanwendung.
+#
+# Das Portfolio hat genau eine Datei, die index.html. Alles andere sind
+# Adressen, die erst im Browser entstehen: /privacy-policy, /legal-notice.
+# Ohne diese Regel sucht der Server dort eine Datei gleichen Namens,
+# findet keine und antwortet mit 404. Beim Klicken faellt das nie auf,
+# weil Angular die Seite ohne Server wechselt. Es trifft nur drei Faelle,
+# und alle drei zaehlen: neu laden, geteilte Links, Suchmaschinen.
+
+RewriteEngine On
+
+# Existiert die angeforderte Datei wirklich, wird sie ausgeliefert und
+# die Verarbeitung endet hier. Das gilt fuer alles unter /assets/, fuer
+# die Schriften, die Bilder und fuer sendMail.php.
+#   -s  Datei mit Inhalt
+#   -l  symbolischer Verweis
+#   -d  Verzeichnis
+RewriteCond %{REQUEST_FILENAME} -s [OR]
+RewriteCond %{REQUEST_FILENAME} -l [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^.*$ - [NC,L]
+
+# Alles Uebrige beantwortet die index.html, der Router im Browser
+# entscheidet dann, welche Seite er zeigt.
+RewriteRule ^(.*) /index.html [NC,L]

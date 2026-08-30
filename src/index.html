@@ -13,9 +13,19 @@
   <meta name="theme-color" content="#00BDC6">
   <meta name="color-scheme" content="dark">
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/favicon-180.png">
+  <!--
+    Der Ordner heisst favicons und NICHT icons.
+    
+    Apache bringt in seiner Grundkonfiguration einen serverweiten Alias
+    /icons/ mit, der auf seinen eigenen Symbolordner fuer
+    Verzeichnislisten zeigt. Ein Ordner dieses Namens im eigenen
+    Webverzeichnis wird dadurch nie erreicht: Der Server liefert unter
+    /icons/ seine Symbole aus und fuer alles andere dort einen 404.
+    Sichtbar wird das erst auf dem Server, lokal laeuft es.
+  -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicons/favicon-180.png">
   <link rel="manifest" href="/site.webmanifest">
 
   <!-- Schriften liegen lokal; ohne preload blitzt beim ersten Aufbau
