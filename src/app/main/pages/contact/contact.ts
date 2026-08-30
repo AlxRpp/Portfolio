@@ -98,16 +98,16 @@ export class Contact implements AfterViewInit {
   protected readonly ort = 'Delbrück';
 
   /**
-   * Die beiden anderen Saeulen neben dieser Seite. Bewusst hier und nicht
-   * in einer Uebersetzungsdatei: Adressen sind keine Sprache.
+   * Wo es ausser hier noch etwas zu sehen gibt. Bewusst hier und nicht in
+   * einer Uebersetzungsdatei: Adressen sind keine Sprache.
+   *
+   * LinkedIn stand hier und ist bewusst wieder raus. Dort liegt nur ein
+   * Foto, und ein Profil ohne Inhalt zu verlinken sagt weniger als es
+   * nicht zu verlinken. Wer es wieder aufnehmen will, sollte vorher
+   * dorthin schauen.
    */
   protected readonly profile = [
     { name: 'GitHub', icon: 'github', url: 'https://github.com/AlxRpp' },
-    {
-      name: 'LinkedIn',
-      icon: 'linkedin',
-      url: 'https://www.linkedin.com/in/alexander-ruppel-450706375/',
-    },
   ] as const;
   protected readonly zustand = signal<Zustand>('ruhe');
 

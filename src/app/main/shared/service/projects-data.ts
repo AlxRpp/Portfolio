@@ -28,6 +28,7 @@ export class ProjectsData {
     },
     {
       slug: 'quizly',
+      image: 'quizly.jpg',
       category: 'backend',
       title: 'Quizly',
       status: 'archived',
@@ -40,6 +41,7 @@ export class ProjectsData {
     },
     {
       slug: 'homelab',
+      image: 'homelab.jpg',
       category: 'current',
       title: 'HomeLab',
       status: 'ongoing',
@@ -51,6 +53,7 @@ export class ProjectsData {
     },
     {
       slug: 'coderr',
+      image: 'coderr.jpg',
       category: 'backend',
       title: 'Coderr',
       status: 'live',
@@ -79,6 +82,7 @@ export class ProjectsData {
 
     {
       slug: 'videoflix',
+      image: 'videoflix.jpg',
       category: 'backend',
       title: 'Videoflix',
       status: 'archived',
@@ -91,6 +95,7 @@ export class ProjectsData {
     },
     {
       slug: 'kanmind',
+      image: 'kanmind.jpg',
       category: 'backend',
       title: 'Kanmind',
       status: 'archived',

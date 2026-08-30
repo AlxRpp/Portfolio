@@ -3,8 +3,6 @@
 
 @include m.mq(tablet) {
   .hero__inner { padding-inline: t.$content-pad; }
-
-  .hero__mark { margin-inline-start: t.$content-pad; }
 }
 
 @include m.mq(tablet-lg) {
@@ -16,6 +14,7 @@
   // aussen und druckte die Textspalte zusammen, obwohl der Bildschirm
   // breiter wird. Dieselbe max()-Rechnung wie beim Inhalt selbst.
   .hero__mark {
+    display: block;
     position: absolute;
     top: 50%;
     translate: 0 -50%;

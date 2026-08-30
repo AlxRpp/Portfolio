@@ -60,14 +60,18 @@
 // Signalnetz liegen, das als Hintergrundebene mit z-index 0 darunter
 // sitzt.
 .hero__mark {
+  // Unter 900px gar nicht erst da.
+  //
+  // Dort stand es im Textfluss ueber der Ueberschrift und schob den
+  // ganzen Block nach unten, auf einem Telefon um fast ein Fuenftel der
+  // Bildhoehe. Es traegt dabei nichts, was der Text nicht schon sagt:
+  // Der Name steht direkt darunter, und im Kopf der Seite steht dasselbe
+  // Zeichen noch einmal. Ab 900px steht es frei in der Tafel, siehe
+  // hero-mediaQuerrys.scss, und kostet den Text keine Hoehe mehr.
+  display: none;
   position: relative;
   z-index: 1;
   color: var(--brand);
-  width: min(38%, 160px);
-  // Auf die Textkante, solange das Logo im Fluss steht. .hero__inner
-  // traegt sein Polster selbst, das Logo ist aber dessen Geschwister.
-  margin-inline-start: t.$content-pad-sm;
-  margin-bottom: t.sp(5);
 }
 
 .hero__mark-svg {

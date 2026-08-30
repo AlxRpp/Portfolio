@@ -77,6 +77,13 @@
 // mit weggeschnitten. Hier sieht der Filter die fertig beschnittene Form
 // und legt den Schein um ihre Kanten.
 .stack__group {
+  // Hoehe der Schraege an Ober- und Unterkante. Steht hier und nicht auf
+  // der Karte, obwohl nur die Karte sie zeichnet: Die mittlere Karte im
+  // Zweispalter rechnet mit demselben Wert ihren Abstand nach oben und
+  // unten aus, siehe stack-mediaQuerrys.scss. Von hier erbt die Karte
+  // ihn, und beide bleiben an einem Wert haengen.
+  --stack-schraege: 32px;
+
   display: grid;
   filter: drop-shadow(
     0 0 20px color-mix(in srgb, var(--brand) 42%, transparent)
@@ -87,8 +94,6 @@
 // "Wie ich arbeite": clip-path statt skew, damit die Schrift gerade bleibt
 // und nicht am Inhalt zurueckgedreht werden muss.
 .stack__card {
-  --stack-schraege: 32px;
-
   display: grid;
   // Oben ausgerichtet: die Spalten sind gleich hoch, aber unterschiedlich
   // voll. Mittig gesetzt schwaemme die kurze Liste in der Flaeche.

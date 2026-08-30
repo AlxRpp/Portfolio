@@ -22,7 +22,13 @@
     -->
     <ul class="stack__groups">
       @for (gruppe of gruppen; track gruppe.id) {
-        <li class="stack__group">
+        <!--
+          Die Kennung steht am Element, damit die Umsortierung unter
+          1200px sie ansprechen kann. Ueber nth-child ginge es auch, das
+          haenge aber an der Reihenfolge in stack-data.ts: Wer sie dort
+          umstellt, verschoebe hier stillschweigend die Karten.
+        -->
+        <li class="stack__group" [attr.data-gruppe]="gruppe.id">
           <!--
             Zwei Ebenen mit Absicht: Der Schein sitzt aussen, die
             beschnittene Flaeche innen. clip-path wird nach dem Filter

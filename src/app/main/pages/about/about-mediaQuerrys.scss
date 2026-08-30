@@ -92,3 +92,39 @@
     translate: -20px;
   }
 }
+
+// In der Buehne steckt About in einer bildschirmhohen Tafel und kann
+// nicht nach unten wachsen. Unten liegt ausserdem das Signalband, das
+// frei bleiben muss, sonst laufen die Linien durch die Belege.
+//
+// Deshalb hier enger als im freien Fluss darunter. Die Bedingung ist
+// dieselbe, die die Buehne einschaltet, siehe _mixins.scss: Was hier
+// steht, gilt genau dann, wenn der Platz wirklich gedeckelt ist.
+@include m.buehne {
+  // Unter 1200 ist die Textspalte der Engpass. Bei 1024 ist sie mit 6:5
+  // nur 498 Pixel breit und die drei Absaetze brauchen 17 Zeilen statt
+  // 14. Mit 7:4 sind es 580 Pixel. Das Foto wird dafuer schmaler, es ist
+  // in dieser Sektion aber nicht das, was die Hoehe bestimmt.
+  @include m.mq(laptop, down) {
+    .about__inner {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    }
+
+    // Und die Belege zurueck auf zwei Spalten. Die Vierspaltigkeit haengt
+    // an einer Schwelle der FENSTERbreite, ihre eigentliche Frage ist
+    // aber die Breite ihres Kastens: Der ist hier nur noch 332 Pixel
+    // breit, vier Spalten davon sind 74, und "Alien Adventure" braucht
+    // allein 108. Zwei Spalten geben 166 und alles steht auf einer Zeile.
+    //
+    // Kostet keine Gesamthoehe: Die Hoehe der Sektion bestimmt die linke
+    // Spalte aus Kopf und Fliesstext, die rechte hat darunter Luft.
+    .about__sources-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: t.sp(6);
+    }
+  }
+
+  .about__head { margin-bottom: t.sp(5); }
+  .about__body { gap: t.sp(4); }
+  .about__sources-title { margin-bottom: t.sp(3); }
+}

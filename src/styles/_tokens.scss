@@ -38,11 +38,18 @@ $space: (
 
 // --- Horizontale Buehne ---
 // Ab dieser Groesse laufen Hero und About als zwei Tafeln nebeneinander.
-// Die Hoehe ist die eigentliche Bedingung: About braucht rund 642px
-// Inhalt, und in einer gehefteten Tafel laesst sich nicht nachscrollen.
+// Die Hoehe ist die eigentliche Bedingung: In einer gehefteten Tafel
+// laesst sich nicht nachscrollen, About muss also hineinpassen, und
+// unten liegt zusaetzlich das Signalband, das frei bleiben soll.
+//
+// Die Breite lag bis zuletzt bei 1200. Bei 1024 stehen Hero und About
+// noch nebeneinander, About wird dort aber schmaler und damit hoeher:
+// Die drei Absaetze brauchen 17 Zeilen statt 14. Deshalb sitzt About in
+// der Buehne enger als im freien Fluss, siehe about-mediaQuerrys.scss.
+//
 // Diese Werte werden in styles.scss zusaetzlich als CSS-Variablen
 // ausgegeben, damit home.ts dieselbe Bedingung liest statt sie zu kopieren.
-$stage-min-width: 1200px;
+$stage-min-width: 1024px;
 $stage-min-height: 750px;
 
 // --- Radien ---

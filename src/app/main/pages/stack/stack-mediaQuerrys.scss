@@ -1,31 +1,98 @@
 @use 'tokens' as t;
 @use 'mixins' as m;
 
-// Die Spalten sind gedeckelt statt 1fr: ueber die volle Breite verteilt
-// waeren die Karten sehr breit fuer ihren kurzen Inhalt. Der Deckel haelt
-// sie schmal, justify-content in stack.scss haelt die Gruppe mittig.
-//
-// Bei zu wenig Platz schrumpfen die Spuren unter den Deckel, weil minmax
-// bei null anfaengt. Deshalb kein Ueberlauf, auch nicht bei fuenf Karten
-// auf einem 1200er Schirm.
+// Gedeckelte Spaltenbreite im Zweispalter. Steht als Wert hier, weil sich
+// die mittlere Karte daran ausrichtet und beide nicht auseinanderlaufen
+// duerfen.
+$spalte: 264px;
+
 @include m.mq(tablet) {
   // Nur oben: Unten steht das Polster fuer den Seitenwechsel, siehe
   // stack.scss. Ein padding-block hier wuerde es ueberschreiben.
   .stack { padding-top: t.sp(10); }
-
-  .stack__groups { grid-template-columns: repeat(2, minmax(0, 264px)); }
 }
 
-@include m.mq(tablet-lg) {
-  .stack__groups { grid-template-columns: repeat(3, minmax(0, 264px)); }
-}
+// Unterhalb von 1200px stehen nicht alle fuenf Karten nebeneinander, und
+// dann zaehlt eine andere Reihenfolge als die der Daten: erst, was im Job
+// entstanden ist, daneben das eigene Labor, in der Mitte das Werkzeug,
+// darunter die beiden Seiten der Entwicklung.
+//
+// Ueber `order` und nicht ueber eine zweite Liste in stack-data.ts: Es
+// gibt nur einen Bestand, er wird hier nur anders gelegt. Zwei Listen
+// liefen beim naechsten neuen Werkzeug auseinander.
+@include m.mq(laptop, down) {
+  .stack__group[data-gruppe='work']     { order: 1; }
+  .stack__group[data-gruppe='homelab']  { order: 2; }
+  .stack__group[data-gruppe='backend']  { order: 3; }
+  .stack__group[data-gruppe='frontend'] { order: 4; }
+  .stack__group[data-gruppe='method']   { order: 5; }
 
-@include m.mq(laptop) {
-  // Alle fuenf nebeneinander. Etwas schmaler gedeckelt als bei drei
-  // Spalten, sonst passten sie bei 1440 nicht mehr in die Inhaltsbreite.
-  .stack__groups {
-    grid-template-columns: repeat(5, minmax(0, 248px));
-    column-gap: t.sp(3);
+  // Ab 480px zwei Spalten. Darunter bleibt es bei einer, dort ist die
+  // Reihenfolge oben schon die ganze Aussage.
+  @include m.mq(phone) {
+    .stack__groups {
+      grid-template-columns: repeat(2, minmax(0, #{$spalte}));
+    }
+
+    // Methodik rueckt zwischen die beiden Reihen und steht dort allein.
+    .stack__group[data-gruppe='method']   { order: 3; }
+    .stack__group[data-gruppe='backend']  { order: 4; }
+    .stack__group[data-gruppe='frontend'] { order: 5; }
+
+    // Ueber beide Spalten. Die Karte ist hier keine dritte Spalte,
+    // sondern das Verbindungsstueck zwischen den beiden Reihen, und ihre
+    // Spitzen zeigen genau auf die Luecke zwischen den Karten darueber
+    // und darunter.
+    .stack__group[data-gruppe='method'] {
+      grid-column: 1 / -1;
+
+      // Und um die Schraege nach oben und unten heraus.
+      //
+      // Der Abstand im Raster zaehlt Kaesten, nicht Formen. Zwischen den
+      // Kaesten liegen 16 Pixel, sichtbar sind aber 48: Die Nachbarn
+      // enden 32 Pixel ueber ihrer Kastenkante, diese Karte faengt 32
+      // darunter an, und zwar an jeder Stelle gleich, weil beide Kanten
+      // parallel laufen. Waagerecht stehen dagegen 16 Pixel, dort sind
+      // die Kanten senkrecht.
+      //
+      // Das negative Mass holt genau diese 32 zurueck. Die Kaesten
+      // ueberlappen sich dabei, die Formen nicht: Die Spitze faehrt in
+      // die Kerbe zwischen den beiden Karten darueber.
+      margin-block: calc(var(--stack-schraege) * -1);
+    }
+
+    // Und dafuer eine eigene Form: statt des gekippten Balkens ein
+    // Sechseck, symmetrisch, mit je einer Spitze oben und unten in der
+    // Mitte. Die Seiten bleiben senkrecht wie bei allen anderen.
+    //
+    // Der gekippte Balken braucht einen Nachbarn, an dessen Gegenneigung
+    // er sich lesen laesst, so wechseln die Karten ja ab. Diese steht
+    // allein in ihrer Reihe: Dort waere eine Neigung nicht Rhythmus,
+    // sondern nur schief.
+    //
+    // Die Spitze kostet keine Textbreite. Sie liegt in der Mitte, wo die
+    // Karte am hoechsten ist, und das Polster oben und unten rechnet die
+    // Schraege ohnehin schon mit.
+    .stack__group[data-gruppe='method'] .stack__card {
+      clip-path: polygon(
+        0 var(--stack-schraege),
+        50% 0,
+        100% var(--stack-schraege),
+        100% calc(100% - var(--stack-schraege)),
+        50% 100%,
+        0 calc(100% - var(--stack-schraege))
+      );
+    }
+
+    // Neun Eintraege in einer Spalte machten die breite Karte hoch und
+    // liessen die Flaeche daneben leer. Hier laufen sie in so vielen
+    // Spalten, wie hineinpassen. Die Ausrichtung innerhalb eines
+    // Eintrags bleibt: Zeichen und Name stehen weiter auf ihrer eigenen
+    // senkrechten Linie.
+    .stack__group[data-gruppe='method'] .stack__list {
+      grid-template-columns: repeat(auto-fit, minmax(150px, auto));
+      column-gap: t.sp(6);
+    }
   }
 }
 
@@ -37,4 +104,69 @@
 // Polster waere dann nur verschenkte Breite.
 @include m.mq(tablet-lg) {
   .stack__inner { padding-right: var(--signal-rail-frei); }
+}
+
+@include m.mq(laptop) {
+  // Alle fuenf nebeneinander, in der Reihenfolge der Daten. Etwas
+  // schmaler gedeckelt als im Zweispalter, sonst passten sie bei 1440
+  // nicht mehr in die Inhaltsbreite.
+  //
+  // Die Umsortierung darueber greift hier nicht mehr, sie haengt an
+  // einer Obergrenze von 1200. Deshalb steht hier nichts, was sie
+  // zuruecksetzen muesste.
+  .stack__groups {
+    grid-template-columns: repeat(5, minmax(0, 248px));
+    column-gap: t.sp(3);
+  }
+}
+
+// Unter 480px steht alles untereinander, und dort gilt eine andere
+// Formensprache als in den Reihen darueber.
+@include m.mq(phone, down) {
+  // Ueber die volle Bildschirmbreite. Das negative Mass hebt das Polster
+  // von .stack__inner auf, das der Kopf darueber weiter braucht. Genau
+  // das Polster und keinen festen Wert, sonst reisst es bei der
+  // naechsten Aenderung ein Stueck Hintergrund auf oder erzeugt eine
+  // waagerechte Scrollleiste.
+  .stack__groups {
+    grid-template-columns: minmax(0, 1fr);
+    margin-inline: calc(#{t.$content-pad-sm} * -1);
+  }
+
+  // Die Karten sind hier Trapeze, keine Parallelogramme: Ober- und
+  // Unterkante neigen sich GEGENlaeufig.
+  //
+  // Sonst laeuft es so, wie es vorher aussah. Zwei Parallelogramme
+  // untereinander lassen ihre Kanten an jeder zweiten Fuge auseinander
+  // laufen, dort klafft ein Keil statt eines Streifens. Mit
+  // gegenlaeufigen Kanten passt jede Unterkante zur Oberkante darunter,
+  // der Zwischenraum ist ueberall gleich breit, und seine Richtung
+  // wechselt von Fuge zu Fuge.
+  //
+  // Zugeordnet ueber die Kennung und nicht ueber nth-child: Die
+  // Reihenfolge hier oben ist umsortiert, die Stellung im Dokument sagt
+  // also nichts mehr darueber, welche Karte an welcher Fuge sitzt.
+  //
+  // Erste, dritte, fuenfte Karte: oben nach rechts, unten nach links.
+  .stack__group[data-gruppe='work'] .stack__card,
+  .stack__group[data-gruppe='backend'] .stack__card,
+  .stack__group[data-gruppe='method'] .stack__card {
+    clip-path: polygon(
+      0 0,
+      100% var(--stack-schraege),
+      100% calc(100% - var(--stack-schraege)),
+      0 100%
+    );
+  }
+
+  // Zweite und vierte: andersherum, damit die Fugen sich abwechseln.
+  .stack__group[data-gruppe='homelab'] .stack__card,
+  .stack__group[data-gruppe='frontend'] .stack__card {
+    clip-path: polygon(
+      0 var(--stack-schraege),
+      100% 0,
+      100% 100%,
+      0 calc(100% - var(--stack-schraege))
+    );
+  }
 }

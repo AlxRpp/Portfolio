@@ -21,6 +21,23 @@
   }
 }
 
+/// Gilt genau dann, wenn Hero und About als Buehne nebeneinander laufen.
+///
+/// Die Bedingung stand vorher nur in home.scss. Sobald eine zweite Datei
+/// sie braucht, gehoert sie hierher: Sie entscheidet, ob eine Sektion in
+/// eine bildschirmhohe Tafel gesperrt ist oder frei nach unten wachsen
+/// darf, und drei Kopien davon laufen irgendwann auseinander.
+///
+/// animations.ts prueft dieselbe Bedingung ein drittes Mal, dort ueber
+/// die CSS-Variablen, die styles.scss aus genau diesen Tokens ausgibt.
+@mixin buehne {
+  @media (min-width: #{t.$stage-min-width})
+    and (min-height: #{t.$stage-min-height})
+    and (prefers-reduced-motion: no-preference) {
+    @content;
+  }
+}
+
 /// Zentrierter Inhaltsbereich mit den Rändern aus der Spec.
 @mixin content-width {
   width: 100%;
