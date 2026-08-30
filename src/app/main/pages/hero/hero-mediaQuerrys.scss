@@ -6,6 +6,14 @@
 }
 
 @include m.mq(tablet-lg) {
+  // Ab hier laufen die Signallinien, und ihr Einlauf braucht unten einen
+  // freien Streifen. Baulich statt gehofft, wie das Band in about.scss:
+  // So kann der mittig stehende Textblock die Linie nicht erreichen,
+  // egal wie flach das Fenster ist.
+  .hero {
+    padding-bottom: calc(var(--signal-einlauf) + #{t.sp(6)});
+  }
+
   // Ab hier steht das Logo frei in der Tafel statt im Textfluss.
   //
   // Es haengt an der rechten Kante des INHALTSBEREICHS, nicht an der des

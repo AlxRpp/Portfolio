@@ -5,6 +5,7 @@
 // =============================================================
 
 @use 'styles/tokens' as t;
+@use 'styles/mixins' as m;
 @use 'styles/theme';
 @use 'styles/reset';
 @use 'styles/legal';
@@ -207,6 +208,27 @@
 html {
   scrollbar-color: var(--brand) var(--bg-base);
   scrollbar-width: thin;
+}
+
+// Wo ein Ankersprung landen soll.
+//
+// Ohne Angabe setzt der Browser die OBERKANTE der Sektion an den oberen
+// Rand. Dahinter steht die feste Kopfzeile, und darunter kommt erst das
+// eigene Polster der Sektion: Die Ueberschrift steht dann rund 100 Pixel
+// tief, man springt und sieht viel leere Flaeche.
+//
+// Der Wert rechnet dieses Polster wieder heraus und laesst nur die
+// Kopfzeile plus etwas Luft stehen. Er ist deshalb negativ: Die
+// Oberkante darf hinter die Leiste rutschen, dort steht ohnehin nichts.
+//
+// Alle Sektionen tragen dasselbe Polster, sp(9) und ab tablet sp(10).
+// Wer das in einer Sektion aendert, muss es hier mitziehen.
+section[id] {
+  scroll-margin-top: calc(#{t.$header-height} + #{t.sp(5)} - #{t.sp(9)});
+
+  @include m.mq(tablet) {
+    scroll-margin-top: calc(#{t.$header-height-lg} + #{t.sp(5)} - #{t.sp(10)});
+  }
 }
 
 ::-webkit-scrollbar {

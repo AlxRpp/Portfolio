@@ -25,8 +25,8 @@
   "about": {
     "eyebrow": "Über mich",
     "heading": "Wer schreibt hier Code?",
-    "p1": "Mich treibt die Neugier an, komplexe Probleme in saubere, funktionierende Software zu übersetzen. Ob es darum geht, performante Backends[1] zu entwerfen, anspruchsvolle Frontends[2] umzusetzen oder KI-Anwendungen[3] in die Produktion zu bringen: Ich will wissen, wie Systeme im Kern ticken und wie man sie von Grund auf robust aufbaut.",
-    "p2": "Dabei hilft mir ein pragmatischer Ansatz: Ich mag keine verkomplizierten Konstrukte und keine Abhängigkeit, die ich nicht erklären kann, sondern klare Architekturen, die über den gesamten Fullstack hinweg ineinandergreifen und im echten Alltag verlässlich ihren Dienst tun.",
+    "p1": "Mich treibt die Neugier an, komplexe Probleme in saubere, funktionierende Software zu übersetzen. Ob ich performante Backends[1] entwerfe, anspruchsvolle Frontends[2] umsetze oder KI-Anwendungen[3] in die Produktion bringe, ich will immer wissen, wie Systeme im Kern ticken und wie man sie von Grund auf robust aufbaut.",
+    "p2": "Dabei hilft mir ein pragmatischer Ansatz. Ich mag keine verkomplizierten Konstrukte und keine Abhängigkeit, die ich nicht erklären kann, sondern klare Architekturen, die über den gesamten Fullstack hinweg ineinandergreifen und im echten Alltag verlässlich ihren Dienst tun.",
     "p3": "Wenn ich nicht gerade tippe oder Architekturen plane, verbringe ich viel Zeit damit, mein eigenes HomeLab[4] zu betreiben, neue Technologien auszuprobieren oder mich tief in technische Details einzuarbeiten. Für mich ist das keine Arbeit, sondern Leidenschaft, mit dem Anspruch, dass am Ende alles Hand und Fuß hat.",
     "photoAlt": "Alexander Ruppel",
     "sourcesLabel": "Belege",
@@ -134,7 +134,7 @@
   "contact": {
     "eyebrow": "Kontakt",
     "heading": "Bereit für eine Zusammenarbeit?",
-    "lead": "Wenn Sie jemanden suchen, der Anforderungen von Beginn an verstehen möchte, die Verantwortung für den gesamten Prozess übernimmt und Wert auf einen engen Austausch legt: Melden Sie sich direkt.",
+    "lead": "Wenn Sie jemanden suchen, der Anforderungen von Beginn an verstehen möchte, die Verantwortung für den gesamten Prozess übernimmt und Wert auf einen engen Austausch legt, melden Sie sich direkt.",
     "direct": "Lieber direkt?",
     "form": {
       "name": "Wie heißen Sie?",

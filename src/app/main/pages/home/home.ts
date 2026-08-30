@@ -109,10 +109,12 @@ export class Home implements AfterViewInit, OnDestroy {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
-        this.springeZuTafel(this.aktuellesFragment());
+        const fragment = this.aktuellesFragment();
+        this.springeZuTafel(fragment);
         // Nach einem Ankersprung stimmen die Auslöser weiter unten sonst
         // nicht, weil sich die Scrollstrecke durch den Pin verschiebt.
-        this.nachZweiFrames();
+        // Der Anker wird danach ein zweites Mal angefahren, siehe dort.
+        this.nachZweiFrames(() => this.springeZuAnker(fragment));
       });
 
     // Die erste Navigation ist zu diesem Zeitpunkt bereits gelaufen, ein
@@ -194,10 +196,38 @@ export class Home implements AfterViewInit, OnDestroy {
     }
   }
 
-  private nachZweiFrames(): void {
+  private nachZweiFrames(danach?: () => void): void {
     requestAnimationFrame(() =>
-      requestAnimationFrame(() => this.anim.refresh()),
+      requestAnimationFrame(() => {
+        this.anim.refresh();
+        danach?.();
+      }),
     );
+  }
+
+  /**
+   * Faehrt die Sektion zum Anker an, NACHDEM die Ausloeser neu vermessen
+   * sind.
+   *
+   * Der Router scrollt selbst, ueber withInMemoryScrolling. Das reicht
+   * hier aber nicht. Zwei Bilder spaeter vermisst ScrollTrigger neu, und
+   * ein Refresh stellt die Scrollposition wieder her, die er sich vorher
+   * gemerkt hat. Weil `scroll-behavior: smooth` gilt, laeuft der Sprung
+   * des Routers zu diesem Zeitpunkt noch: Er wird zurueckgedreht, man
+   * landet wieder dort, wo man geklickt hat, und der Link wirkt tot.
+   *
+   * Deshalb hier noch einmal, mit demselben Ziel, aber hinter dem
+   * Refresh. Ein zweiter Aufruf auf dieselbe Stelle kostet nichts.
+   */
+  private springeZuAnker(fragment: string | null): void {
+    if (!fragment) return;
+
+    // In der laufenden Buehne liegt About seitlich versetzt. Dorthin
+    // fuehrt nur die Buehnensteuerung, siehe springeZuTafel.
+    const inDerBuehne = fragment === ABOUT_HASH || fragment.startsWith('beleg-');
+    if (this.controls?.isActive() && inDerBuehne) return;
+
+    document.getElementById(fragment)?.scrollIntoView();
   }
 
   ngOnDestroy(): void {

@@ -8,11 +8,15 @@
   align-items: center;
   overflow: hidden;
 
-  // Unten wird der Einlauf der Signallinien freigehalten, plus Luft.
-  // Dadurch kann der mittig stehende Textblock die Linie nicht mehr
-  // erreichen, egal wie flach das Fenster ist. Dieselbe Vorgehensweise
-  // wie beim Band in about.scss: baulich statt gehofft.
-  padding-block: t.sp(8) calc(var(--signal-einlauf) + #{t.sp(6)});
+  // Oben und unten gleich viel. Der Block steht dadurch wirklich in der
+  // Mitte der Tafel und nicht scheinbar zu hoch.
+  //
+  // Das Polster fuer den Einlauf der Signallinien kommt erst ab 900px
+  // dazu, siehe hero-mediaQuerrys.scss: Darunter gibt es gar kein Netz,
+  // MIN_BREITE in signals.ts steht auf demselben Wert. Ein Streifen von
+  // 130 Pixeln fuer Linien, die es nicht gibt, hat den Text auf dem
+  // Telefon um rund 50 Pixel nach oben gedrueckt.
+  padding-block: t.sp(8);
 
   // Breite des Logos. Einziger Regler fuer seine Groesse: Der Textabstand
   // rechnet sich daraus, das Logo kann also nicht groesser werden, ohne

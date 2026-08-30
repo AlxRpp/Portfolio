@@ -52,6 +52,12 @@ $space: (
 $stage-min-width: 1024px;
 $stage-min-height: 750px;
 
+// Hoehe der festen Kopfzeile. Steht hier, weil zwei Stellen sie brauchen:
+// die Kopfzeile selbst und das Polster, mit dem Ankersprünge unter ihr
+// vorbeikommen. Zwei Zahlen liefen beim naechsten Umbau auseinander.
+$header-height: 64px;
+$header-height-lg: 76px;
+
 // --- Radien ---
 $radius-sm: 4px;
 $radius-md: 8px;

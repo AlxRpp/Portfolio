@@ -18,15 +18,15 @@
     "location": "Delbrück",
     "name": "Alexander Ruppel",
     "claim": "Better done properly once\nthan badly twice.",
-    "lead": "First understand what is needed, then build it properly. I hold my software to a craftsman's standard: it runs faultlessly from day one.",
+    "lead": "First understand what is needed, then build it properly. I build software to a craftsman's standard, so it runs faultlessly from day one.",
     "ctaProjects": "View projects",
     "ctaContact": "Get in touch"
   },
   "about": {
     "eyebrow": "About",
     "heading": "Who writes this code?",
-    "p1": "What drives me is curiosity: turning complex problems into clean, working software. Whether that means designing performant backends[1], building demanding frontends[2] or taking AI applications[3] into production, I want to know how systems work at their core and how to build them to be robust from the ground up.",
-    "p2": "A pragmatic approach helps me there: I do not like over-complicated constructs, and I do not like a dependency I cannot explain. I prefer clear architectures that mesh across the whole stack and do their job reliably in everyday use.",
+    "p1": "Curiosity drives me to turn complex problems into clean, working software. Whether that means designing performant backends[1], building demanding frontends[2] or taking AI applications[3] into production, I want to know how systems work at their core and how to build them to be robust from the ground up.",
+    "p2": "A pragmatic approach helps me there. I do not like over-complicated constructs, and I do not like a dependency I cannot explain. I prefer clear architectures that mesh across the whole stack and do their job reliably in everyday use.",
     "p3": "When I am not typing or planning architectures, I spend a lot of my time running my own HomeLab[4], trying out new technologies or digging deep into technical details. For me that is not work but passion, held to the standard that in the end it all holds up.",
     "photoAlt": "Alexander Ruppel",
     "sourcesLabel": "Sources",
@@ -134,7 +134,7 @@
   "contact": {
     "eyebrow": "Contact",
     "heading": "Ready to work together?",
-    "lead": "If you are looking for someone who wants to understand the requirements from the start, takes responsibility for the whole process and values close communication: get in touch directly.",
+    "lead": "If you are looking for someone who wants to understand the requirements from the start, takes responsibility for the whole process and values close communication, get in touch directly.",
     "direct": "Rather write directly?",
     "form": {
       "name": "What's your name?",

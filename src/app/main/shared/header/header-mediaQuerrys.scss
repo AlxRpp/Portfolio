@@ -2,7 +2,7 @@
 @use 'mixins' as m;
 
 @include m.mq(tablet) {
-  .header__inner { height: 76px; }
+  .header__inner { height: t.$header-height-lg; }
 
   .header__logo img {
     width: 38px;
