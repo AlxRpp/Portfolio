@@ -9,7 +9,9 @@
 // bei null anfaengt. Deshalb kein Ueberlauf, auch nicht bei fuenf Karten
 // auf einem 1200er Schirm.
 @include m.mq(tablet) {
-  .stack { padding-block: t.sp(10); }
+  // Nur oben: Unten steht das Polster fuer den Seitenwechsel, siehe
+  // stack.scss. Ein padding-block hier wuerde es ueberschreiben.
+  .stack { padding-top: t.sp(10); }
 
   .stack__groups { grid-template-columns: repeat(2, minmax(0, 264px)); }
 }

@@ -169,8 +169,22 @@
   },
   "legal": {
     "back": "Zurück",
-    "placeholder": "Dieser Inhalt fehlt noch und wird von Alexander selbst eingetragen.",
-    "heading": "Impressum"
+    "heading": "Impressum",
+    "provider": "Angaben gemäß § 5 DDG",
+    "contact": "Kontakt",
+    "phone": "Telefon",
+    "mail": "E-Mail",
+    "dispute": {
+      "title": "Verbraucherstreitbeilegung und Universalschlichtungsstelle",
+      "text": "Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+    },
+    "spam": {
+      "title": "Widerspruch gegen Werbe-E-Mails",
+      "text": "Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten zur Übersendung von nicht ausdrücklich angeforderter Werbung und Informationsmaterialien wird hiermit widersprochen. Die Betreiber der Seiten behalten sich ausdrücklich rechtliche Schritte im Falle der unverlangten Zusendung von Werbeinformationen, etwa durch Spam-E-Mails, vor."
+    },
+    "source": "Quelle",
+    "stand": "Stand",
+    "missing": "Dieser Text konnte nicht geladen werden. Bitte laden Sie die Seite neu."
   },
   "privacy": {
     "heading": "Datenschutzerklärung"

@@ -63,4 +63,32 @@
     grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
     column-gap: t.sp(8);
   }
+
+  // Ausschnitt des Fotos: groesser und ein Stueck nach links, damit er
+  // mittig ueber der Linie steht.
+  //
+  // `transform-origin: bottom` ist hier die ganze Sache. Ohne das waechst
+  // das Bild aus seiner Mitte, die Unterkante rutscht also um ein Achtel
+  // der Bildhoehe unter die Linie. Man kann das mit einer Verschiebung
+  // nach oben ausgleichen, aber nur fuer EINE Fensterbreite: Die Spalte
+  // ist fluide, das Bild damit auch, und der noetige Ausgleich waechst
+  // mit. Mit dem Ursprung an der Unterkante waechst es nach oben und zur
+  // Seite, und die Kante bleibt bei jeder Breite genau auf der Linie.
+  //
+  // Die Verschiebung als eigene Eigenschaft `translate` und nicht in
+  // `transform`: Der Browser rechnet erst `transform`, dann `scale`,
+  // dann `translate`. In `transform` laege die Verschiebung also im
+  // vergroesserten System und ein eingestellter Wert veraenderte sich
+  // wieder, sobald jemand am Faktor dreht. Als `translate` sind es
+  // Bildschirmpixel, unabhaengig vom Faktor.
+  //
+  // Erst ab 1200px, obwohl das Foto schon ab 900px auf der Linie steht.
+  // Darunter ist die rechte Spalte so schmal, dass der Ueberstand von
+  // einem Achtel der Bildbreite ueber die Spaltenluecke hinaus in den
+  // Fliesstext reichte: bei 1000px rund 22 Pixel weit.
+  .about__photo {
+    transform-origin: bottom;
+    scale: 1.25;
+    translate: -20px;
+  }
 }

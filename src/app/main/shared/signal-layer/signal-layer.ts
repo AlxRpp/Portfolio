@@ -15,7 +15,7 @@ import { gsap } from 'gsap';
 import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import type { Anker } from '../interfaces/signal.interface';
 import { HAUPT, PLAENE, versatz } from '../service/signal-plan';
-import { baueEcken, versetze, zeichne } from '../service/signal-path';
+import { baueEcken, verjuenge, versetze, zeichne } from '../service/signal-path';
 import {
   KETTE,
   PAUSE_MAX,
@@ -79,6 +79,16 @@ export class SignalLayer {
    */
   readonly ankunft = output<number>();
 
+  /**
+   * Meldet, dass ein Punkt am ENDE der Kette angekommen ist.
+   *
+   * Getrennt von `ankunft`: Das ist ein Zweig, der seine Karte erreicht,
+   * dies hier der Durchgang, der nirgends mehr weitergegeben wird. In
+   * Contact laeuft er in den Absendeknopf, und genau dann soll der
+   * einmal aufatmen.
+   */
+  readonly angekommen = output<void>();
+
   private readonly breite = signal(0);
   private readonly hoehe = signal(0);
 
@@ -129,16 +139,26 @@ export class SignalLayer {
 
         return {
           id: strang.id,
-          bahnen: Array.from({ length: strang.anzahl }, (_, i) => ({
-            id: `${strang.id}-${i}`,
-            d: zeichne(
-              versetze(mitte, versatz(i, w.abstand, strang.anzahl)),
-              // Nur einlinige Straenge duerfen runden. Ein Buendel
-              // braeuchte je Linie einen eigenen Radius, damit die Boegen
-              // konzentrisch bleiben.
-              strang.anzahl === 1 ? (strang.radius ?? 0) : 0,
-            ),
-          })),
+          bahnen: Array.from({ length: strang.anzahl }, (_, i) => {
+            const seitlich = versatz(i, w.abstand, strang.anzahl);
+            const bahn = versetze(mitte, seitlich);
+
+            return {
+              id: `${strang.id}-${i}`,
+              d: zeichne(
+                // Traegt der Strang einen Trichter, nimmt das letzte
+                // Stueck den Versatz wieder zurueck: Alle Bahnen enden
+                // dann auf dem Endpunkt der Mittellinie statt neben ihm.
+                strang.trichter
+                  ? verjuenge(bahn, strang.trichter, -seitlich)
+                  : bahn,
+                // Nur einlinige Straenge duerfen runden. Ein Buendel
+                // braeuchte je Linie einen eigenen Radius, damit die Boegen
+                // konzentrisch bleiben.
+                strang.anzahl === 1 ? (strang.radius ?? 0) : 0,
+              ),
+            };
+          }),
         };
       })
       .filter((s) => s.bahnen.length > 0);
@@ -293,8 +313,10 @@ export class SignalLayer {
         this.belegt.delete(id);
 
         if (id.startsWith(`${HAUPT}-`)) {
-          // Der Durchgang gibt an die naechste Sektion weiter.
-          this.signale.weiter(this.bereich(), nummer(id), tempo);
+          // Der Durchgang gibt an die naechste Sektion weiter. Gibt es
+          // keine mehr, ist der Punkt angekommen.
+          if (this.bereich() === KETTE.at(-1)) this.angekommen.emit();
+          else this.signale.weiter(this.bereich(), nummer(id), tempo);
         } else {
           // Ein Zweig endet an seiner Karte. Genau dann soll sie
           // reagieren, deshalb erst hier die Meldung.
@@ -348,6 +370,12 @@ export class SignalLayer {
    *
    * Gesucht wird per Intervallhalbierung. Das geht, weil y auf diesen
    * Pfaden monoton laeuft: Sie steigen nie wieder an.
+   *
+   * Ein Trichter bricht genau diese Bedingung, denn seine unteren Bahnen
+   * laufen am Ende wieder nach oben. In Contact stoert das nicht, weil
+   * dort gar nicht gesucht wird: Der Pfad beginnt auf der Oberkante und
+   * endet im Absendeknopf, also weit vor der Unterkante. Ein Trichter an
+   * einer NAHT waere dagegen ein Fehler, siehe Strang.trichter.
    */
   private sichtbar(
     pfad: SVGPathElement,

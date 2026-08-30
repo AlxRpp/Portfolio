@@ -1,7 +1,11 @@
 <section class="contact" id="contact">
 
   @if (signale.netzAn()) {
-    <app-signal-layer bereich="kontakt" [anker]="anker()" />
+    <app-signal-layer
+      bereich="kontakt"
+      [anker]="anker()"
+      (angekommen)="beiAnkunft()"
+    />
   }
 
   <div class="contact__inner">
@@ -111,7 +115,12 @@
       </div>
 
       <div class="contact__actions">
-        <button class="contact__submit" type="submit" [disabled]="zustand() === 'sendet'">
+        <button
+          class="contact__submit"
+          type="submit"
+          [class.is-puls]="pulst()"
+          [disabled]="zustand() === 'sendet'"
+        >
           @if (zustand() === 'sendet') {
             {{ 'contact.form.sending' | translate }}
             <span class="contact__spinner" aria-hidden="true"></span>

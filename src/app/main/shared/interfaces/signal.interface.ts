@@ -85,6 +85,23 @@ export interface Strang {
    * Zweig hat nur eine Linie, dort geht es.
    */
   radius?: number;
+  /**
+   * Laenge des Trichters am Ende, in Pixeln. Ohne Angabe laeuft das
+   * Buendel bis zuletzt parallel.
+   *
+   * Auf dieser letzten Strecke geben die Parallelen ihren Abstand auf
+   * und laufen konisch auf den Endpunkt der Mittellinie zu. Das ist die
+   * einzige Stelle im Netz, an der das Buendel NICHT parallel laeuft,
+   * und sie ist als Ausnahme gemeint: Sie muendet in ein Ziel, das
+   * schmaler ist als das Buendel breit.
+   *
+   * Zwei Bedingungen gehoeren dazu. Der Trichter braucht ein letztes
+   * Segment, das laenger ist als er selbst, sonst wird er gekappt. Und
+   * er darf nicht an einer Naht liegen: Die Parallelen stehen dort nicht
+   * mehr senkrecht auf der Laufrichtung, die Nachbarsektion traefe sie
+   * nicht. Er gehoert ans ENDE der Kette, nicht an ihre Fugen.
+   */
+  trichter?: number;
 }
 
 /**

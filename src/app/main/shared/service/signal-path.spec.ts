@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Pixelpunkt, Stuetzpunkt } from '../interfaces/signal.interface';
-import { baueBahn, baueEcken, versetze, zeichne } from './signal-path';
+import { baueBahn, baueEcken, verjuenge, versetze, zeichne } from './signal-path';
 
 /** Nur waagerecht, senkrecht oder exakt 45 Grad ist erlaubt. */
 function erlaubterWinkel(a: Pixelpunkt, b: Pixelpunkt): boolean {
@@ -196,5 +196,71 @@ describe('baueEcken mit direkt', () => {
       { x: 0, y: 0.2 },
     ];
     expect(baueEcken(punkte, 1000, 1000, 0).length).toBeGreaterThan(2);
+  });
+});
+
+describe('verjuenge', () => {
+  /** Senkrecht herunter, dann waagerecht nach rechts. Wie in Contact. */
+  const winkel: Pixelpunkt[] = [
+    { x: 100, y: 0 },
+    { x: 100, y: 200 },
+    { x: 400, y: 200 },
+  ];
+
+  it('knickt nur das letzte Segment und laesst alles davor stehen', () => {
+    const raus = verjuenge(winkel, 30, -27);
+
+    expect(raus).toEqual([
+      { x: 100, y: 0 },
+      { x: 100, y: 200 },
+      // Der Knick sitzt genau 30 Pixel vor dem alten Ende.
+      { x: 370, y: 200 },
+      // Und der Endpunkt ist um 27 Pixel senkrecht versetzt.
+      { x: 400, y: 173 },
+    ]);
+  });
+
+  it('fuehrt alle sieben Parallelen in EINEN Punkt', () => {
+    // Genau das, was der Layer tut: versetzen, dann den Versatz auf der
+    // letzten Strecke wieder zuruecknehmen.
+    const enden = Array.from({ length: 7 }, (_, i) => {
+      const seitlich = (i - 3) * 9;
+      return verjuenge(versetze(winkel, seitlich), 39, -seitlich).at(-1)!;
+    });
+
+    for (const ende of enden) {
+      expect(ende.x).toBeCloseTo(400, 6);
+      expect(ende.y).toBeCloseTo(200, 6);
+    }
+  });
+
+  it('laesst alles vor dem Trichter parallel', () => {
+    const seitlich = -27;
+    const bahn = verjuenge(versetze(winkel, seitlich), 39, -seitlich);
+
+    // Der Knick liegt 39 Pixel vor dem Ende, auf der versetzten Hoehe.
+    expect(bahn.at(-2)).toEqual({ x: 361, y: 173 });
+    // Und die Ecke davor ist unveraendert die der versetzten Bahn.
+    expect(bahn.at(-3)).toEqual({ x: 127, y: 173 });
+  });
+
+  it('deckelt den Trichter auf das letzte Segment, statt darueber hinaus', () => {
+    const kurz: Pixelpunkt[] = [
+      { x: 0, y: 0 },
+      { x: 0, y: 100 },
+      { x: 20, y: 100 },
+    ];
+
+    // Angefordert sind 30 Pixel, vorhanden nur 20. Der Knick faellt damit
+    // auf die vorige Ecke und wird entdoppelt.
+    expect(verjuenge(kurz, 30, -10)).toEqual([
+      { x: 0, y: 0 },
+      { x: 0, y: 100 },
+      { x: 20, y: 90 },
+    ]);
+  });
+
+  it('laesst die Mittellinie unveraendert', () => {
+    expect(verjuenge(winkel, 39, 0)).toEqual(winkel);
   });
 });

@@ -32,6 +32,12 @@ type Zustand = 'ruhe' | 'sendet' | 'ok' | 'fehler';
  */
 const ENDPUNKT = '/sendMail.php';
 
+/**
+ * Wie lange der Absendeknopf nachleuchtet, wenn ein Punkt ihn erreicht.
+ * Muss zur Animation knopf-atmen in contact.scss passen.
+ */
+const PULS_MS = 1600;
+
 @Component({
   selector: 'app-contact',
   imports: [ReactiveFormsModule, RouterLink, TranslatePipe, SignalLayer],
@@ -54,6 +60,27 @@ export class Contact implements AfterViewInit {
    * Bruchteilen laesst sich das nicht ableiten.
    */
   protected readonly anker = signal<readonly Anker[]>([]);
+
+  /**
+   * Ob der Absendeknopf gerade aufatmet. Dieselbe Geste wie bei den
+   * Projektkarten, damit die Ankunft eines Punktes ueberall gleich
+   * aussieht.
+   */
+  protected readonly pulst = signal(false);
+
+  private aus?: ReturnType<typeof setTimeout>;
+
+  /**
+   * Ein Punkt ist in den Knopf gelaufen. Nur dann, nie beim Absenden
+   * selbst: Das Atmen erzaehlt vom Netz, nicht vom Formular.
+   */
+  protected beiAnkunft(): void {
+    clearTimeout(this.aus);
+    this.pulst.set(true);
+    // Etwas laenger als die Animation, damit die Klasse nicht mitten
+    // darin abfaellt und der Schein hart abbricht.
+    this.aus = setTimeout(() => this.pulst.set(false), PULS_MS + 100);
+  }
 
   /**
    * Zurueck an den Anfang. Sanft, ausser jemand hat weniger Bewegung
@@ -227,7 +254,10 @@ export class Contact implements AfterViewInit {
     const beobachter = new ResizeObserver(messen);
     beobachter.observe(sektion);
     beobachter.observe(knopf);
-    this.destroyRef.onDestroy(() => beobachter.disconnect());
+    this.destroyRef.onDestroy(() => {
+      beobachter.disconnect();
+      clearTimeout(this.aus);
+    });
 
     messen();
   }

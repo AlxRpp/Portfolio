@@ -7,11 +7,17 @@
 
     <h1 class="legal__heading">{{ 'privacy.heading' | translate }}</h1>
 
-    <!--
-      Inhalt traegt Alexander selbst ein. Bis dahin steht hier ein
-      sichtbarer Platzhalter statt einer leeren Seite, damit beim Deploy
-      auffaellt, dass hier noch etwas fehlt.
-    -->
-    <p class="legal__placeholder">{{ 'legal.placeholder' | translate }}</p>
+    @if (geladen()) {
+      <!--
+        Der Text kommt aus einer eigenen Datei, siehe privacy-policy.ts.
+        Angular bereinigt ihn beim Einsetzen; das ist hier nicht noetig,
+        weil die Datei aus dem eigenen Build stammt, aber es kostet
+        nichts und die Ausnahme muesste sonst begruendet werden.
+      -->
+      <div class="legal__inhalt" [innerHTML]="inhalt()"></div>
+      <p class="legal__stand">{{ 'legal.stand' | translate }}: {{ stand() }}</p>
+    } @else {
+      <p class="legal__placeholder">{{ 'legal.missing' | translate }}</p>
+    }
   </div>
 </section>

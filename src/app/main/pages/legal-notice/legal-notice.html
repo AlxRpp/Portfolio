@@ -7,11 +7,38 @@
 
     <h1 class="legal__heading">{{ 'legal.heading' | translate }}</h1>
 
-    <!--
-      Inhalt traegt Alexander selbst ein. Bis dahin steht hier ein
-      sichtbarer Platzhalter statt einer leeren Seite, damit beim Deploy
-      auffaellt, dass hier noch etwas fehlt.
-    -->
-    <p class="legal__placeholder">{{ 'legal.placeholder' | translate }}</p>
+    <div class="legal__inhalt">
+      <h2>{{ 'legal.provider' | translate }}</h2>
+      <!--
+        Ein address-Element und keine Absaetze: Das ist genau der Zweck
+        des Elements, und Vorleseprogramme kuendigen es als Anschrift an.
+      -->
+      <address>
+        {{ anbieter.name }}<br />
+        {{ anbieter.strasse }}<br />
+        {{ anbieter.ort }}
+      </address>
+
+      <h2>{{ 'legal.contact' | translate }}</h2>
+      <p>
+        {{ 'legal.phone' | translate }}:
+        <a [href]="'tel:' + anbieter.telefonRoh">{{ anbieter.telefon }}</a><br />
+        {{ 'legal.mail' | translate }}:
+        <a [href]="'mailto:' + anbieter.mail">{{ anbieter.mail }}</a>
+      </p>
+
+      <h2>{{ 'legal.dispute.title' | translate }}</h2>
+      <p>{{ 'legal.dispute.text' | translate }}</p>
+
+      <h2>{{ 'legal.spam.title' | translate }}</h2>
+      <p>{{ 'legal.spam.text' | translate }}</p>
+
+      <p>
+        {{ 'legal.source' | translate }}:
+        <a [href]="quelle" target="_blank" rel="noopener noreferrer">{{ quelle }}</a>
+      </p>
+    </div>
+
+    <p class="legal__stand">{{ 'legal.stand' | translate }}: {{ stand() }}</p>
   </div>
 </section>

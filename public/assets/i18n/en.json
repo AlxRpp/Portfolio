@@ -169,8 +169,22 @@
   },
   "legal": {
     "back": "Back",
-    "placeholder": "This content is still missing and will be filled in by Alexander.",
-    "heading": "Imprint"
+    "heading": "Legal notice",
+    "provider": "Information pursuant to Section 5 DDG",
+    "contact": "Contact",
+    "phone": "Phone",
+    "mail": "E-mail",
+    "dispute": {
+      "title": "Consumer dispute resolution and universal arbitration board",
+      "text": "We are not willing or obliged to take part in dispute resolution proceedings before a consumer arbitration board."
+    },
+    "spam": {
+      "title": "Objection to promotional e-mails",
+      "text": "We hereby object to the use of contact data published as part of the legal notice obligation for sending advertising and information material that has not been expressly requested. The operators of these pages expressly reserve the right to take legal action in the event of the unsolicited sending of advertising information, for example through spam e-mails."
+    },
+    "source": "Source",
+    "stand": "Last updated",
+    "missing": "This text could not be loaded. Please reload the page."
   },
   "privacy": {
     "heading": "Privacy policy"

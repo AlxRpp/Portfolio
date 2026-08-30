@@ -4,6 +4,15 @@
 .stack {
   position: relative;
   padding-block: t.sp(9);
+  // Unten mehr als oben: Dort beginnt bereits der Wechsel auf die linke
+  // Schiene, --signal-anlauf ueber der Kante, und das halbe Buendel liegt
+  // noch darueber. Drei Abstaende sind die halbe Breite von sieben
+  // Linien. Reserviert statt gehofft: Ohne das laeuft die oberste Bahn
+  // durch die letzte Spalte, und zwar erst auf schmalen Schirmen.
+  padding-bottom: max(
+    #{t.sp(9)},
+    calc(var(--signal-anlauf) + var(--signal-abstand) * 3)
+  );
   // Beschneidet die Signallinien an den Kanten, siehe about.scss.
   overflow: hidden;
 }

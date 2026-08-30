@@ -111,6 +111,50 @@ export function versetze(
 }
 
 /**
+ * Knickt das ENDE eines Streckenzuges um `d` zur Seite, ueber die
+ * letzten `laenge` Pixel. Alles davor bleibt unberuehrt.
+ *
+ * Das Gegenstueck zu versetze() und bewusst getrennt davon: versetze()
+ * haelt den Abstand des Buendels ueberall, hier wird er auf einem kurzen
+ * Stueck absichtlich aufgegeben. Ruft man beides nacheinander mit `d`
+ * und `-d` auf, laufen alle Bahnen des Buendels wieder auf dem Endpunkt
+ * ihrer Mittellinie zusammen: ein Trichter, dessen Spitze genau dort
+ * sitzt, wo der Plan sie hingelegt hat.
+ *
+ * `d` zaehlt wie in versetze(), also nach rechts bezogen auf die
+ * Laufrichtung des letzten Segments.
+ */
+export function verjuenge(
+  bahn: readonly Pixelpunkt[],
+  laenge: number,
+  d: number,
+): Pixelpunkt[] {
+  if (bahn.length < 2) return [...bahn];
+  if (!(laenge > 0) || d === 0) return [...bahn];
+
+  const ende = bahn[bahn.length - 1];
+  const vor = bahn[bahn.length - 2];
+  const dx = ende.x - vor.x;
+  const dy = ende.y - vor.y;
+  const l = Math.hypot(dx, dy);
+  if (l < EPS) return [...bahn];
+
+  const u = { x: dx / l, y: dy / l };
+  const normale = { x: -u.y, y: u.x };
+
+  // Nie laenger als das letzte Segment. Sonst laege der Knick hinter der
+  // vorigen Ecke, und der Trichter risse die Bahn dort auf, statt sie
+  // nur abzuknicken.
+  const s = Math.min(laenge, l);
+
+  return entdoppeln([
+    ...bahn.slice(0, -1),
+    { x: ende.x - u.x * s, y: ende.y - u.y * s },
+    { x: ende.x + normale.x * d, y: ende.y + normale.y * d },
+  ]);
+}
+
+/**
  * Schreibt einen Streckenzug als d-String.
  *
  * `radius` null ergibt scharfe Gehrungen, und das ist der Regelfall fuer

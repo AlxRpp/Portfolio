@@ -16,11 +16,16 @@ import {
 import type { Anker, Plan } from '../interfaces/signal.interface';
 import { KETTE } from './signals';
 
-/** Die Mittellinie des Durchgangs. Alles andere sind Zweige. */
-function haupt(plan: Plan) {
+/** Der Strang des Durchgangs. Alles andere sind Zweige. */
+function durchgang(plan: Plan) {
   const strang = plan.straenge.find((s) => s.id === HAUPT);
   expect(strang, 'Jeder Plan braucht einen Durchgang').toBeDefined();
-  return strang!.mitte;
+  return strang!;
+}
+
+/** Seine Mittellinie. */
+function haupt(plan: Plan) {
+  return durchgang(plan).mitte;
 }
 
 const ANORDNUNGEN: Anordnung[] = ['buehne', 'gestapelt'];
@@ -32,8 +37,27 @@ const WERTE: PlanWerte = {
   taper: 428,
   bogen: 380,
   bogenKontakt: 96,
+  anlauf: 160,
   zweig: 64,
 };
+
+/** Tafelbreite der Testrechnungen. Beide Sektionen sind gleich breit. */
+const BREITE = 1600;
+
+/** Absolute x eines Stuetzpunktes, in Pixeln. */
+function absolutX(p: { x: number; xVersatz?: number }): number {
+  return p.x * BREITE + (p.xVersatz ?? 0);
+}
+
+/**
+ * Wo die Gerade des Seitenwechsels liegt, nachdem sie `gefallen` Pixel
+ * gefallen ist. Sie fuehrt von der rechten Schiene zur linken.
+ */
+function querUeber(gefallen: number): number {
+  const rechts = BREITE - WERTE.rail;
+  const anteil = gefallen / (WERTE.anlauf + WERTE.bogenKontakt);
+  return rechts + (WERTE.rail - rechts) * anteil;
+}
 
 /** Steigung eines Abschnitts zwischen zwei Stuetzpunkten, in Pixeln. */
 function weg(a: { xVersatz?: number; yVersatz?: number },
@@ -301,8 +325,28 @@ describe('signal-plan', () => {
       // Linien schon durch "Wie ich arbeite" liefen.
       expect(runter.x).toBe(1);
       expect(runter.xVersatz).toBe(-WERTE.rail);
-      expect(runter.y).toBe(1);
       expect(haupt(arbeitPlan(a, WERTE)).at(-1)!.xVersatz).toBe(runter.xVersatz);
+
+      // Aber nicht mehr bis zur Unterkante: Der Wechsel auf die linke
+      // Seite beginnt schon hier, --signal-anlauf darueber.
+      expect(runter.y).toBe(1);
+      expect(runter.yVersatz).toBe(-WERTE.anlauf);
+    }
+  });
+
+  it('laesst den Seitenwechsel schon in Stack beginnen, nicht erst in Contact', () => {
+    for (const a of ANORDNUNGEN) {
+      const raus = haupt(stackPlan(a, WERTE)).at(-1)!;
+
+      // Stack verlaesst seine Sektion bereits in der Schraegen und reicht
+      // dabei ueber die Kante hinaus, sonst erreichen die aeusseren Bahnen
+      // sie nicht.
+      expect(raus.direkt).toBe(true);
+      expect(raus.y).toBe(1);
+      expect(raus.yVersatz!).toBeGreaterThan(0);
+
+      // Und liegt dabei genau auf der Geraden zur linken Schiene.
+      expect(absolutX(raus)).toBeCloseTo(querUeber(WERTE.anlauf + raus.yVersatz!));
     }
   });
 
@@ -312,40 +356,68 @@ describe('signal-plan', () => {
     for (const a of ANORDNUNGEN) {
       const aus = haupt(stackPlan(a, WERTE)).at(-1)!;
       const mitte = haupt(kontaktPlan(a, WERTE, [knopf]));
-      const [ein, knick, ankunft, runter, ziel] = mitte;
+      const [ein, ankunft, runter, ziel] = mitte;
 
-      // Senkrechte Naht an der rechten Schiene: Stack endet dort, Contact
-      // faengt dort an.
-      expect(aus.x).toBe(1);
-      expect(aus.xVersatz).toBe(-WERTE.rail);
-      expect(ein.x).toBe(1);
-      expect(ein.xVersatz).toBe(-WERTE.rail);
+      // Schraege Naht: Stack quert die Kante bereits in der Schraegen,
+      // Contact setzt dieselbe Gerade oberhalb der eigenen Oberkante fort.
+      // Beide reichen um denselben Betrag ueber die Kante.
+      expect(ein.y).toBe(0);
+      expect(ein.yVersatz).toBe(-aus.yVersatz!);
+      expect(absolutX(ein)).toBeCloseTo(querUeber(WERTE.anlauf + ein.yVersatz!));
 
-      // Erst senkrecht, sonst schliesst die Naht nicht.
-      expect(knick.xVersatz).toBe(ein.xVersatz);
-      expect(knick.yVersatz!).toBeGreaterThan(0);
+      // Und zwar auf EINER Geraden mit dem Austritt aus Stack: gleiche
+      // Steigung, sonst knickt die Linie an der Naht.
+      const steigung =
+        (WERTE.anlauf + WERTE.bogenKontakt) / (BREITE - 2 * WERTE.rail);
+      expect(
+        (aus.yVersatz! - ein.yVersatz!) / (absolutX(aus) - absolutX(ein)),
+      ).toBeCloseTo(-steigung);
 
-      // Dann in EINER geraden Strecke hinueber zur linken Schiene. Hier
-      // wechselt das Buendel die Seite.
+      // Der Bogen links bleibt unveraendert: Das Buendel muss angekommen
+      // sein, BEVOR der Inhalt anfaengt. Faellt es tiefer, quert die
+      // Schraege die Ueberschrift.
       expect(ankunft.direkt).toBe(true);
       expect(ankunft.x).toBe(0);
       expect(ankunft.xVersatz).toBe(WERTE.rail);
-
-      // Und zwar viel flacher als in Projects und Stack: Das Buendel muss
-      // links angekommen sein, BEVOR der Inhalt anfaengt. Faellt es
-      // tiefer, quert die Schraege die Ueberschrift.
       expect(ankunft.yVersatz).toBe(WERTE.bogenKontakt);
-      expect(WERTE.bogenKontakt).toBeLessThan(WERTE.bogen);
 
       // Senkrecht hinunter auf Knopfhoehe.
       expect(runter.x).toBe(0);
       expect(runter.xVersatz).toBe(WERTE.rail);
       expect(runter.yVersatz).toBe(knopf.oben);
 
-      // Und waagerecht hinein, auf derselben Hoehe.
+      // Und waagerecht hinein, auf derselben Hoehe. Die Spitze liegt
+      // HINTER der Knopfkante: Dort laufen alle sieben Linien zusammen,
+      // und sieben Striche uebereinander waeren ein heller Knoten. Der
+      // Knopf deckt ihn ab.
       expect(ziel.yVersatz).toBe(knopf.oben);
-      expect(ziel.xVersatz).toBe(WERTE.rail + knopf.nah);
+      expect(ziel.xVersatz!).toBeGreaterThan(WERTE.rail + knopf.nah);
     }
+  });
+
+  it('laesst das Buendel erst kurz vor dem Knopf konisch zusammenlaufen', () => {
+    const knopf: Anker = { oben: 900, nah: 260 };
+    const halb = Math.abs(versatz(0, WERTE.abstand, LINIEN));
+
+    for (const a of ANORDNUNGEN) {
+      const strang = durchgang(kontaktPlan(a, WERTE, [knopf]));
+      const ziel = strang.mitte.at(-1)!;
+
+      // Der Trichter beginnt genau eine halbe Buendelbreite vor der
+      // Knopfkante. Bis dorthin laufen die sieben parallel.
+      expect(ziel.xVersatz! - strang.trichter!).toBe(
+        WERTE.rail + knopf.nah - halb,
+      );
+
+      // Und er endet erst hinter der Kante, sonst laege der Knoten offen.
+      expect(strang.trichter!).toBeGreaterThan(halb);
+    }
+  });
+
+  it('laesst ohne gemessenen Knopf gar nichts zusammenlaufen', () => {
+    // Ohne Knopf gibt es kein Ziel, in das etwas muenden koennte. Ein
+    // Trichter mitten in der Flaeche saehe aus wie ein Fehler.
+    expect(durchgang(kontaktPlan('buehne', WERTE, [])).trichter).toBeUndefined();
   });
 
   it('endet ohne gemessenen Knopf sauber an der Unterkante', () => {

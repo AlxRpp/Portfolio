@@ -1,0 +1,145 @@
+// =============================================================
+//  RECHTSTEXTE: Impressum und Datenschutzerklaerung.
+//
+//  Bewusst global und nicht je Komponente, aus zwei Gruenden.
+//
+//  Erstens tragen beide Seiten dasselbe Geruest. Vorher stand es in
+//  zwei Dateien, Zeile fuer Zeile gleich, und haette sich beim naechsten
+//  Eingriff auseinanderentwickelt.
+//
+//  Zweitens setzt die Datenschutzerklaerung ihren Text ueber innerHTML
+//  ein. Angulars Kapselung stempelt ihre Attribute nur an Elemente aus
+//  dem Template, nicht an nachtraeglich eingesetzte. Eine
+//  komponentenlokale Regel traefe die Absaetze dort also gar nicht, und
+//  der Ausweg ::ng-deep ist seit Jahren abgekuendigt.
+// =============================================================
+
+@use 'tokens' as t;
+@use 'mixins' as m;
+
+.legal { padding-block: t.sp(10) t.sp(9); }
+
+.legal__inner {
+  @include m.content-width;
+  display: grid;
+  gap: t.sp(5);
+  // Enger als der Seiteninhalt: Fliesstext ueber die volle Breite laesst
+  // das Auge die naechste Zeile nicht mehr finden.
+  max-width: 60rem;
+}
+
+.legal__back {
+  @include m.mono-label;
+  display: inline-flex;
+  align-items: center;
+  gap: t.sp(2);
+  width: fit-content;
+  color: var(--text-secondary);
+  transition: color t.$dur-fast t.$ease;
+  @include m.focus-ring(2px);
+
+  span { transition: translate t.$dur-fast t.$ease; }
+
+  &:hover {
+    color: var(--brand);
+    span { translate: -3px 0; }
+  }
+}
+
+.legal__heading {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+// --- Der Fliesstext selbst ---
+
+.legal__inhalt {
+  color: var(--text-secondary);
+  font-size: var(--fs-prose);
+  line-height: 1.7;
+  // Auf Satzlaenge gedeckelt, unabhaengig vom Kasten darum.
+  max-width: 68ch;
+
+  h2 {
+    font-size: var(--fs-h3);
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.01em;
+    // Ueber der Ueberschrift deutlich mehr Luft als darunter, damit sie
+    // zum folgenden Absatz gehoert und nicht zum vorigen.
+    margin-block: t.sp(8) t.sp(3);
+    padding-top: t.sp(5);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  h3 {
+    font-size: var(--fs-lead);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-block: t.sp(6) t.sp(2);
+  }
+
+  h4 {
+    font-size: var(--fs-body);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-block: t.sp(5) t.sp(2);
+  }
+
+  // Die erste Ueberschrift steht schon unter der h1 der Seite und
+  // braucht weder Linie noch Vorlauf.
+  > :first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  p { margin-block: t.sp(3); }
+
+  ul {
+    margin-block: t.sp(3);
+    padding-left: t.sp(5);
+    list-style: disc;
+  }
+
+  li { margin-block: t.sp(1); }
+
+  // Anschriften stehen aufrecht, nicht kursiv wie im Browservorgabe.
+  address {
+    font-style: normal;
+    margin-block: t.sp(3);
+  }
+
+  a {
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    // Lange Adressen brechen mitten im Wort, sonst schieben sie auf dem
+    // Telefon die ganze Seite in die Breite.
+    overflow-wrap: anywhere;
+    @include m.focus-ring(2px);
+
+    &:hover { color: var(--brand-bright); }
+  }
+}
+
+.legal__stand {
+  @include m.mono-label;
+  color: var(--text-muted);
+  padding-top: t.sp(4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+// Faellt der Text aus, steht hier ein sichtbarer Hinweis statt einer
+// leeren Seite: Ein Rechtstext, der wortlos fehlt, faellt sonst erst
+// auf, wenn jemand danach fragt.
+.legal__placeholder {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--signal-warn);
+  padding: t.sp(4);
+  border: 1px dashed var(--border-strong);
+  border-radius: t.$radius-md;
+  max-width: 60ch;
+}

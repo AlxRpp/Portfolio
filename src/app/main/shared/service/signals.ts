@@ -88,6 +88,7 @@ export class Signals {
     taper: 400,
     bogen: 380,
     bogenKontakt: 96,
+    anlauf: 160,
     zweig: 64,
   });
 
@@ -189,6 +190,7 @@ export class Signals {
       taper: zahl('--signal-taper', 400),
       bogen: zahl('--signal-bogen', 380),
       bogenKontakt: zahl('--signal-bogen-kontakt', 96),
+      anlauf: zahl('--signal-anlauf', 160),
       zweig: zahl('--signal-zweig', 64),
     });
   }

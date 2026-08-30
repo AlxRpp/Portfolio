@@ -222,6 +222,32 @@
   &:disabled { opacity: .6; cursor: default; }
 }
 
+// Laeuft ein Punkt des Signalnetzes in den Knopf, atmet er einmal auf.
+// Dieselbe Geste und dieselbe Dauer wie bei den Projektkarten, damit die
+// Ankunft eines Punktes auf der ganzen Seite gleich aussieht.
+//
+// Ueber den Schein und nicht ueber die Groesse: Ein wachsender Knopf
+// verschoebe das Formular, und der Anker der Linien haengt an seiner
+// gemessenen Lage. Was vermessen wird, darf sich nicht bewegen.
+.contact__submit.is-puls {
+  animation: knopf-atmen 1.6s t.$ease;
+}
+
+@keyframes knopf-atmen {
+  0%, 100% {
+    box-shadow: 0 0 0 color-mix(in srgb, var(--brand) 0%, transparent);
+  }
+  30% {
+    box-shadow: 0 0 22px color-mix(in srgb, var(--brand) 55%, transparent);
+  }
+}
+
+// Wer weniger Bewegung eingestellt hat, bekommt kein Atmen. Dort faehrt
+// ohnehin kein Punkt, das hier ist nur der Riegel davor.
+@media (prefers-reduced-motion: reduce) {
+  .contact__submit.is-puls { animation: none; }
+}
+
 .contact__spinner {
   width: 12px;
   height: 12px;

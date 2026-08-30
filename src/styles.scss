@@ -7,6 +7,7 @@
 @use 'styles/tokens' as t;
 @use 'styles/theme';
 @use 'styles/reset';
+@use 'styles/legal';
 
 // Einzige Quelle fuer die Schwelle der horizontalen Buehne. SCSS nutzt die
 // Variablen direkt in der Media Query, home.ts liest diese Werte hier aus.
@@ -54,6 +55,11 @@
   syntax: '<length>';
   inherits: true;
   initial-value: 96px;
+}
+@property --signal-anlauf {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 160px;
 }
 @property --signal-zweig {
   syntax: '<length>';
@@ -134,6 +140,18 @@
   // die Ueberschrift. Der Wert ist deshalb genau das obere Polster der
   // Sektion, t.sp(9).
   --signal-bogen-kontakt: 96px;
+
+  // Wie weit ueber der Unterkante von Stack der Wechsel auf die linke
+  // Schiene beginnt.
+  //
+  // Der Weg von rechts nach links ist der laengste waagerechte im ganzen
+  // Netz. Faellt er nur um --signal-bogen-kontakt, liegt er auf breiten
+  // Schirmen fast waagerecht. Was hier oben dazukommt, wird zu Winkel:
+  // 160 plus 96 ergibt auf 1600 Pixeln rund 10 Grad statt knapp 2.
+  //
+  // Stack haelt diesen Streifen unten frei, siehe stack.scss. Wer hier
+  // dreht, verschiebt dort also auch die Karten nach oben.
+  --signal-anlauf: 160px;
 
   // Abstand der Projektkarten von der Mittellinie. Derselbe Wert legt
   // die Laenge der Zweige fest, deshalb treffen sie ihre Karte.

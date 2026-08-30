@@ -3,6 +3,7 @@ import type {
   Anordnung,
   Plan,
   Strang,
+  Stuetzpunkt,
 } from '../interfaces/signal.interface';
 
 /** Wie viele Linien das Rueckgrat fuehrt. */
@@ -55,6 +56,18 @@ const KNICK_X = 0.86;
  */
 const UEBERSTAND = 20;
 
+/**
+ * Wie weit die Spitze des Trichters HINTER der Knopfkante liegt, in
+ * Pixeln.
+ *
+ * Dort laufen alle sieben Linien in einem Punkt zusammen. Sieben Striche
+ * à 45 Prozent uebereinander ergeben aber einen fast deckenden Knoten,
+ * und der saehe an der Kante aus wie ein Fleck. Hinter der Kante deckt
+ * ihn der Knopf ab, und der Punkt taucht dort ein, statt davor
+ * stehenzubleiben.
+ */
+const EINTAUCHEN = 12;
+
 /** Masse, die aus CSS kommen. Siehe styles.scss. */
 export interface PlanWerte {
   /**
@@ -93,6 +106,19 @@ export interface PlanWerte {
    * deren Hoehe laeuft.
    */
   bogenKontakt: number;
+  /**
+   * Wie weit ueber der Unterkante von Stack der Seitenwechsel beginnt,
+   * in Pixeln.
+   *
+   * Der Wechsel von der rechten auf die linke Schiene ist der laengste
+   * waagerechte Weg im ganzen Netz. Bliebe er in Contact, muesste er die
+   * Fallhoehe bis zum Bogen links mit `bogenKontakt` bestreiten, und das
+   * ergibt auf breiten Schirmen eine fast waagerechte Linie. Er faengt
+   * deshalb schon in Stack an: Was hier oben dazukommt, wird zu Winkel.
+   *
+   * Stack haelt diesen Streifen unten frei, siehe stack.scss.
+   */
+  anlauf: number;
   /** Abstand der Karten von der Mittellinie, in Pixeln. */
   zweig: number;
 }
@@ -108,8 +134,8 @@ export function versatz(i: number, abstand: number, anzahl: number): number {
   return (i - (anzahl - 1) / 2) * abstand;
 }
 
-function haupt(mitte: Strang['mitte']): Plan {
-  return { straenge: [{ id: HAUPT, mitte, anzahl: LINIEN }] };
+function haupt(mitte: Strang['mitte'], trichter?: number): Plan {
+  return { straenge: [{ id: HAUPT, mitte, anzahl: LINIEN, trichter }] };
 }
 
 /**
@@ -291,8 +317,49 @@ export function stackPlan(_anordnung: Anordnung, w: PlanWerte): Plan {
     // sich aus Breite und Fallhoehe und ist auf breiten Schirmen
     // flacher, genau wie beim Weg zur Mitte.
     { x: 1, y: 0, xVersatz: -w.rail, yVersatz: w.bogen, direkt: true },
-    { x: 1, y: 1, xVersatz: -w.rail },
+    // Senkrecht in der Schiene, aber nur bis zum Anlauf ueber der
+    // Unterkante. Der Weg auf die linke Seite ist so lang, dass er hier
+    // schon beginnen muss, sonst liegt er fast waagerecht.
+    { x: 1, y: 1, xVersatz: -w.rail, yVersatz: -w.anlauf },
+    // Und quert die Naht bereits in der Schraegen, mit Ueberstand.
+    {
+      ...quer(w, w.anlauf + ueberQuer(w)),
+      y: 1,
+      yVersatz: ueberQuer(w),
+      direkt: true,
+    },
   ]);
+}
+
+/**
+ * Ein Punkt auf der Geraden, die das Buendel von der rechten Schiene auf
+ * die linke bringt, angegeben ueber seine Fallhoehe unter dem Start.
+ *
+ * Die Gerade laeuft ueber die Naht hinweg und muss deshalb von BEIDEN
+ * Sektionen beschrieben werden koennen, obwohl jede nur ihre eigene
+ * Hoehe kennt. Sie kennen aber dieselbe Breite, und daraus laesst sich
+ * jeder Punkt allein aus dem gefallenen Anteil bestimmen: Bruchteil und
+ * Pixelversatz zusammen ergeben die Strecke zwischen den beiden
+ * Schienen, ganz ohne die Fensterbreite zu kennen.
+ */
+function quer(w: PlanWerte, gefallen: number): Pick<Stuetzpunkt, 'x' | 'xVersatz'> {
+  // Der Nenner kann nicht null werden, sonst faende der Bruchteil NaN
+  // und der ganze Pfad verschwaende wortlos.
+  const anteil = gefallen / Math.max(1, w.anlauf + w.bogenKontakt);
+  return { x: 1 - anteil, xVersatz: -w.rail * (1 - 2 * anteil) };
+}
+
+/**
+ * Ueberstand an der Naht zwischen Stack und Contact, in Pixeln.
+ *
+ * Nicht UEBERSTAND: Der ist auf 45 Grad gerechnet. Hier quert das Buendel
+ * sehr flach, seine Parallelen stehen damit fast senkrecht, und die
+ * aeusserste Linie erreicht die Kante fast eine halbe Buendelbreite
+ * frueher als die innerste. Die halbe Breite ist die obere Schranke fuer
+ * jeden Winkel und deshalb hier der richtige Wert.
+ */
+function ueberQuer(w: PlanWerte): number {
+  return Math.abs(versatz(0, w.abstand, LINIEN));
 }
 
 /**
@@ -311,11 +378,12 @@ export function kontaktPlan(
   anker: readonly Anker[],
 ): Plan {
   const mitte: Strang['mitte'] = [
-    // Kommt senkrecht an der rechten Schiene herein und laeuft erst ein
-    // Stueck weiter, damit die Naht sauber schliesst.
-    { x: 1, y: 0, xVersatz: -w.rail },
-    { x: 1, y: 0, xVersatz: -w.rail, yVersatz: EINLAUF },
-    // In EINER geraden Strecke hinueber zur Schiene am linken Rand.
+    // Setzt die Gerade fort, die schon in Stack begonnen hat, und beginnt
+    // dafuer oberhalb der eigenen Oberkante. Siehe ueberQuer.
+    { ...quer(w, w.anlauf - ueberQuer(w)), y: 0, yVersatz: -ueberQuer(w) },
+    // Bis zur Schiene am linken Rand. Wo dieser Bogen sitzt, bleibt
+    // unveraendert: Das Buendel muss links angekommen sein, BEVOR der
+    // Inhalt anfaengt, sonst quert die Schraege die Ueberschrift.
     { x: 0, y: 0, xVersatz: w.rail, yVersatz: w.bogenKontakt, direkt: true },
   ];
 
@@ -330,11 +398,29 @@ export function kontaktPlan(
   mitte.push(
     // Senkrecht hinunter bis auf die Hoehe des Knopfes.
     { x: 0, y: 0, xVersatz: w.rail, yVersatz: ziel.oben },
-    // Und waagerecht hinein.
-    { x: 0, y: 0, xVersatz: w.rail + ziel.nah, yVersatz: ziel.oben },
+    // Und waagerecht hinein, bis hinter die Kante.
+    { x: 0, y: 0, xVersatz: w.rail + ziel.nah + EINTAUCHEN, yVersatz: ziel.oben },
   );
 
-  return haupt(mitte);
+  return haupt(mitte, trichter(w));
+}
+
+/**
+ * Die Laenge des Trichters vor dem Absendeknopf, in Pixeln.
+ *
+ * Das Buendel ist 54 Pixel breit, der Knopf nur rund 44 hoch: Waagerecht
+ * hineingefuehrt stuende es oben und unten darueber hinaus. Auf der
+ * letzten Waagerechten laufen die sieben deshalb konisch auf die
+ * Mittellinie zu und muenden in einem Punkt.
+ *
+ * Die Laenge folgt aus der halben Buendelbreite und ist keine eigene
+ * Stellschraube. Damit ist der SICHTBARE Teil des Trichters, also das
+ * Stueck vor der Knopfkante, genau so lang wie das Buendel halb breit
+ * ist. Eine zweite Zahl fuer dieselbe Sache waere die naechste, die
+ * irgendwann von --signal-abstand abweicht.
+ */
+function trichter(w: PlanWerte): number {
+  return Math.abs(versatz(0, w.abstand, LINIEN)) + EINTAUCHEN;
 }
 
 /** Alle Plaene, in der Reihenfolge der Kette. */
